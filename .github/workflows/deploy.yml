@@ -28,9 +28,16 @@ permissions:
 
 env:
   GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
-  GCP_REGION: ${{ vars.GCP_REGION }}
+  # Matches infra/variables.tf; override through the non-secret GitHub variable when needed.
+  GCP_REGION: ${{ vars.GCP_REGION || 'asia-south1' }}
+  TF_STATE_BUCKET: ${{ vars.GCP_TERRAFORM_STATE_BUCKET }}
   DEPLOY_ENVIRONMENT: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'staging' }}
   RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.release_tag || github.sha }}
+  # Terraform consumes these standard environment variables. They are required only for production.
+  TF_VAR_allowed_origins: ${{ vars.TF_VAR_ALLOWED_ORIGINS }}
+  TF_VAR_trusted_hosts: ${{ vars.TF_VAR_TRUSTED_HOSTS }}
+  TF_VAR_notification_provider: ${{ github.event_name == 'workflow_dispatch' && inputs.environment == 'production' && 'webhook' || 'logging' }}
+  TF_VAR_rate_limit_backend: ${{ github.event_name == 'workflow_dispatch' && inputs.environment == 'production' && 'gateway' || 'memory' }}
 
 jobs:
   release-preflight:
@@ -166,16 +173,31 @@ jobs:
           WIF_PROVIDER: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           DEPLOYER_SERVICE_ACCOUNT: ${{ vars.GCP_SERVICE_ACCOUNT }}
         run: |
-          test -n "$GCP_PROJECT_ID" || { echo "Missing GitHub Actions variable: GCP_PROJECT_ID" >&2; exit 1; }
-          test -n "$GCP_REGION" || { echo "Missing GitHub Actions variable: GCP_REGION" >&2; exit 1; }
-          test -n "$WIF_PROVIDER" || { echo "Missing GitHub Actions variable: GCP_WORKLOAD_IDENTITY_PROVIDER" >&2; exit 1; }
-          test -n "$DEPLOYER_SERVICE_ACCOUNT" || { echo "Missing GitHub Actions variable: GCP_SERVICE_ACCOUNT" >&2; exit 1; }
-          [[ "$WIF_PROVIDER" =~ ^projects/[0-9]+/locations/global/workloadIdentityPools/[A-Za-z0-9_-]+/providers/[A-Za-z0-9_-]+$ ]] || {
-            echo "GCP_WORKLOAD_IDENTITY_PROVIDER must be the full provider resource name." >&2; exit 1;
+          failed=0
+          require_value() {
+            if [[ -z "$2" ]]; then
+              echo "Missing GitHub Actions variable: $1" >&2
+              failed=1
+            fi
           }
-          [[ "$DEPLOYER_SERVICE_ACCOUNT" =~ ^[A-Za-z0-9-]+@[A-Za-z0-9-]+\.iam\.gserviceaccount\.com$ ]] || {
-            echo "GCP_SERVICE_ACCOUNT must be a service-account email." >&2; exit 1;
-          }
+
+          require_value GCP_PROJECT_ID "$GCP_PROJECT_ID"
+          require_value GCP_TERRAFORM_STATE_BUCKET "$TF_STATE_BUCKET"
+          require_value GCP_WORKLOAD_IDENTITY_PROVIDER "$WIF_PROVIDER"
+          require_value GCP_SERVICE_ACCOUNT "$DEPLOYER_SERVICE_ACCOUNT"
+          if [[ -n "$WIF_PROVIDER" && ! "$WIF_PROVIDER" =~ ^projects/[0-9]+/locations/global/workloadIdentityPools/[A-Za-z0-9_-]+/providers/[A-Za-z0-9_-]+$ ]]; then
+            echo "GCP_WORKLOAD_IDENTITY_PROVIDER must be the full provider resource name." >&2
+            failed=1
+          fi
+          if [[ -n "$DEPLOYER_SERVICE_ACCOUNT" && ! "$DEPLOYER_SERVICE_ACCOUNT" =~ ^[A-Za-z0-9-]+@[A-Za-z0-9-]+\.iam\.gserviceaccount\.com$ ]]; then
+            echo "GCP_SERVICE_ACCOUNT must be a service-account email." >&2
+            failed=1
+          fi
+          if [[ "$DEPLOY_ENVIRONMENT" == "production" ]]; then
+            require_value TF_VAR_ALLOWED_ORIGINS "$TF_VAR_allowed_origins"
+            require_value TF_VAR_TRUSTED_HOSTS "$TF_VAR_trusted_hosts"
+          fi
+          exit "$failed"
 
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v3
@@ -194,7 +216,9 @@ jobs:
         working-directory: infra
         shell: bash
         run: |
-          terraform init -input=false
+          terraform init -input=false \
+            -backend-config="bucket=$TF_STATE_BUCKET" \
+            -backend-config="prefix=ip-sakti-sahayak/$DEPLOY_ENVIRONMENT"
           terraform workspace select "$DEPLOY_ENVIRONMENT" || terraform workspace new "$DEPLOY_ENVIRONMENT"
 
       - name: Provision Artifact Registry

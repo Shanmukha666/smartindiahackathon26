@@ -235,11 +235,21 @@ Merges to `main` repeat those checks, provision the staging Artifact Registry if
 | Variable | Value |
 | --- | --- |
 | `GCP_PROJECT_ID` | The Google Cloud project ID. |
-| `GCP_REGION` | The target Cloud Run/Artifact Registry region. |
+| `GCP_REGION` | Optional target Cloud Run/Artifact Registry region. It defaults to `asia-south1`, matching Terraform. |
+| `GCP_TERRAFORM_STATE_BUCKET` | Name of the pre-created, private GCS bucket used only for Terraform state. |
 | `GCP_WORKLOAD_IDENTITY_PROVIDER` | Full provider resource name, for example `projects/PROJECT_NUMBER/locations/global/workloadIdentityPools/POOL_ID/providers/PROVIDER_ID`. |
 | `GCP_SERVICE_ACCOUNT` | Email of the WIF-bound deployment service account, for example `DEPLOYER_NAME@PROJECT_ID.iam.gserviceaccount.com`. |
 
-The variables are intentionally not defaulted in source. The workflow validates them before authentication, so a missing value fails with an actionable message instead of passing an empty input to `google-github-actions/auth`.
+The variables are intentionally not defaulted in source (except the documented region default). The workflow validates them before authentication, so a missing value fails with an actionable message instead of passing an empty input to `google-github-actions/auth`. Create the state bucket before the first workflow run, enable bucket versioning and uniform bucket-level access, and grant the deployment service account only the storage permissions required for that bucket. The workflow uses the prefix `ip-sakti-sahayak/staging` or `ip-sakti-sahayak/production` to isolate state.
+
+For production, also configure these non-secret GitHub Actions variables. They are passed to Terraform as `TF_VAR_*` environment variables because the repository contains only placeholder tfvars examples:
+
+| Variable | Value |
+| --- | --- |
+| `TF_VAR_ALLOWED_ORIGINS` | A JSON array of the real allowed frontend origins, for example `["https://app.your-domain.example"]`. |
+| `TF_VAR_TRUSTED_HOSTS` | A JSON array of the real backend hosts, for example `["api.your-domain.example"]`. |
+
+The workflow selects `notification_provider=webhook` and `rate_limit_backend=gateway` for production, as Terraform requires. `TF_VAR_ALLOWED_ORIGINS` and `TF_VAR_TRUSTED_HOSTS` must not use placeholder or wildcard values. They are deployment configuration, not credentials.
 
 ### Google Cloud WIF bootstrap
 
@@ -252,6 +262,8 @@ principalSet://iam.googleapis.com/projects/PROJECT_NUMBER/locations/global/workl
 ```
 
 Grant that deployment account only the additional project/resource roles needed to run the Terraform plan and push/deploy the images; have a platform administrator review those grants. After bootstrap, copy the provider's full resource name and deployment service-account email into the GitHub Actions variables above. No private credential is needed or should be stored in GitHub.
+
+The workflow has no GitHub Actions Secrets. Provider API keys, JWT signing material, the credential KEK, and the notification webhook are separate Google Secret Manager secret versions; create their values in the target Google Cloud project before Cloud Run is deployed. They must not be copied into GitHub variables, Terraform files, or workflow YAML.
 
 Production is never deployed by a merge. Use the **Deploy** workflow's `workflow_dispatch`, choose `production`, and protect the corresponding GitHub environment with required reviewers. Choosing `staging` manually is also supported.
 

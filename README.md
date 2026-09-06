@@ -197,8 +197,8 @@ See [the release process](docs/release-process.md) for signed application tags, 
 | `VOYAGE_API_KEY` | Optional ignored environment variable | `${environment}-voyage-api-key` in Google Secret Manager; add a secret version before deploying Cloud Run |
 | `COHERE_API_KEY` | Required for `/retrieve`, stored in the ignored root `.env` | `${environment}-cohere-api-key` in Google Secret Manager; add a secret version before deploying Cloud Run |
 | `ANTHROPIC_API_KEY` | Required for `/ask`, stored in the ignored root `.env` | `${environment}-anthropic-api-key` in Google Secret Manager; add a secret version before deploying Cloud Run |
-| `GCP_WORKLOAD_IDENTITY_PROVIDER` | Not used locally | GitHub Actions repository secret used to authenticate deployment workflows |
-| `GCP_SERVICE_ACCOUNT` | Not used locally | GitHub Actions repository secret containing the deployer service-account email |
+| `GCP_WORKLOAD_IDENTITY_PROVIDER` | Not used locally | GitHub Actions variable containing the full Workload Identity Federation provider resource name |
+| `GCP_SERVICE_ACCOUNT` | Not used locally | GitHub Actions variable containing the deployer service-account email |
 
 Create the AI-key versions outside the repository, for example with `gcloud secrets versions add`. Grant access only to the deployment/runtime identities that need it. `OTEL_EXPORTER_OTLP_ENDPOINT` and `OTEL_SERVICE_NAME` are configuration, not secrets; the OTLP endpoint is configured through Terraform and should be replaced before production.
 
@@ -230,7 +230,28 @@ To remove only running containers while preserving database data, use `docker co
 
 Pull requests run backend linting, mypy, tests, frontend ESLint and TypeScript checks, and both Docker image builds without pushing.
 
-Merges to `main` repeat those checks, provision the staging Artifact Registry if needed, push tagged backend and frontend images, and apply the `staging` Terraform workspace. Configure repository variables `GCP_PROJECT_ID` and `GCP_REGION`, plus secrets `GCP_WORKLOAD_IDENTITY_PROVIDER` and `GCP_SERVICE_ACCOUNT` for Google Cloud Workload Identity Federation.
+Merges to `main` repeat those checks, provision the staging Artifact Registry if needed, push tagged backend and frontend images, and apply the `staging` Terraform workspace. The deployment job uses GitHub's OIDC token and Google Cloud Workload Identity Federation (WIF), not a service-account key. Configure these GitHub Actions variables (repository variables, or environment variables when staging and production use separate Google Cloud projects):
+
+| Variable | Value |
+| --- | --- |
+| `GCP_PROJECT_ID` | The Google Cloud project ID. |
+| `GCP_REGION` | The target Cloud Run/Artifact Registry region. |
+| `GCP_WORKLOAD_IDENTITY_PROVIDER` | Full provider resource name, for example `projects/PROJECT_NUMBER/locations/global/workloadIdentityPools/POOL_ID/providers/PROVIDER_ID`. |
+| `GCP_SERVICE_ACCOUNT` | Email of the WIF-bound deployment service account, for example `DEPLOYER_NAME@PROJECT_ID.iam.gserviceaccount.com`. |
+
+The variables are intentionally not defaulted in source. The workflow validates them before authentication, so a missing value fails with an actionable message instead of passing an empty input to `google-github-actions/auth`.
+
+### Google Cloud WIF bootstrap
+
+This Terraform configuration currently provisions the application runtime service account only; it does **not** create a WIF pool, WIF provider, or GitHub deployment service account. A Google Cloud project administrator must bootstrap those resources outside this deployment workflow, because the workflow cannot authenticate through a provider that does not yet exist. Do not create or commit a service-account JSON key.
+
+The WIF provider must map `assertion.repository` to `attribute.repository` and restrict it to `Shanmukha666/smartindiahackathon26`. Bind the deployment service account with `roles/iam.workloadIdentityUser` for this member:
+
+```
+principalSet://iam.googleapis.com/projects/PROJECT_NUMBER/locations/global/workloadIdentityPools/POOL_ID/attribute.repository/Shanmukha666/smartindiahackathon26
+```
+
+Grant that deployment account only the additional project/resource roles needed to run the Terraform plan and push/deploy the images; have a platform administrator review those grants. After bootstrap, copy the provider's full resource name and deployment service-account email into the GitHub Actions variables above. No private credential is needed or should be stored in GitHub.
 
 Production is never deployed by a merge. Use the **Deploy** workflow's `workflow_dispatch`, choose `production`, and protect the corresponding GitHub environment with required reviewers. Choosing `staging` manually is also supported.
 

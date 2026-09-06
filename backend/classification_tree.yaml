@@ -1,0 +1,88 @@
+version: 1
+start: classify_product
+nodes:
+  classify_product:
+    type: question
+    prompt: "Which description best matches the product?"
+    options:
+      - label: "A conventional or established formulation"
+        next: established_type
+      - label: "A patented or proprietary formulation"
+        next: result_patent_or_proprietary
+      - label: "A new or non-classical drug"
+        next: result_new_non_classical_drug
+      - label: "A plant-derived product"
+        next: plant_use
+      - label: "A traditional or ingestible wellness product"
+        next: traditional_use
+      - label: "A topical personal-care product"
+        next: result_cosmetic
+
+  established_type:
+    type: question
+    prompt: "Is the established formulation a recognized classical/generic product or protected by a patent/proprietary formulation?"
+    options:
+      - label: "Classical or generic"
+        next: result_classical_generic
+      - label: "Patent or proprietary formulation"
+        next: result_patent_or_proprietary
+
+  plant_use:
+    type: question
+    prompt: "Is the plant-derived product presented as a standardized therapeutic product or as food/wellness nutrition?"
+    options:
+      - label: "Standardized therapeutic plant product"
+        next: result_phytopharmaceutical
+      - label: "Food, wellness, or nutrition product"
+        next: result_ayurveda_nutraceutical
+
+  traditional_use:
+    type: question
+    prompt: "Is the traditional or ingestible product an Ayurveda-Aahar/nutraceutical product rather than a cosmetic?"
+    options:
+      - label: "Ayurveda-Aahar or nutraceutical"
+        next: result_ayurveda_nutraceutical
+      - label: "Cosmetic or personal-care product"
+        next: result_cosmetic
+
+  result_classical_generic:
+    type: result
+    category: classical/generic
+    regulatory_path: "Assess the applicable established-drug or generic formulation standards and licensing requirements."
+    ip_posture: "Protectable differentiation is limited to genuinely novel, non-obvious improvements; established knowledge and generic formulations are not monopolized."
+    abs_note: "Check biological-resource and traditional-knowledge provenance; benefit-sharing obligations may apply where biological resources or associated knowledge were accessed."
+
+  result_patent_or_proprietary:
+    type: result
+    category: patent-or-proprietary
+    regulatory_path: "Assess the applicable drug approval, manufacturing, labeling, and safety pathway for the formulation."
+    ip_posture: "Review patentability, freedom to operate, trade-secret controls, and ownership of formulation improvements."
+    abs_note: "Document biological-resource and traditional-knowledge provenance and assess access and benefit-sharing requirements."
+
+  result_new_non_classical_drug:
+    type: result
+    category: new/non-classical drug
+    regulatory_path: "Treat as a new or non-classical drug candidate and follow the applicable preclinical, clinical, approval, and post-market pathway."
+    ip_posture: "Assess patentability and regulatory data/know-how protection without assuming that regulatory approval creates IP rights."
+    abs_note: "Assess whether biological resources or associated knowledge contributed to discovery or development and record any ABS obligations."
+
+  result_phytopharmaceutical:
+    type: result
+    category: phytopharmaceutical
+    regulatory_path: "Assess the phytopharmaceutical route, including botanical identity, standardization, quality, safety, efficacy, and manufacturing evidence."
+    ip_posture: "Protect novel extraction, standardization, formulation, or process features where eligible; preserve provenance records."
+    abs_note: "Biological-resource access and associated traditional knowledge require provenance review and potential benefit sharing."
+
+  result_ayurveda_nutraceutical:
+    type: result
+    category: Ayurveda-Aahar/nutraceutical
+    regulatory_path: "Classify under the applicable Ayurveda-Aahar, food, or nutraceutical standards, including composition, claims, labeling, and manufacturing controls."
+    ip_posture: "Traditional formulations and known properties are weak IP foundations; focus on eligible formulation, brand, and process improvements."
+    abs_note: "Review traditional-knowledge and biological-resource provenance and document consent and benefit-sharing where applicable."
+
+  result_cosmetic:
+    type: result
+    category: cosmetic
+    regulatory_path: "Assess cosmetic composition, safety, labeling, claims, and manufacturing requirements; avoid therapeutic claims that change classification."
+    ip_posture: "Consider trademarks, designs, trade dress, and protectable formulation or process improvements."
+    abs_note: "Review plant and traditional-knowledge sourcing even where the product is ultimately classified as cosmetic."

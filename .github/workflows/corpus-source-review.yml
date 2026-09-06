@@ -1,0 +1,25 @@
+name: Quarterly corpus source review
+
+on:
+  schedule:
+    - cron: "0 9 1 1,4,7,10 *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  open-review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Open Legal Corpus Reviewer quarterly review
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+        shell: bash
+        run: |
+          quarter="$(date -u +%Y)-Q$(( ($(date -u +%-m) - 1) / 3 + 1 ))"
+          title="Legal corpus source review: ${quarter}"
+          gh issue list --repo "$REPOSITORY" --state open --search "in:title \"$title\"" --json title --jq '.[].title' | grep -Fx "$title" && exit 0 || true
+          gh issue create --repo "$REPOSITORY" --title "$title" --label "corpus-review" --body "Assign a Legal Corpus Reviewer. Re-check every active corpus source URL for amendments, corrections, repeal, or inaccessibility. Record source URL, UTC retrieval date, reviewer, official publication, and outcome for each file. Open dedicated corpus PRs for changes. Do not close until all sources and open qa_review_queue items have documented resolution."

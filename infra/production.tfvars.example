@@ -1,0 +1,9 @@
+project_id    = "replace-with-your-gcp-project"
+environment   = "production"
+region        = "asia-south1"
+db_tier       = "db-custom-2-7680"
+backend_image = "asia-south1-docker.pkg.dev/replace-with-your-gcp-project/ip-sakti-production-containers/backend:v0.1.0"
+allowed_origins = ["https://app.example.com"]
+trusted_hosts = ["api.example.com"]
+notification_provider = "webhook"
+rate_limit_backend = "gateway"

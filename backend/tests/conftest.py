@@ -1,0 +1,16 @@
+import os
+
+os.environ.setdefault("APP_NAME", "IP-SAKTI Sahayak tests")
+os.environ.setdefault("DATABASE_URL", "postgresql://localhost/test")
+os.environ.setdefault("OTEL_SERVICE_NAME", "ip-sakti-sahayak-test")
+os.environ.setdefault("OTEL_EXPORTER_OTLP_ENDPOINT", "http://localhost:4317")
+os.environ.setdefault("OTEL_TRACES_EXPORTER", "none")
+os.environ.setdefault("OTEL_METRICS_EXPORTER", "none")
+os.environ.setdefault("VOYAGE_API_URL", "https://api.voyageai.com/v1/embeddings")
+os.environ.setdefault("VOYAGE_MODEL", "voyage-3-large")
+os.environ.setdefault("COHERE_API_URL", "https://api.cohere.com/v2/rerank")
+os.environ.setdefault("COHERE_MODEL", "rerank-v3.5")
+os.environ.setdefault("MIN_RELEVANCE", "0.35")
+os.environ.setdefault("WEAK_RERANKER_SCORE", "0.35")
+os.environ.setdefault("JWT_SIGNING_KEY", "test-signing-key-not-for-production")
+os.environ.setdefault("CREDENTIAL_KEK_SECRET_RESOURCE", "projects/test/secrets/credential-kek/versions/latest")

@@ -1,0 +1,107 @@
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-ipsakti}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in the ignored root .env file}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ipsakti"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+    environment:
+      APP_NAME: IP-SAKTI Sahayak
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in the ignored root .env file}@db:5432/${POSTGRES_DB:-ipsakti}
+      OTEL_SERVICE_NAME: ip-sakti-sahayak-backend
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      OTEL_TRACES_EXPORTER: otlp
+      OTEL_METRICS_EXPORTER: otlp
+      DEPLOYMENT_ENVIRONMENT: local
+      VOYAGE_API_URL: https://api.voyageai.com/v1/embeddings
+      VOYAGE_MODEL: voyage-3-large
+      VOYAGE_API_KEY: ${VOYAGE_API_KEY:-}
+      COHERE_API_KEY: ${COHERE_API_KEY:-}
+      COHERE_API_URL: https://api.cohere.com/v2/rerank
+      COHERE_MODEL: rerank-v3.5
+      MIN_RELEVANCE: ${MIN_RELEVANCE:-0.35}
+      ANTHROPIC_API_URL: https://api.anthropic.com/v1/messages
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      JWT_SIGNING_KEY: ${JWT_SIGNING_KEY:?Set JWT_SIGNING_KEY in the ignored root .env file}
+      CREDENTIAL_KEK_SECRET_RESOURCE: ${CREDENTIAL_KEK_SECRET_RESOURCE:?Set CREDENTIAL_KEK_SECRET_RESOURCE in the ignored root .env file}
+      ANTHROPIC_MODEL: claude-sonnet-4-6
+      ANTHROPIC_API_VERSION: 2023-06-01
+      WEAK_RERANKER_SCORE: ${WEAK_RERANKER_SCORE:-0.35}
+    volumes:
+      - ./backend:/app
+      - ./corpus:/corpus:ro
+    ports:
+      - "8000:8000"
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    depends_on:
+      db:
+        condition: service_healthy
+      otel-collector:
+        condition: service_started
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.57
+    environment:
+      COLLECTOR_OTLP_ENABLED: "true"
+    ports:
+      - "16686:16686"
+      - "4317:4317"
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.111.0
+    command: ["--config=/etc/otelcol-contrib/config.yaml"]
+    volumes:
+      - ./infra/observability/otel-collector.yaml:/etc/otelcol-contrib/config.yaml:ro
+    ports:
+      - "8889:8889"
+
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    volumes:
+      - ./infra/observability/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./infra/observability/alerts.yml:/etc/prometheus/alerts.yml:ro
+    ports:
+      - "9090:9090"
+    depends_on:
+      - otel-collector
+
+  grafana:
+    image: grafana/grafana:11.2.1
+    volumes:
+      - ./infra/observability/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./infra/observability/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+
+  frontend:
+    image: node:22-alpine
+    working_dir: /app
+    environment:
+      CHOKIDAR_USEPOLLING: "true"
+    volumes:
+      - ./frontend:/app
+      - frontend_node_modules:/app/node_modules
+    ports:
+      - "5173:5173"
+    command: sh -c "npm install && npm run dev"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+  frontend_node_modules:

@@ -1,0 +1,4 @@
+# The @ip-sakti/legal-corpus-reviewers team is the Legal Corpus Reviewer role.
+# Repository administrators must make this team a required CODEOWNERS reviewer
+# for pull requests before enabling corpus ingestion in production.
+/corpus/ @ip-sakti/legal-corpus-reviewers

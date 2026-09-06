@@ -1,0 +1,227 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Environment to deploy
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+        default: production
+      release_tag:
+        description: "Annotated vX.Y.Z application release tag required for production"
+        required: false
+        type: string
+      confirm_production:
+        description: "Type APPROVE-PRODUCTION to request the protected production environment"
+        required: false
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+  GCP_REGION: ${{ vars.GCP_REGION }}
+  DEPLOY_ENVIRONMENT: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'staging' }}
+  RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.release_tag || github.sha }}
+
+jobs:
+  release-preflight:
+    name: Release preflight
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.release_tag || github.sha }}
+          fetch-depth: 0
+      - name: Validate production release request
+        if: github.event_name == 'workflow_dispatch' && inputs.environment == 'production'
+        shell: bash
+        run: |
+          test "${{ inputs.confirm_production }}" = "APPROVE-PRODUCTION"
+          [[ "${{ inputs.release_tag }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          git verify-tag "${{ inputs.release_tag }}"
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - uses: astral-sh/setup-uv@v5
+        with: { version: "0.6.14" }
+      - name: Compile migration plan without touching a database
+        working-directory: backend
+        run: |
+          uv sync --dev
+          DATABASE_URL=postgresql://release-check.invalid/ipsakti uv run alembic upgrade head --sql > /tmp/migration.sql
+          test -s /tmp/migration.sql
+
+  checks:
+    name: Re-run checks
+    runs-on: ubuntu-latest
+    needs: release-preflight
+    permissions:
+      contents: read
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.RELEASE_TAG }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "0.6.14"
+          enable-cache: true
+          cache-dependency-glob: backend/pyproject.toml
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: uv sync --dev
+
+      - name: Lint backend
+        working-directory: backend
+        run: uv run ruff check .
+
+      - name: Type-check backend
+        working-directory: backend
+        run: uv run mypy app
+
+      - name: Test backend
+        working-directory: backend
+        run: uv run pytest
+
+      - name: Run versioned evaluation harness
+        working-directory: backend
+        run: uv run python eval/run_eval.py --offline --compare-to eval/baseline.json
+
+      - name: Scan Python dependencies
+        working-directory: backend
+        run: uv run pip-audit
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Lint frontend
+        working-directory: frontend
+        run: npm run lint
+
+      - name: Type-check frontend
+        working-directory: frontend
+        run: npm run typecheck
+
+      - name: Scan JavaScript dependencies
+        working-directory: frontend
+        run: npm audit --audit-level=high
+
+  docker-check:
+    name: Build Docker images
+    runs-on: ubuntu-latest
+    needs: checks
+    permissions:
+      contents: read
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.RELEASE_TAG }}
+
+      - name: Build backend image without pushing
+        run: docker build --file backend/Dockerfile --tag ip-sakti-sahayak-backend:${{ github.sha }} backend
+
+      - name: Build frontend image without pushing
+        run: docker build --file frontend/Dockerfile --tag ip-sakti-sahayak-frontend:${{ github.sha }} frontend
+
+  deploy:
+    name: Build, push, and deploy
+    runs-on: ubuntu-latest
+    needs: [checks, docker-check]
+    environment: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'staging' }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.RELEASE_TAG }}
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Select Terraform workspace
+        working-directory: infra
+        shell: bash
+        run: |
+          terraform init -input=false
+          terraform workspace select "$DEPLOY_ENVIRONMENT" || terraform workspace new "$DEPLOY_ENVIRONMENT"
+
+      - name: Provision Artifact Registry
+        working-directory: infra
+        shell: bash
+        run: |
+          terraform apply -auto-approve -input=false \
+            -target=google_artifact_registry_repository.containers \
+            -var="project_id=$GCP_PROJECT_ID" \
+            -var="region=$GCP_REGION" \
+            -var="environment=$DEPLOY_ENVIRONMENT" \
+            -var="backend_image=placeholder"
+
+      - name: Authenticate Docker to Artifact Registry
+        run: gcloud auth configure-docker "${GCP_REGION}-docker.pkg.dev" --quiet
+
+      - name: Build and push backend image
+        env:
+          IMAGE: ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/ip-sakti-${{ env.DEPLOY_ENVIRONMENT }}-containers/backend:${{ env.RELEASE_TAG }}
+        run: |
+          docker build --file backend/Dockerfile --tag "$IMAGE" backend
+          docker push "$IMAGE"
+
+      - name: Build and push frontend image
+        env:
+          IMAGE: ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/ip-sakti-${{ env.DEPLOY_ENVIRONMENT }}-containers/frontend:${{ env.RELEASE_TAG }}
+        run: |
+          docker build --file frontend/Dockerfile --tag "$IMAGE" frontend
+          docker push "$IMAGE"
+
+      - name: Apply Terraform workspace
+        working-directory: infra
+        shell: bash
+        env:
+          BACKEND_IMAGE: ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/ip-sakti-${{ env.DEPLOY_ENVIRONMENT }}-containers/backend:${{ env.RELEASE_TAG }}
+        run: |
+          terraform apply -auto-approve -input=false \
+            -var="project_id=$GCP_PROJECT_ID" \
+            -var="region=$GCP_REGION" \
+            -var="environment=$DEPLOY_ENVIRONMENT" \
+            -var="backend_image=$BACKEND_IMAGE"
+
+      - name: Run deployment smoke tests
+        working-directory: backend
+        run: |
+          SERVICE_URL="$(gcloud run services describe "ip-sakti-${DEPLOY_ENVIRONMENT}-backend" --region "$GCP_REGION" --format='value(status.url)')"
+          IDENTITY_TOKEN="$(gcloud auth print-identity-token --audiences="$SERVICE_URL")"
+          SMOKE_BASE_URL="$SERVICE_URL" SMOKE_BEARER_TOKEN="$IDENTITY_TOKEN" uv run python scripts/smoke.py

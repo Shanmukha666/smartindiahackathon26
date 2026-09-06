@@ -1,0 +1,15 @@
+version: 1
+start: alternate_start
+nodes:
+  alternate_start:
+    type: question
+    prompt: "Alternate expert question"
+    options:
+      - label: "Alternate answer"
+        next: alternate_result
+  alternate_result:
+    type: result
+    category: cosmetic
+    regulatory_path: "Alternate regulatory path"
+    ip_posture: "Alternate IP posture"
+    abs_note: "Alternate ABS note"

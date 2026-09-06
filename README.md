@@ -242,6 +242,17 @@ Merges to `main` repeat those checks, provision the staging Artifact Registry if
 
 The variables are intentionally not defaulted in source (except the documented region default). The workflow validates them before authentication, so a missing value fails with an actionable message instead of passing an empty input to `google-github-actions/auth`. Create the state bucket before the first workflow run, enable bucket versioning and uniform bucket-level access, and grant the deployment service account only the storage permissions required for that bucket. The workflow uses the prefix `ip-sakti-sahayak/staging` or `ip-sakti-sahayak/production` to isolate state.
 
+The following values are project-specific and cannot be derived from this repository. They are GitHub Actions **Variables**, not Secrets:
+
+| Variable | Repository source | Obtain it from |
+| --- | --- | --- |
+| `GCP_PROJECT_ID` | `infra/variables.tf` declares it as required; both example tfvars files deliberately use a placeholder. | The target project’s ID in Google Cloud Console or `gcloud projects list`. |
+| `GCP_TERRAFORM_STATE_BUCKET` | No `google_storage_bucket` resource or Terraform backend is defined. | The name of the private/versioned GCS bucket a project administrator creates for Terraform state. |
+| `GCP_WORKLOAD_IDENTITY_PROVIDER` | No WIF pool or provider Terraform resource is defined. | The full provider resource name after a project administrator creates the GitHub OIDC WIF provider. |
+| `GCP_SERVICE_ACCOUNT` | Terraform creates `backend_runtime` only; it does not create a deployment account. | The email of the separately created WIF-bound deployment service account. |
+
+The WIF provider must map `assertion.repository` to `attribute.repository` and restrict the accepted repository to `Shanmukha666/smartindiahackathon26`. Its service-account binding must grant `roles/iam.workloadIdentityUser` to that repository principal set.
+
 For production, also configure these non-secret GitHub Actions variables. They are passed to Terraform as `TF_VAR_*` environment variables because the repository contains only placeholder tfvars examples:
 
 | Variable | Value |

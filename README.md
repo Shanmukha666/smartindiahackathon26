@@ -22,6 +22,8 @@ copy .env.example .env
 docker compose up --build
 ```
 
+When running outside Docker, start the backend on port 8000, then run `npm run dev` in `frontend`. To use another backend port, set `VITE_API_PROXY_TARGET`, for example `VITE_API_PROXY_TARGET=http://127.0.0.1:8010 npm run dev`.
+
 Open the frontend at `http://localhost:5173`. The backend is available at `http://localhost:8000`; its liveness endpoint is `GET /health` and its database-backed readiness endpoint is `GET /ready`. View local traces at `http://localhost:16686`.
 
 Retrieve corpus evidence with:
@@ -93,6 +95,8 @@ The full request path emits OpenTelemetry spans and latency/error metrics for cl
 For production, point `OTEL_EXPORTER_OTLP_ENDPOINT` at the managed collector and configure its OTLP receiver, metrics backend, trace backend, and alert notification receiver. Keep metric labels bounded: stage, provider, jurisdiction, input type, priority, and reason only. Do not add query text, user identifiers, session IDs, chunk content, credentials, or raw provider responses as trace attributes, metric labels, or log fields.
 
 The backend reads configuration from process environment variables only; it does not load `.env` files itself. The root `.env` is used only by Docker Compose and is ignored by Git.
+
+For a local demo without PostgreSQL or provider keys, set `DEMO_MODE=true` with `DEPLOYMENT_ENVIRONMENT=development`. It performs a lexical search over the bundled corpus and returns a clearly labeled, cited extract; it is not an LLM and production startup rejects this setting.
 
 The production frontend image proxies `/api/*` to `BACKEND_ORIGIN`; set that variable to the HTTPS URL of the deployed backend service. Its Docker default (`http://backend:8000`) is only for the local Compose network.
 

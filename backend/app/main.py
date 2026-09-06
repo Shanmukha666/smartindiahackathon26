@@ -2,6 +2,7 @@ import logging
 from asyncio import Lock
 from collections.abc import AsyncIterator, Awaitable, Callable
 from contextlib import asynccontextmanager
+from pathlib import Path
 from typing import Annotated, Literal, cast
 
 import httpx
@@ -24,6 +25,7 @@ from .auth import current_user, optional_current_user, require_role
 from .bhashini import BhashiniClient, IndicLanguage
 from .config import get_settings
 from .db import check_database_connection
+from .demo import DemoClaudeClient, DemoRepository, retrieve_demo
 from .escalation import (
     EscalateRequest,
     LoggingNotificationChannel,
@@ -81,6 +83,8 @@ app.add_middleware(CORSMiddleware, allow_origins=settings.allowed_origins, allow
 
 
 async def get_repository(request: Request) -> AsyncpgCorpusRepository:
+    if settings.demo_mode:
+        return cast(AsyncpgCorpusRepository, DemoRepository())
     repository = cast(AsyncpgCorpusRepository | None, getattr(request.app.state, "repository", None))
     if repository is not None:
         return repository
@@ -285,6 +289,8 @@ async def retrieve_for_request(
     repository: AsyncpgCorpusRepository,
     http_client: httpx.AsyncClient,
 ) -> list[RerankedCandidate]:
+    if settings.demo_mode:
+        return retrieve_demo(query, jurisdiction, Path(__file__).resolve().parents[2] / "corpus")
     async with VoyageEmbedder(settings, http_client) as embedder, CohereReranker(settings, http_client) as reranker:
         return await retrieve(
             query, jurisdiction, AsyncpgCorpusRepositoryAdapter(repository), embedder, reranker,
@@ -359,6 +365,17 @@ async def ask_endpoint(
         translated_payload = payload.model_copy(
             update={"translated_query": await english_query(payload.query, payload.language, http_client)}
         )
+        if settings.demo_mode:
+            return await answer_question(
+                translated_payload,
+                lambda query, jurisdiction: retrieve_for_request(query, jurisdiction, repository, http_client),
+                DemoClaudeClient(),
+                repository,
+                request_id_context.get(),
+                settings.weak_reranker_score,
+                high_confidence_reranker_score=settings.high_confidence_reranker_score,
+                user_id=user_id,
+            )
         async with AnthropicClaudeClient(settings, http_client) as claude:
                 async def execute_tool(call: ToolCall) -> dict[str, object]:
                     if call.name == "retrieve_chunks":

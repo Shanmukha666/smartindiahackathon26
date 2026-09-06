@@ -43,6 +43,7 @@ class Settings(BaseSettings):
     notification_webhook_url: SecretStr | None = None
     rate_limit_backend: str = "memory"
     allow_stub_connectors: bool = False
+    demo_mode: bool = False
     max_request_body_bytes: int = 9_000_000
 
     @model_validator(mode="after")
@@ -63,6 +64,8 @@ class Settings(BaseSettings):
                 raise ValueError("production JWT_SIGNING_KEY must be at least 32 characters")
             if self.allow_stub_connectors:
                 raise ValueError("production cannot enable stub connectors")
+            if self.demo_mode:
+                raise ValueError("production cannot enable DEMO_MODE")
         if not 1_024 <= self.max_request_body_bytes <= 10_000_000:
             raise ValueError("MAX_REQUEST_BODY_BYTES must be between 1024 and 10000000")
         if not 0 <= self.weak_reranker_score <= self.high_confidence_reranker_score <= 1:

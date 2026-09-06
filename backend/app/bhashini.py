@@ -21,7 +21,7 @@ class BhashiniClient:
     the configured/default service for the requested language pair.
     """
 
-    def __init__(self, settings: Settings) -> None:
+    def __init__(self, settings: Settings, client: httpx.AsyncClient | None = None) -> None:
         if not settings.bhashini_api_key:
             raise RuntimeError("BHASHINI_API_KEY must be set for Indic language services")
         self._url = settings.bhashini_api_url
@@ -31,8 +31,15 @@ class BhashiniClient:
         }
         if settings.bhashini_user_id:
             self._headers["userID"] = settings.bhashini_user_id
+        self._client = client
 
     async def _run(self, task: dict[str, Any], input_data: dict[str, Any]) -> dict[str, Any]:
+        if self._client is not None:
+            with stage("translation", provider="bhashini", task_type=str(task["taskType"])):
+                response = await self._client.post(self._url, headers=outbound_headers(self._headers),
+                                                   json={"pipelineTasks": [task], "inputData": input_data})
+                response.raise_for_status()
+            return cast(dict[str, Any], response.json())
         async with httpx.AsyncClient(timeout=30) as client:
             with stage("translation", provider="bhashini", task_type=str(task["taskType"])):
                 response = await client.post(self._url, headers=outbound_headers(self._headers),

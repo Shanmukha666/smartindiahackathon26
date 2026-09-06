@@ -93,20 +93,22 @@ class CorpusRepository(Protocol):
 
 
 class VoyageEmbedder:
-    def __init__(self, settings: Settings) -> None:
+    def __init__(self, settings: Settings, client: httpx.AsyncClient | None = None) -> None:
         if settings.voyage_api_key is None:
             raise RuntimeError("VOYAGE_API_KEY must be set to ingest corpus documents")
         self._api_key = settings.voyage_api_key.get_secret_value()
         self._api_url = settings.voyage_api_url
         self._model = settings.voyage_model
-        self._client: httpx.AsyncClient | None = None
+        self._client = client
+        self._owns_client = client is None
 
     async def __aenter__(self) -> Self:
-        self._client = httpx.AsyncClient(timeout=90)
+        if self._client is None:
+            self._client = httpx.AsyncClient(timeout=90)
         return self
 
     async def __aexit__(self, exc_type: object, exc_value: object, traceback: object) -> None:
-        if self._client is not None:
+        if self._owns_client and self._client is not None:
             await self._client.aclose()
 
     async def embed(
@@ -187,6 +189,7 @@ class AsyncpgCorpusRepository:
         abstained: bool,
         request_id: str,
         tool_calls: Sequence[dict[str, Any]] = (),
+        user_id: str | None = None,
     ) -> None:
         async with self._pool.acquire() as connection:
             await connection.execute(
@@ -194,8 +197,8 @@ class AsyncpgCorpusRepository:
                 INSERT INTO qa_log
                     (session_id, question, jurisdiction_mode, retrieved_chunk_ids,
                      reranker_scores, answer_json, confidence, abstained, request_id, tool_calls,
-                     original_query, translated_query, query_language)
-                VALUES ($1, $2, $3, $4, $5::jsonb, $6::jsonb, $7, $8, $9, $10::jsonb, $11, $12, $13)
+                     original_query, translated_query, query_language, user_id)
+                VALUES ($1, $2, $3, $4, $5::jsonb, $6::jsonb, $7, $8, $9, $10::jsonb, $11, $12, $13, $14)
                 """,
                 session_id,
                 question,
@@ -210,6 +213,7 @@ class AsyncpgCorpusRepository:
                 str(answer_json.get("_query_audit", {}).get("original_query", question)),
                 str(answer_json.get("_query_audit", {}).get("translated_query", question)),
                 str(answer_json.get("_query_audit", {}).get("language", "en")),
+                user_id,
             )
 
     async def write_classification_result(
@@ -235,18 +239,20 @@ class AsyncpgCorpusRepository:
         question: str,
         reason: str,
         priority: str,
+        user_id: str | None = None,
     ) -> int:
         async with self._pool.acquire() as connection:
             escalation_id = await connection.fetchval(
                 """
-                INSERT INTO escalations (session_id, question, reason, priority)
-                VALUES ($1, $2, $3, $4)
+                INSERT INTO escalations (session_id, question, reason, priority, user_id)
+                VALUES ($1, $2, $3, $4, $5)
                 RETURNING id
                 """,
                 session_id,
                 question,
                 reason,
                 priority,
+                user_id,
             )
         return int(escalation_id)
 

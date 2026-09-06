@@ -65,20 +65,22 @@ class Reranker(Protocol):
 
 
 class CohereReranker:
-    def __init__(self, settings: Settings) -> None:
+    def __init__(self, settings: Settings, client: httpx.AsyncClient | None = None) -> None:
         if settings.cohere_api_key is None:
             raise RuntimeError("COHERE_API_KEY must be set to retrieve corpus results")
         self._api_key = settings.cohere_api_key.get_secret_value()
         self._api_url = settings.cohere_api_url
         self._model = settings.cohere_model
-        self._client: httpx.AsyncClient | None = None
+        self._client = client
+        self._owns_client = client is None
 
     async def __aenter__(self) -> Self:
-        self._client = httpx.AsyncClient(timeout=30)
+        if self._client is None:
+            self._client = httpx.AsyncClient(timeout=30)
         return self
 
     async def __aexit__(self, exc_type: object, exc_value: object, traceback: object) -> None:
-        if self._client is not None:
+        if self._owns_client and self._client is not None:
             await self._client.aclose()
 
     async def rerank(self, query: str, documents: Sequence[str]) -> list[float]:

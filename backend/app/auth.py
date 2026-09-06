@@ -49,6 +49,13 @@ async def current_user(request: Request) -> str:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired token") from None
 
 
+async def optional_current_user(request: Request) -> str | None:
+    """Return an authenticated subject when supplied, without requiring public endpoints to log in."""
+    if not request.headers.get("Authorization"):
+        return None
+    return await current_user(request)
+
+
 def require_role(role: str) -> Callable[[Request], Awaitable[str]]:
     async def dependency(request: Request) -> str:
         user_id = await current_user(request)

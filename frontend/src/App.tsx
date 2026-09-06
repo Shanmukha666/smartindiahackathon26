@@ -8,9 +8,8 @@ type ClassificationResult = { category: string; regulatory_path: string; ip_post
 type ClassificationState = { complete: boolean; question: string | null; options: string[]; trail: TrailStep[]; result: ClassificationResult | null };
 type RetrievedEvidence = { chunk_id: string; instrument: string; section: string; jurisdiction: "IN" | "INTL"; chunk_text: string; score: number };
 type AskSection = { jurisdiction?: string; title?: string; text?: string; answer?: string };
-type AskResponse = { mode: "single" | "split" | null; answer: string | null; sections: AskSection[] | null; citations: string[]; confidence: "high" | "medium" | "low" | null; abstain: boolean; reason: string | null; disclaimer: string };
+type AskResponse = { mode: "single" | "split" | null; answer: string | null; sections: AskSection[] | null; citations: string[]; confidence: "high" | "medium" | "low" | null; abstain: boolean; reason: string | null; disclaimer: string; evidence: RetrievedEvidence[] };
 type EscalationResponse = { tracking_id: string; priority: string; status: string };
-type RetrieveResponse = { results: RetrievedEvidence[] };
 
 const languages: { code: IndicLanguage; label: string }[] = [
   { code: "en", label: "English" }, { code: "hi", label: "Hindi" }, { code: "bn", label: "Bengali" }, { code: "gu", label: "Gujarati" },
@@ -73,11 +72,8 @@ function App() {
     if (!trimmedQuestion || askBusy) return;
     setAskBusy(true); setError(null); setAnswer(null); setEscalation(null);
     try {
-      const [retrieved, response] = await Promise.all([
-        api<RetrieveResponse>("/retrieve", { query: trimmedQuestion, jurisdiction, language }),
-        api<AskResponse>("/ask", { query: trimmedQuestion, jurisdiction, language, session_id: sessionId }),
-      ]);
-      setEvidence(retrieved.results); setAnswer(response);
+      const response = await api<AskResponse>("/ask", { query: trimmedQuestion, jurisdiction, language, session_id: sessionId });
+      setEvidence(response.evidence); setAnswer(response);
     } catch { setError(t("errorGeneric")); } finally { setAskBusy(false); }
   };
 

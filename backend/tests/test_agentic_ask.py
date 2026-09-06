@@ -58,7 +58,7 @@ async def test_agentic_answer_uses_retrieval_then_graph_lookup() -> None:
     assert response.abstain is False
     assert response.answer == "Section 3(p) applies to classical formulations. [seed]"
     assert executed == ["retrieve_chunks", "graph_lookup"]
-    assert [entry["name"] for entry in audit.rows[0][-1]] == executed
+    assert [entry["name"] for entry in audit.rows[0][-2]] == executed
 
 
 @pytest.mark.asyncio
@@ -82,4 +82,4 @@ async def test_agentic_tool_call_cap_stops_fourth_call_server_side() -> None:
     assert response.abstain is True
     assert response.reason == "agent_tool_call_limit"
     assert executed == ["call-1", "call-2", "call-3"]
-    assert len(audit.rows[0][-1]) == 3
+    assert len(audit.rows[0][-2]) == 3

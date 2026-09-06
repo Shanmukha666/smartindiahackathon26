@@ -30,6 +30,7 @@ def test_admin_review_queue_returns_pending_stale_answers(monkeypatch) -> None:
             }]
 
     monkeypatch.setattr(main, "AsyncpgCorpusRepository", FakeRepository)
+    main.app.state.repository = None
     response = TestClient(main.app).get("/admin/review-queue", headers={"Authorization": f"Bearer {issue_test_token('legal-reviewer', roles=['legal_reviewer'])}"})
 
     assert response.status_code == 200
@@ -60,6 +61,7 @@ def test_legal_reviewer_must_close_pending_item_with_a_note(monkeypatch) -> None
             return True
 
     monkeypatch.setattr(main, "AsyncpgCorpusRepository", FakeRepository)
+    main.app.state.repository = None
     client = TestClient(main.app)
     payload = {"status": "reviewed", "resolution_note": "Verified against India Code"}
     engineer = client.patch("/admin/review-queue/7", json=payload, headers={"Authorization": f"Bearer {issue_test_token('engineer', roles=['admin'])}"})

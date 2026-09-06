@@ -8,7 +8,7 @@ import os
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import httpx
 import yaml
@@ -84,9 +84,11 @@ class EvalClient:
         self.offline = offline
         self.tree = load_tree() if offline else None
 
-    async def ask(self, case: EvalCase) -> tuple[set[str], bool]:
+    async def ask(self, case: EvalCase) -> tuple[set[str] | None, bool | None]:
         if self.offline:
-            return set(case.expected_citation_ids), case.should_abstain
+            # Offline mode has no corpus, providers, or API under test.  Returning
+            # fixture expectations here would turn quality metrics into tautologies.
+            return None, None
         async with httpx.AsyncClient(timeout=90) as client:
             response = await client.post(
                 f"{self.base_url}/ask",
@@ -118,7 +120,7 @@ class EvalClient:
                 )
                 response.raise_for_status()
                 payload = response.json()
-            return payload.get("result", {}).get("category")
+            return cast(str | None, payload.get("result", {}).get("category"))
 
 
 async def evaluate(cases: list[EvalCase], client: EvalClient) -> list[CaseResult]:
@@ -129,14 +131,21 @@ async def evaluate(cases: list[EvalCase], client: EvalClient) -> list[CaseResult
             results.append(CaseResult(case.case_id, case.kind, None, None, None, category == case.expected_category))
         elif case.kind == "ask":
             citations, abstained = await client.ask(case)
-            results.append(CaseResult(case.case_id, case.kind, citations == case.expected_citation_ids, abstained, case.should_abstain, None))
+            results.append(CaseResult(
+                case.case_id,
+                case.kind,
+                citations == case.expected_citation_ids if citations is not None else None,
+                abstained,
+                case.should_abstain,
+                None,
+            ))
         else:
             raise ValueError(f"unsupported evaluation case kind: {case.kind}")
     return results
 
 
-def ratio(numerator: int, denominator: int) -> float:
-    return numerator / denominator if denominator else 1.0
+def ratio(numerator: int, denominator: int) -> float | None:
+    return numerator / denominator if denominator else None
 
 
 def report(results: list[CaseResult]) -> dict[str, Any]:
@@ -145,13 +154,15 @@ def report(results: list[CaseResult]) -> dict[str, Any]:
     true_positive = sum(result.predicted_abstain is True and result.expected_abstain is True for result in ask_results)
     false_positive = sum(result.predicted_abstain is True and result.expected_abstain is False for result in ask_results)
     false_negative = sum(result.predicted_abstain is False and result.expected_abstain is True for result in ask_results)
+    ask_was_evaluated = any(result.citation_correct is not None for result in ask_results)
     return {
         "cases": len(results),
-        "citation_correctness_rate": ratio(sum(result.citation_correct is True for result in ask_results), len(ask_results)),
-        "abstention_precision": ratio(true_positive, true_positive + false_positive),
-        "abstention_recall": ratio(true_positive, true_positive + false_negative),
+        "ask_evaluation": "evaluated" if ask_was_evaluated else "not_evaluated_offline",
+        "citation_correctness_rate": ratio(sum(result.citation_correct is True for result in ask_results), len(ask_results)) if ask_was_evaluated else None,
+        "abstention_precision": ratio(true_positive, true_positive + false_positive) if ask_was_evaluated else None,
+        "abstention_recall": ratio(true_positive, true_positive + false_negative) if ask_was_evaluated else None,
         "classification_accuracy": ratio(sum(result.classification_correct is True for result in classification_results), len(classification_results)),
-        "failed_cases": [result.case_id for result in results if result.citation_correct is False or result.classification_correct is False or (result.expected_abstain != result.predicted_abstain if result.kind == "ask" else False)],
+        "failed_cases": [result.case_id for result in results if result.citation_correct is False or result.classification_correct is False or (result.predicted_abstain is not None and result.expected_abstain != result.predicted_abstain if result.kind == "ask" else False)],
     }
 
 
@@ -161,6 +172,8 @@ def enforce_baseline(metrics: dict[str, Any], baseline_path: Path | None, max_re
     baseline = json.loads(baseline_path.read_text(encoding="utf-8"))
     failures = []
     for metric in ("citation_correctness_rate", "abstention_precision"):
+        if metrics.get(metric) is None or baseline.get(metric) is None:
+            continue
         if metrics[metric] < baseline[metric] - max_regression:
             failures.append(f"{metric}={metrics[metric]:.3f} below baseline {baseline[metric]:.3f} by more than {max_regression:.3f}")
     if failures:

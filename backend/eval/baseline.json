@@ -1,6 +1,6 @@
 {
-  "citation_correctness_rate": 1.0,
-  "abstention_precision": 1.0,
-  "abstention_recall": 1.0,
+  "citation_correctness_rate": null,
+  "abstention_precision": null,
+  "abstention_recall": null,
   "classification_accuracy": 1.0
 }

@@ -1,6 +1,8 @@
 import logging
-from collections.abc import Awaitable, Callable
-from typing import Literal
+from asyncio import Lock
+from collections.abc import AsyncIterator, Awaitable, Callable
+from contextlib import asynccontextmanager
+from typing import Annotated, Literal, cast
 
 import httpx
 from fastapi import Depends, FastAPI, HTTPException, Request, Response, status
@@ -18,7 +20,7 @@ from .ask import (
     ToolCall,
     answer_question,
 )
-from .auth import current_user, require_role
+from .auth import current_user, optional_current_user, require_role
 from .bhashini import BhashiniClient, IndicLanguage
 from .config import get_settings
 from .db import check_database_connection
@@ -50,15 +52,58 @@ from .retrieve import AsyncpgCorpusRepositoryAdapter, CohereReranker, RerankedCa
 
 settings = get_settings()
 configure_logging()
-app = FastAPI(title=settings.app_name)
-configure_tracing(settings, app)
 logger = logging.getLogger(__name__)
 notification_channel = (WebhookNotificationChannel(settings.notification_webhook_url.get_secret_value())
                         if settings.notification_provider == "webhook" and settings.notification_webhook_url else LoggingNotificationChannel())
 rate_limiter = RateLimiter()
+
+
+@asynccontextmanager
+async def application_lifespan(application: FastAPI) -> AsyncIterator[None]:
+    """Own long-lived outbound connections for the lifetime of one worker."""
+    application.state.http_client = httpx.AsyncClient(timeout=90)
+    application.state.repository = None
+    application.state.repository_lock = Lock()
+    try:
+        yield
+    finally:
+        repository = application.state.repository
+        if repository is not None:
+            await repository.close()
+        await application.state.http_client.aclose()
+
+
+app = FastAPI(title=settings.app_name, lifespan=application_lifespan)
+configure_tracing(settings, app)
 app.add_middleware(TrustedHostMiddleware, allowed_hosts=settings.trusted_hosts)
 app.add_middleware(CORSMiddleware, allow_origins=settings.allowed_origins, allow_credentials=True,
                    allow_methods=["GET", "POST", "DELETE"], allow_headers=["Authorization", "Content-Type", "X-Request-ID"])
+
+
+async def get_repository(request: Request) -> AsyncpgCorpusRepository:
+    repository = cast(AsyncpgCorpusRepository | None, getattr(request.app.state, "repository", None))
+    if repository is not None:
+        return repository
+    lock = cast(Lock, getattr(request.app.state, "repository_lock", None) or Lock())
+    request.app.state.repository_lock = lock
+    async with lock:
+        repository = cast(AsyncpgCorpusRepository | None, getattr(request.app.state, "repository", None))
+        if repository is None:
+            repository = await AsyncpgCorpusRepository.create(settings.database_url.get_secret_value())
+            request.app.state.repository = repository
+    return repository
+
+
+def get_http_client(request: Request) -> httpx.AsyncClient:
+    client = cast(httpx.AsyncClient | None, getattr(request.app.state, "http_client", None))
+    if client is None:
+        client = httpx.AsyncClient(timeout=90)
+        request.app.state.http_client = client
+    return client
+
+
+RepositoryDep = Annotated[AsyncpgCorpusRepository, Depends(get_repository)]
+HttpClientDep = Annotated[httpx.AsyncClient, Depends(get_http_client)]
 
 
 class RetrieveRequest(BaseModel):
@@ -234,29 +279,34 @@ async def ready() -> JSONResponse:
     return JSONResponse(content={"status": "ready", "database": "available"})
 
 
-async def retrieve_for_request(query: str, jurisdiction: Literal["IN", "INTL", "BOTH"]) -> list[RerankedCandidate]:
-    repository = await AsyncpgCorpusRepository.create(settings.database_url.get_secret_value())
-    try:
-        async with VoyageEmbedder(settings) as embedder, CohereReranker(settings) as reranker:
-            return await retrieve(
-                query, jurisdiction, AsyncpgCorpusRepositoryAdapter(repository), embedder, reranker,
-                settings.min_relevance,
-            )
-    finally:
-        await repository.close()
+async def retrieve_for_request(
+    query: str,
+    jurisdiction: Literal["IN", "INTL", "BOTH"],
+    repository: AsyncpgCorpusRepository,
+    http_client: httpx.AsyncClient,
+) -> list[RerankedCandidate]:
+    async with VoyageEmbedder(settings, http_client) as embedder, CohereReranker(settings, http_client) as reranker:
+        return await retrieve(
+            query, jurisdiction, AsyncpgCorpusRepositoryAdapter(repository), embedder, reranker,
+            settings.min_relevance,
+        )
 
 
-async def english_query(query: str, language: IndicLanguage) -> str:
+async def english_query(query: str, language: IndicLanguage, http_client: httpx.AsyncClient) -> str:
     """Translate the retrieval representation without mutating the submitted query."""
     if language == "en":
         return query
-    return await BhashiniClient(settings).translate(query, language, "en")
+    return await BhashiniClient(settings, http_client).translate(query, language, "en")
 
 
 @app.post("/retrieve", response_model=RetrieveResponse)
-async def retrieve_endpoint(payload: RetrieveRequest) -> RetrieveResponse:
+async def retrieve_endpoint(
+    payload: RetrieveRequest,
+    repository: RepositoryDep,
+    http_client: HttpClientDep,
+) -> RetrieveResponse:
     try:
-        results = await retrieve_for_request(await english_query(payload.query, payload.language), payload.jurisdiction)
+        results = await retrieve_for_request(await english_query(payload.query, payload.language, http_client), payload.jurisdiction, repository, http_client)
     except (RuntimeError, httpx.HTTPError) as error:
         logger.warning("retrieve.unavailable", extra={"error_type": type(error).__name__})
         raise HTTPException(status_code=503, detail="Retrieval service unavailable") from error
@@ -278,10 +328,10 @@ async def retrieve_endpoint(payload: RetrieveRequest) -> RetrieveResponse:
 
 
 @app.post("/speech/transcribe", response_model=SpeechToTextResponse)
-async def transcribe_endpoint(payload: SpeechToTextRequest) -> SpeechToTextResponse:
+async def transcribe_endpoint(payload: SpeechToTextRequest, http_client: HttpClientDep) -> SpeechToTextResponse:
     try:
         return SpeechToTextResponse(
-            transcript=await BhashiniClient(settings).transcribe(payload.audio_base64, payload.language)
+            transcript=await BhashiniClient(settings, http_client).transcribe(payload.audio_base64, payload.language)
         )
     except (RuntimeError, httpx.HTTPError) as error:
         logger.warning("retrieve.unavailable", extra={"error_type": type(error).__name__})
@@ -289,9 +339,9 @@ async def transcribe_endpoint(payload: SpeechToTextRequest) -> SpeechToTextRespo
 
 
 @app.post("/speech/synthesize", response_model=TextToSpeechResponse)
-async def synthesize_endpoint(payload: TextToSpeechRequest) -> TextToSpeechResponse:
+async def synthesize_endpoint(payload: TextToSpeechRequest, http_client: HttpClientDep) -> TextToSpeechResponse:
     try:
-        audio, audio_format = await BhashiniClient(settings).synthesize(payload.text, payload.language)
+        audio, audio_format = await BhashiniClient(settings, http_client).synthesize(payload.text, payload.language)
         return TextToSpeechResponse(audio_base64=audio, audio_format=audio_format)
     except (RuntimeError, httpx.HTTPError) as error:
         logger.warning("speech.unavailable", extra={"error_type": type(error).__name__})
@@ -299,23 +349,24 @@ async def synthesize_endpoint(payload: TextToSpeechRequest) -> TextToSpeechRespo
 
 
 @app.post("/ask", response_model=AskResponse)
-async def ask_endpoint(payload: AskRequest) -> AskResponse:
+async def ask_endpoint(
+    payload: AskRequest,
+    repository: RepositoryDep,
+    http_client: HttpClientDep,
+    user_id: str | None = Depends(optional_current_user),
+) -> AskResponse:
     try:
         translated_payload = payload.model_copy(
-            update={"translated_query": await english_query(payload.query, payload.language)}
+            update={"translated_query": await english_query(payload.query, payload.language, http_client)}
         )
-        repository = await AsyncpgCorpusRepository.create(settings.database_url.get_secret_value())
-        try:
-            if hasattr(repository, "purge_expired_qa_logs"):
-                await repository.purge_expired_qa_logs(settings.qa_retention_days)
-            async with AnthropicClaudeClient(settings) as claude:
+        async with AnthropicClaudeClient(settings, http_client) as claude:
                 async def execute_tool(call: ToolCall) -> dict[str, object]:
                     if call.name == "retrieve_chunks":
                         query = call.arguments.get("query")
                         jurisdiction = call.arguments.get("jurisdiction")
                         if not isinstance(query, str) or jurisdiction not in {"IN", "INTL", "BOTH"}:
                             return {"error": "retrieve_chunks requires query and a valid jurisdiction"}
-                        results = await retrieve_for_request(query, jurisdiction)
+                        results = await retrieve_for_request(query, jurisdiction, repository, http_client)
                         return {"chunks": [{"id": item.candidate.chunk_id,
                                             "untrusted_evidence": format_untrusted_chunk(
                                                 item.candidate.chunk_id, item.candidate.jurisdiction, item.candidate.chunk_text
@@ -336,7 +387,7 @@ async def ask_endpoint(payload: AskRequest) -> AskResponse:
 
                 return await answer_question(
                     translated_payload,
-                    retrieve_for_request,
+                    lambda query, jurisdiction: retrieve_for_request(query, jurisdiction, repository, http_client),
                     claude,
                     repository,
                     request_id_context.get(),
@@ -344,90 +395,73 @@ async def ask_endpoint(payload: AskRequest) -> AskResponse:
                     execute_tool,
                     settings.agentic_timeout_seconds,
                     settings.high_confidence_reranker_score,
+                    user_id,
                 )
-        finally:
-            await repository.close()
     except (RuntimeError, httpx.HTTPError) as error:
         logger.warning("ask.unavailable", extra={"error_type": type(error).__name__})
         raise HTTPException(status_code=503, detail="Answer service unavailable") from error
 
 
 @app.get("/admin/review-queue", response_model=list[ReviewQueueItem])
-async def list_review_queue(limit: int = 100, _: str = Depends(require_role("legal_reviewer"))) -> list[ReviewQueueItem]:
+async def list_review_queue(
+    repository: RepositoryDep,
+    limit: int = 100,
+    _: str = Depends(require_role("legal_reviewer")),
+) -> list[ReviewQueueItem]:
     if not 1 <= limit <= 500:
         raise HTTPException(status_code=422, detail="limit must be between 1 and 500")
-    repository = await AsyncpgCorpusRepository.create(settings.database_url.get_secret_value())
-    try:
-        return [ReviewQueueItem(**{**item, "created_at": item["created_at"].isoformat()})
-                for item in await repository.list_review_queue(limit)]
-    finally:
-        await repository.close()
+    return [ReviewQueueItem(**{**item, "created_at": item["created_at"].isoformat()})
+            for item in await repository.list_review_queue(limit)]
 
 
 @app.patch("/admin/review-queue/{queue_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def resolve_review_queue_item(
     queue_id: int,
     payload: ReviewQueueResolution,
+    repository: RepositoryDep,
     reviewer: str = Depends(require_role("legal_reviewer")),
 ) -> Response:
-    repository = await AsyncpgCorpusRepository.create(settings.database_url.get_secret_value())
-    try:
-        if not await repository.resolve_review_queue_item(queue_id, payload.status, reviewer, payload.resolution_note):
-            raise HTTPException(status_code=404, detail="Pending review-queue item not found")
-    finally:
-        await repository.close()
+    if not await repository.resolve_review_queue_item(queue_id, payload.status, reviewer, payload.resolution_note):
+        raise HTTPException(status_code=404, detail="Pending review-queue item not found")
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @app.post("/paid-sources/credentials", status_code=status.HTTP_204_NO_CONTENT)
-async def save_paid_source_credential(payload: PaidCredentialRequest, user_id: str = Depends(current_user)) -> Response:
+async def save_paid_source_credential(payload: PaidCredentialRequest, repository: RepositoryDep, user_id: str = Depends(current_user)) -> Response:
     with stage("paid_source.credentials", provider=payload.provider):
         kek_version, kek = await SecretManagerKekProvider(settings.credential_kek_secret_resource).get_kek()
         encrypted = envelope_encrypt(payload.credential, kek)
-        repository = await AsyncpgCorpusRepository.create(settings.database_url.get_secret_value())
-        try:
-            await repository.store_paid_source_credential(user_id, payload.provider, encrypted, kek_version)
-        finally:
-            await repository.close()
+        await repository.store_paid_source_credential(user_id, payload.provider, encrypted, kek_version)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @app.post("/paid-sources/{provider}/search")
-async def paid_source_search(provider: str, payload: PaidSearchRequest, user_id: str = Depends(current_user)) -> dict[str, object]:
+async def paid_source_search(provider: str, payload: PaidSearchRequest, repository: RepositoryDep, user_id: str = Depends(current_user)) -> dict[str, object]:
     if not payload.consent_accepted:
         raise HTTPException(status_code=422, detail="Explicit consent is required before a paid-source call")
     if provider != StubPaidSourceConnector.provider or not settings.allow_stub_connectors:
         raise HTTPException(status_code=404, detail="Unknown paid-source provider")
-    repository = await AsyncpgCorpusRepository.create(settings.database_url.get_secret_value())
-    try:
-        with stage("paid_source.connector", provider=provider):
-            await repository.log_paid_source_consent(user_id, provider, await consent_event(user_id, provider, payload.query))
-            results = await StubPaidSourceConnector().search(payload.query)
-    finally:
-        await repository.close()
+    with stage("paid_source.connector", provider=provider):
+        await repository.log_paid_source_consent(user_id, provider, await consent_event(user_id, provider, payload.query))
+        results = await StubPaidSourceConnector().search(payload.query)
     return {"results": results}
 
 
 @app.get("/privacy/export")
-async def export_own_data(user_id: str = Depends(current_user)) -> dict[str, object]:
-    repository = await AsyncpgCorpusRepository.create(settings.database_url.get_secret_value())
-    try:
-        return await repository.export_user_data(user_id)
-    finally:
-        await repository.close()
+async def export_own_data(repository: RepositoryDep, user_id: str = Depends(current_user)) -> dict[str, object]:
+    return await repository.export_user_data(user_id)
 
 
 @app.delete("/privacy/data", response_model=DataDeletionResponse)
-async def delete_own_data(user_id: str = Depends(current_user)) -> DataDeletionResponse:
-    repository = await AsyncpgCorpusRepository.create(settings.database_url.get_secret_value())
-    try:
-        return DataDeletionResponse(deleted=await repository.delete_user_data(user_id))
-    finally:
-        await repository.close()
+async def delete_own_data(repository: RepositoryDep, user_id: str = Depends(current_user)) -> DataDeletionResponse:
+    return DataDeletionResponse(deleted=await repository.delete_user_data(user_id))
 
 
 @app.post("/classify/next", response_model=ClassifyResponse)
-async def classify_next(payload: ClassifyRequest) -> ClassifyResponse:
+async def classify_next(
+    payload: ClassifyRequest,
+    repository: RepositoryDep,
+) -> ClassifyResponse:
     try:
         with stage("classification") as classification_span:
             tree_path = settings.classification_tree_path
@@ -445,18 +479,14 @@ async def classify_next(payload: ClassifyRequest) -> ClassifyResponse:
         raise HTTPException(status_code=422, detail=str(error)) from error
 
     if step.result is not None:
-        repository = await AsyncpgCorpusRepository.create(settings.database_url.get_secret_value())
-        try:
-            await repository.write_classification_result(
-                payload.session_id,
-                {
-                    "trail": [item.model_dump() for item in step.trail],
-                    "result": step.result.__dict__,
-                },
-                step.result.category,
-            )
-        finally:
-            await repository.close()
+        await repository.write_classification_result(
+            payload.session_id,
+            {
+                "trail": [item.model_dump() for item in step.trail],
+                "result": step.result.__dict__,
+            },
+            step.result.category,
+        )
 
     return ClassifyResponse(
         complete=step.result is not None,
@@ -476,10 +506,10 @@ class EscalateResponse(BaseModel):
 
 
 @app.post("/escalate", response_model=EscalateResponse)
-async def escalate_endpoint(payload: EscalateRequest, _: str = Depends(current_user)) -> EscalateResponse:
-    repository = await AsyncpgCorpusRepository.create(settings.database_url.get_secret_value())
-    try:
-        escalation = await create_escalation(payload, repository, notification_channel)
-    finally:
-        await repository.close()
+async def escalate_endpoint(
+    payload: EscalateRequest,
+    repository: RepositoryDep,
+    user_id: str = Depends(current_user),
+) -> EscalateResponse:
+    escalation = await create_escalation(payload, repository, notification_channel, user_id)
     return EscalateResponse(tracking_id=escalation.tracking_id, priority=escalation.priority)

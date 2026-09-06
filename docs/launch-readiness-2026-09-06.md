@@ -8,9 +8,9 @@
 
 | Area | Evidence | Result | Scope/limitation |
 | --- | --- | --- | --- |
-| Functional API and regression behavior | `pytest` | 42 passed | Unit/API doubles; no deployed dependencies. |
-| Security/red team | `tests/test_red_team.py` (included in 42) | 5 passed | Covers prompt extraction/injection, unsupported-topic abstention, and fabricated citations. |
-| Retrieval, citation, abstention, classification evaluator | `python eval/run_eval.py --offline --compare-to eval/baseline.json` | 27/27 cases; citation correctness 1.000; abstention precision/recall 1.000; classification accuracy 1.000 | Offline evaluator returns fixture citations/abstentions; it does **not** exercise Voyage, Cohere, Claude, Postgres, or production corpus. |
+| Functional API and regression behavior | `pytest` | 47 passed | Unit/API doubles; no deployed dependencies. |
+| Security/red team | `tests/test_red_team.py` (included in 47) | 5 passed | Covers prompt extraction/injection, unsupported-topic abstention, and fabricated citations. |
+| Retrieval, citation, abstention, classification evaluator | `python eval/run_eval.py --offline --compare-to eval/baseline.json` | Classification accuracy 1.000; RAG metrics not evaluated offline | Offline mode no longer reports tautological fixture-derived RAG metrics; it does **not** exercise Voyage, Cohere, Claude, Postgres, or production corpus. |
 | Backend quality | Ruff, mypy, pip-audit | Passed; no known Python dependency vulnerabilities | Static/local only. |
 | Frontend quality | `npm ci`, lint, typecheck, `npm audit --audit-level=high` | Passed; 0 vulnerabilities | Frontend is built, but no production hosting resource is present in Terraform. |
 | Migration plan | `alembic upgrade head --sql` | Generated successfully | No staging/production database migration was executed in this review. |

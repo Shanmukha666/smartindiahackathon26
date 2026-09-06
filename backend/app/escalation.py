@@ -36,6 +36,7 @@ class EscalationRepository(Protocol):
         question: str,
         reason: str,
         priority: Priority,
+        user_id: str | None = None,
     ) -> int: ...
 
 
@@ -83,10 +84,11 @@ async def create_escalation(
     request: EscalateRequest,
     repository: EscalationRepository,
     notification_channel: NotificationChannel,
+    user_id: str | None = None,
 ) -> Escalation:
     priority = effective_priority(request.priority, request.reason)
     with stage("escalation", priority=priority, reason=request.reason):
-        database_id = await repository.create_escalation(request.session_id, request.question, request.reason, priority)
+        database_id = await repository.create_escalation(request.session_id, request.question, request.reason, priority, user_id)
         escalation = Escalation(tracking_id=str(database_id), session_id=request.session_id,
                                 question=request.question, reason=request.reason, priority=priority)
         await notification_channel.notify(escalation)

@@ -8,7 +8,7 @@ from app.escalation import EscalateRequest, Escalation, create_escalation
 @dataclass
 class FakeRepository:
     next_id: int = 42
-    calls: list[tuple[str, str, str, str]] | None = None
+    calls: list[tuple[str, str, str, str, str | None]] | None = None
 
     async def create_escalation(
         self,
@@ -16,10 +16,11 @@ class FakeRepository:
         question: str,
         reason: str,
         priority: str,
+        user_id: str | None = None,
     ) -> int:
         if self.calls is None:
             self.calls = []
-        self.calls.append((session_id, question, reason, priority))
+        self.calls.append((session_id, question, reason, priority, user_id))
         return self.next_id
 
 
@@ -42,7 +43,7 @@ async def test_general_question_is_persisted_and_notified() -> None:
     )
     assert escalation.tracking_id == "42"
     assert escalation.priority == "normal"
-    assert repository.calls == [("s1", "What applies?", "general-question", "normal")]
+    assert repository.calls == [("s1", "What applies?", "general-question", "normal", None)]
     assert channel.notifications == [escalation]
 
 
@@ -56,7 +57,7 @@ async def test_abstained_answer_is_elevated_to_high_priority() -> None:
         channel,
     )
     assert escalation.priority == "high"
-    assert repository.calls == [("s2", "Unanswered", "abstained-answer", "high")]
+    assert repository.calls == [("s2", "Unanswered", "abstained-answer", "high", None)]
 
 
 @pytest.mark.asyncio

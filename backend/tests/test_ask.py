@@ -6,7 +6,6 @@ import pytest
 from app.ask import (
     AskAnswer,
     AskRequest,
-    AskResponse,
     answer_question,
     build_system_prompt,
 )
@@ -71,7 +70,7 @@ async def test_grounded_answer_is_returned_and_logged() -> None:
     assert result.abstain is False
     assert result.citations == ["p1"]
     assert len(qa.rows) == 1
-    assert qa.rows[0]["args"][-1] == "request-1"
+    assert qa.rows[0]["args"][-3] == "request-1"
 
 
 @pytest.mark.asyncio
@@ -150,7 +149,10 @@ async def test_hallucinated_citation_abstains() -> None:
         0.35,
     )
 
-    assert result == AskResponse(abstain=True, confidence="low", reason="invalid_citation")
+    assert result.abstain is True
+    assert result.confidence == "low"
+    assert result.reason == "invalid_citation"
+    assert [item.chunk_id for item in result.evidence] == ["real"]
     assert qa.rows[0]["args"][7] is True
 
 
@@ -173,7 +175,10 @@ async def test_weak_retrieval_abstains_without_calling_claude() -> None:
         0.35,
     )
 
-    assert result == AskResponse(abstain=True, confidence="low", reason="weak_retrieval")
+    assert result.abstain is True
+    assert result.confidence == "low"
+    assert result.reason == "weak_retrieval"
+    assert [item.chunk_id for item in result.evidence] == ["weak"]
     assert qa.rows[0]["args"][6] == "low"
 
 
@@ -212,7 +217,10 @@ async def test_answer_without_citation_abstains() -> None:
         0.35,
     )
 
-    assert result == AskResponse(abstain=True, confidence="low", reason="missing_citation")
+    assert result.abstain is True
+    assert result.confidence == "low"
+    assert result.reason == "missing_citation"
+    assert [item.chunk_id for item in result.evidence] == ["real"]
 
 
 @pytest.mark.asyncio
@@ -231,7 +239,10 @@ async def test_model_abstention_never_returns_a_hedged_answer() -> None:
         0.35,
     )
 
-    assert result == AskResponse(abstain=True, confidence="low", reason="model_abstained")
+    assert result.abstain is True
+    assert result.confidence == "low"
+    assert result.reason == "model_abstained"
+    assert [item.chunk_id for item in result.evidence] == ["conflict"]
 
 
 def test_system_prompt_marks_chunks_as_untrusted() -> None:

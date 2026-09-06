@@ -48,7 +48,7 @@ def api_client(monkeypatch: pytest.MonkeyPatch, scenario: AskScenario) -> TestCl
             scenario.logs.append(args)
 
     class FakeClaude:
-        def __init__(self, settings: Any) -> None:
+        def __init__(self, settings: Any, client: Any = None) -> None:
             pass
 
         async def __aenter__(self) -> Self:
@@ -62,12 +62,13 @@ def api_client(monkeypatch: pytest.MonkeyPatch, scenario: AskScenario) -> TestCl
             assert scenario.model_answer is not None, "Claude must not be called for an abstention"
             return scenario.model_answer
 
-    async def retrieve_for_request(query: str, jurisdiction: str) -> list[RerankedCandidate]:
+    async def retrieve_for_request(query: str, jurisdiction: str, *_: Any) -> list[RerankedCandidate]:
         return scenario.retrieved
 
     monkeypatch.setattr(main, "AsyncpgCorpusRepository", FakeRepository)
     monkeypatch.setattr(main, "AnthropicClaudeClient", FakeClaude)
     monkeypatch.setattr(main, "retrieve_for_request", retrieve_for_request)
+    main.app.state.repository = None
     # Each scenario needs an independent rate-limit window, as a production worker does.
     monkeypatch.setattr(main, "rate_limiter", main.RateLimiter())
     return TestClient(main.app)

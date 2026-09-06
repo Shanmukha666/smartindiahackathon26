@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import base64
+import hashlib
 import os
 from abc import ABC, abstractmethod
 from datetime import UTC, datetime
@@ -49,4 +50,9 @@ def envelope_encrypt(plaintext: str, kek: bytes) -> dict[str, bytes]:
 
 
 async def consent_event(user_id: str, provider: str, query: str) -> dict[str, str]:
-    return {"user_id": user_id, "provider": provider, "query": query, "timestamp": datetime.now(UTC).isoformat()}
+    return {
+        "user_id": user_id,
+        "provider": provider,
+        "query_sha256": hashlib.sha256(query.encode("utf-8")).hexdigest(),
+        "timestamp": datetime.now(UTC).isoformat(),
+    }

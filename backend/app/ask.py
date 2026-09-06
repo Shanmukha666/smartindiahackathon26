@@ -52,6 +52,15 @@ class AskAnswer(BaseModel):
         return self
 
 
+class RetrievedEvidence(BaseModel):
+    chunk_id: str
+    instrument: str
+    section: str
+    jurisdiction: Literal["IN", "INTL"]
+    chunk_text: str
+    score: float
+
+
 class AskResponse(BaseModel):
     mode: Literal["single", "split"] | None = None
     answer: str | None = None
@@ -61,6 +70,7 @@ class AskResponse(BaseModel):
     abstain: bool
     reason: str | None = None
     disclaimer: str = INFORMATION_DISCLAIMER
+    evidence: list[RetrievedEvidence] = Field(default_factory=list)
 
 
 class ClaudeClient(Protocol):
@@ -98,6 +108,7 @@ class QaWriter(Protocol):
         abstained: bool,
         request_id: str,
         tool_calls: Sequence[dict[str, Any]] = (),
+        user_id: str | None = None,
     ) -> None: ...
 
 
@@ -106,19 +117,21 @@ class RetrieveFn(Protocol):
 
 
 class AnthropicClaudeClient:
-    def __init__(self, settings: Settings) -> None:
+    def __init__(self, settings: Settings, client: httpx.AsyncClient | None = None) -> None:
         self._api_key = settings.anthropic_api_key.get_secret_value() if settings.anthropic_api_key else None
         self._api_url = settings.anthropic_api_url
         self._model = settings.anthropic_model
         self._api_version = settings.anthropic_api_version
-        self._client: httpx.AsyncClient | None = None
+        self._client = client
+        self._owns_client = client is None
 
     async def __aenter__(self) -> Self:
-        self._client = httpx.AsyncClient(timeout=90)
+        if self._client is None:
+            self._client = httpx.AsyncClient(timeout=90)
         return self
 
     async def __aexit__(self, exc_type: object, exc_value: object, traceback: object) -> None:
-        if self._client is not None:
+        if self._owns_client and self._client is not None:
             await self._client.aclose()
 
     async def answer(self, system_prompt: str, user_prompt: str) -> AskAnswer:
@@ -243,14 +256,27 @@ async def answer_question(
     tool_executor: Any | None = None,
     agentic_timeout_seconds: float = 30.0,
     high_confidence_reranker_score: float = 0.65,
+    user_id: str | None = None,
 ) -> AskResponse:
     retrieval_query = request.translated_query or request.query
     with stage("answer.retrieval", jurisdiction=request.jurisdiction):
         retrieved = await retrieve_fn(retrieval_query, request.jurisdiction)
     retrieved_ids = {result.candidate.chunk_id for result in retrieved}
     score_map = {result.candidate.chunk_id: result.relevance_score for result in retrieved}
+    response_evidence = [
+        RetrievedEvidence(
+            chunk_id=result.candidate.chunk_id,
+            instrument=result.candidate.instrument,
+            section=result.candidate.section,
+            jurisdiction=result.candidate.jurisdiction,
+            chunk_text=result.candidate.chunk_text,
+            score=result.relevance_score,
+        )
+        for result in retrieved
+    ]
     def audit_payload(answer: AskResponse) -> dict[str, Any]:
         payload = answer.model_dump()
+        payload.pop("evidence", None)
         payload["_query_audit"] = {
             "original_query": request.query,
             "translated_query": retrieval_query,
@@ -258,7 +284,7 @@ async def answer_question(
         }
         return payload
     if not retrieved:
-        answer = AskResponse(abstain=True, reason="no_retrieval")
+        answer = AskResponse(abstain=True, reason="no_retrieval", evidence=response_evidence)
         await qa_writer.write_qa_log(
             request.session_id,
             request.query,
@@ -269,16 +295,19 @@ async def answer_question(
             None,
             True,
             request_id,
+            (),
+            user_id,
         )
         return answer
 
     max_reranker_score = max(score_map.values())
     if max_reranker_score < weak_reranker_score:
         logger.info("ask.abstain_weak_retrieval", extra={"max_reranker_score": max_reranker_score})
-        answer = AskResponse(abstain=True, confidence="low", reason="weak_retrieval")
+        answer = AskResponse(abstain=True, confidence="low", reason="weak_retrieval", evidence=response_evidence)
         await qa_writer.write_qa_log(
             request.session_id, request.query, request.jurisdiction, sorted(retrieved_ids), score_map,
             audit_payload(answer), "low", True, request_id,
+            (), user_id,
         )
         return answer
 
@@ -288,8 +317,8 @@ async def answer_question(
             raise RuntimeError("Agentic mode is not configured")
         model_answer, tool_audit, agent_reason = await run_agentic_answer(cast(AgenticClaudeClient, claude), build_system_prompt(retrieved), build_user_prompt(retrieval_query), tool_executor, agentic_timeout_seconds)
         if agent_reason is not None:
-            answer = AskResponse(abstain=True, reason=agent_reason)
-            await qa_writer.write_qa_log(request.session_id, request.query, request.jurisdiction, sorted(retrieved_ids), score_map, audit_payload(answer), None, True, request_id, tool_audit)
+            answer = AskResponse(abstain=True, reason=agent_reason, evidence=response_evidence)
+            await qa_writer.write_qa_log(request.session_id, request.query, request.jurisdiction, sorted(retrieved_ids), score_map, audit_payload(answer), None, True, request_id, tool_audit, user_id)
             return answer
         assert model_answer is not None
     else:
@@ -303,7 +332,7 @@ async def answer_question(
         record_citation_failure()
         reason = "invalid_citation" if invalid_citations else "missing_citation"
         logger.warning("ask.citation_validation_failed", extra={"invalid_citation_count": len(invalid_citations), "missing_citations": missing_citations, "stage": "citation.validation"})
-        answer = AskResponse(abstain=True, confidence="low", reason=reason)
+        answer = AskResponse(abstain=True, confidence="low", reason=reason, evidence=response_evidence)
         await qa_writer.write_qa_log(
             request.session_id,
             request.query,
@@ -314,14 +343,16 @@ async def answer_question(
             model_answer.confidence,
             True,
             request_id, tool_audit,
+            user_id,
         )
         return answer
 
     if model_answer.abstain:
-        answer = AskResponse(abstain=True, confidence="low", reason="model_abstained")
+        answer = AskResponse(abstain=True, confidence="low", reason="model_abstained", evidence=response_evidence)
         await qa_writer.write_qa_log(
             request.session_id, request.query, request.jurisdiction, sorted(retrieved_ids), score_map,
             audit_payload(answer), "low", True, request_id, tool_audit,
+            user_id,
         )
         return answer
 
@@ -340,15 +371,16 @@ async def answer_question(
         citations=model_answer.citations,
         confidence=confidence,
         abstain=model_answer.abstain,
+        evidence=response_evidence,
     )
     if tool_audit:
         await qa_writer.write_qa_log(
             request.session_id, request.query, request.jurisdiction, sorted(retrieved_ids), score_map,
-            audit_payload(answer), confidence, answer.abstain, request_id, tool_audit,
+            audit_payload(answer), confidence, answer.abstain, request_id, tool_audit, user_id,
         )
     else:
         await qa_writer.write_qa_log(
             request.session_id, request.query, request.jurisdiction, sorted(retrieved_ids), score_map,
-            audit_payload(answer), confidence, answer.abstain, request_id,
+            audit_payload(answer), confidence, answer.abstain, request_id, (), user_id,
         )
     return answer

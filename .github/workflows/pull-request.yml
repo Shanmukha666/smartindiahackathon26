@@ -106,11 +106,56 @@ jobs:
       - name: Type-check with TypeScript
         run: npm run typecheck
 
+      - name: Run frontend tests
+        run: npm run test
+
+      - name: Build production frontend
+        run: npm run build
+
       - name: Scan JavaScript dependencies
         run: npm audit --audit-level=high
 
+  demo-mode-smoke:
+    name: Demo-mode smoke test
+    runs-on: ubuntu-latest
+    needs: backend
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: astral-sh/setup-uv@v5
+        with:
+          version: "0.6.14"
+      - run: uv sync --dev
+      - name: Start demo backend and verify core endpoints
+        env:
+          DEMO_MODE: "true"
+          DEPLOYMENT_ENVIRONMENT: development
+          APP_NAME: ip-sakti-sahayak
+          DATABASE_URL: postgresql://demo.invalid/ipsakti
+          JWT_SIGNING_KEY: ci-demo-signing-key-not-for-production-use
+          CREDENTIAL_KEK_SECRET_RESOURCE: projects/demo/secrets/credential-kek/versions/latest
+          VOYAGE_API_URL: https://api.voyageai.com/v1/embeddings
+          VOYAGE_MODEL: voyage-3
+          OTEL_SERVICE_NAME: ip-sakti-backend
+          OTEL_EXPORTER_OTLP_ENDPOINT: http://localhost:4317
+          OTEL_TRACES_EXPORTER: none
+          OTEL_METRICS_EXPORTER: none
+        run: |
+          uv run uvicorn app.main:app --host 127.0.0.1 --port 8000 &
+          server_pid=$!
+          trap 'kill "$server_pid"' EXIT
+          for _ in $(seq 1 20); do curl -sf http://127.0.0.1:8000/health && break; sleep 0.5; done
+          curl -sf -X POST http://127.0.0.1:8000/retrieve -H 'Content-Type: application/json' -d '{"query":"traditional knowledge exclusion","jurisdiction":"IN"}' | grep -q 'demo-patents-act-section-3-p-1'
+          curl -sf -X POST http://127.0.0.1:8000/ask -H 'Content-Type: application/json' -d '{"query":"What does Section 3(p) exclude?","jurisdiction":"IN","session_id":"ci-smoke"}' | grep -q '"abstain":false'
+          curl -sf -X POST http://127.0.0.1:8000/classify/next -H 'Content-Type: application/json' -d '{"session_id":"ci-smoke","trail":[],"answer_index":null}' | grep -q '"complete":false'
+
   docker:
-    name: Build Docker images
+    name: Build backend Docker image
     runs-on: ubuntu-latest
     needs: [backend, frontend]
     steps:
@@ -119,9 +164,6 @@ jobs:
 
       - name: Build backend image
         run: docker build --file backend/Dockerfile --tag ip-sakti-sahayak-backend:${{ github.sha }} backend
-
-      - name: Build frontend image
-        run: docker build --file frontend/Dockerfile --tag ip-sakti-sahayak-frontend:${{ github.sha }} frontend
 
   evaluation:
     name: Regression evaluation

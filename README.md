@@ -106,6 +106,8 @@ The production frontend image proxies `/api/*` to `BACKEND_ORIGIN`; set that var
 
 Vercel hosts the static React frontend only; it does not replace the FastAPI, PostgreSQL/pgvector, provider-key, or ingestion services. In Vercel, import this GitHub repository and set **Root Directory** to `frontend`. The committed `frontend/vercel.json` supplies the Vite build and SPA fallback.
 
+Use Vercel's Git integration: pull requests receive Preview deployments and pushes to the configured production branch receive Production deployments. The repository's Google Cloud workflow intentionally deploys only the backend, so Vercel credentials do not need to be stored in GitHub Actions.
+
 Set this Vercel environment variable for Production and Preview deployments:
 
 | Variable | Value |
@@ -244,7 +246,7 @@ To remove only running containers while preserving database data, use `docker co
 
 Pull requests run backend linting, mypy, tests, frontend ESLint and TypeScript checks, and both Docker image builds without pushing.
 
-Merges to `main` repeat those checks, provision the staging Artifact Registry if needed, push tagged backend and frontend images, and apply the `staging` Terraform workspace. The deployment job uses GitHub's OIDC token and Google Cloud Workload Identity Federation (WIF), not a service-account key. Configure these GitHub Actions variables (repository variables, or environment variables when staging and production use separate Google Cloud projects):
+Merges to `main` repeat those checks, provision the staging Artifact Registry if needed, push the tagged backend image, and apply the `staging` Terraform workspace. The frontend deploys separately through Vercel Git integration. The backend deployment job uses GitHub's OIDC token and Google Cloud Workload Identity Federation (WIF), not a service-account key. Configure these GitHub Actions variables (repository variables, or environment variables when staging and production use separate Google Cloud projects):
 
 | Variable | Value |
 | --- | --- |

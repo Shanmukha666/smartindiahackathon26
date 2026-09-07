@@ -102,6 +102,18 @@ Docker Compose also enables `ENABLE_DEV_SESSION_ENDPOINT=true` solely for the lo
 
 The production frontend image proxies `/api/*` to `BACKEND_ORIGIN`; set that variable to the HTTPS URL of the deployed backend service. Its Docker default (`http://backend:8000`) is only for the local Compose network.
 
+## Vercel frontend deployment
+
+Vercel hosts the static React frontend only; it does not replace the FastAPI, PostgreSQL/pgvector, provider-key, or ingestion services. In Vercel, import this GitHub repository and set **Root Directory** to `frontend`. The committed `frontend/vercel.json` supplies the Vite build and SPA fallback.
+
+Set this Vercel environment variable for Production and Preview deployments:
+
+| Variable | Value |
+| --- | --- |
+| `VITE_API_BASE_URL` | The HTTPS origin of the separately deployed backend, without a trailing slash (for example `https://api.example.com`). |
+
+`VITE_API_BASE_URL` is public build-time configuration, not a secret. Before deploying the frontend, add its exact Vercel URL to the backend's `ALLOWED_ORIGINS` / production `TF_VAR_ALLOWED_ORIGINS`, and configure its hostname in the backend's `TRUSTED_HOSTS` where applicable. Do not put API keys, JWT signing keys, Google credentials, or database URLs in Vercel environment variables.
+
 Indic-language queries use Bhashini before retrieval, so the English corpus remains the sole evidence source and its chunk IDs remain unchanged. Set `BHASHINI_API_KEY` and (when issued for the account) `BHASHINI_USER_ID`. The backend also provides `POST /speech/transcribe` and `POST /speech/synthesize` for Bhashini ASR/TTS. QA audit rows retain `original_query`, `translated_query`, and `query_language`.
 
 Ingest the seeded public-source corpus after applying the database migration and setting `VOYAGE_API_KEY` in the ignored root `.env`:

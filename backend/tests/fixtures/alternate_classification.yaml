@@ -13,3 +13,4 @@ nodes:
     regulatory_path: "Alternate regulatory path"
     ip_posture: "Alternate IP posture"
     abs_note: "Alternate ABS note"
+    recommended_ip_routes: ["Alternate route"]

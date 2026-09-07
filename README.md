@@ -22,6 +22,8 @@ copy .env.example .env
 docker compose up --build
 ```
 
+This starts the database-free bundled-corpus demo by default and does not require AI-provider keys. To use the full PostgreSQL/provider-backed RAG path, set `DEMO_MODE=false` and add your local-only database/password, JWT, KEK-resource, Voyage, Cohere, and Anthropic values to the ignored `.env` file.
+
 When running outside Docker, start the backend on port 8000, then run `npm run dev` in `frontend`. To use another backend port, set `VITE_API_PROXY_TARGET`, for example `VITE_API_PROXY_TARGET=http://127.0.0.1:8010 npm run dev`.
 
 Open the frontend at `http://localhost:5173`. The backend is available at `http://localhost:8000`; its liveness endpoint is `GET /health` and its database-backed readiness endpoint is `GET /ready`. View local traces at `http://localhost:16686`.
@@ -96,7 +98,7 @@ For production, point `OTEL_EXPORTER_OTLP_ENDPOINT` at the managed collector and
 
 The backend reads configuration from process environment variables only; it does not load `.env` files itself. The root `.env` is used only by Docker Compose and is ignored by Git.
 
-For a local demo without PostgreSQL or provider keys, set `DEMO_MODE=true` with `DEPLOYMENT_ENVIRONMENT=development`. It performs a lexical search over the bundled corpus and returns a clearly labeled, cited extract; it is not an LLM and production startup rejects this setting.
+For a local demo without PostgreSQL or provider keys, Docker Compose defaults to `DEMO_MODE=true`. It performs a lexical search over the bundled corpus and returns a clearly labeled, cited extract; it is not an LLM and production startup rejects this setting. Set `DEMO_MODE=false` only when PostgreSQL plus Voyage, Cohere, and Anthropic credentials are configured for full RAG.
 
 Docker Compose also enables `ENABLE_DEV_SESSION_ENDPOINT=true` solely for the local frontend demo. It issues a four-hour, locally signed token so the UI can exercise authenticated escalation and the development-only stub paid-source connector. The endpoint is off by default and configuration rejects it outside `local`, `development`, or `test`; it is not a replacement for production identity-provider authentication.
 
@@ -116,7 +118,17 @@ Set this Vercel environment variable for Production and Preview deployments:
 
 `VITE_API_BASE_URL` is public build-time configuration, not a secret. Before deploying the frontend, add its exact Vercel URL to the backend's `ALLOWED_ORIGINS` / production `TF_VAR_ALLOWED_ORIGINS`, and configure its hostname in the backend's `TRUSTED_HOSTS` where applicable. Do not put API keys, JWT signing keys, Google credentials, or database URLs in Vercel environment variables.
 
-Indic-language queries use Bhashini before retrieval, so the English corpus remains the sole evidence source and its chunk IDs remain unchanged. Set `BHASHINI_API_KEY` and (when issued for the account) `BHASHINI_USER_ID`. The backend also provides `POST /speech/transcribe` and `POST /speech/synthesize` for Bhashini ASR/TTS. QA audit rows retain `original_query`, `translated_query`, and `query_language`.
+Indic-language queries use Bhashini before retrieval, so the English corpus remains the sole evidence source and its chunk IDs remain unchanged. The language selector identifies the query language for translation; the interface itself is currently English. Set `BHASHINI_API_KEY` and (when issued for the account) `BHASHINI_USER_ID`. The backend also provides `POST /speech/transcribe` and `POST /speech/synthesize` for Bhashini ASR/TTS. QA audit rows retain `original_query`, `translated_query`, and `query_language`.
+
+Traditional-knowledge-sensitive classification outcomes display a **TKDL / prior-art check** pointer. It links to the official [Traditional Knowledge Digital Library](https://www.tkdl.res.in/tkdl/langdefault/common/Home.asp?GL=Eng); this application does not query TKDL, and an absent TKDL result is never treated as proof of novelty. TKDL states that full database access is subject to its access arrangements.
+
+Each completed classification also offers links to the official [IP India E-Services directory](https://ipindia.gov.in/pages/e-services), [WIPO PATENTSCOPE](https://patentscope.wipo.int/search/en/search.jsf), and [WIPO Global Brand Database](https://branddb.wipo.int/), where relevant. These are user-operated external research portals: IP-SAKTI neither submits queries to them nor represents their results as registrability, clearance, or freedom-to-operate advice.
+
+The system's control mapping and explicit non-certification statement are in [AI governance alignment](docs/ai-governance.md).
+
+## SIH problem-statement mapping
+
+IP-SAKTI Sahayak is designed for the SIH scope of helping Indian innovators assess patentability and regulatory/IP pathways for traditional-knowledge, Ayurveda, formulation, and cosmetic products. Before submission, add the official SIH problem-statement ID and title supplied by the event to this section; the repository intentionally does not invent one.
 
 Ingest the seeded public-source corpus after applying the database migration and setting `VOYAGE_API_KEY` in the ignored root `.env`:
 
@@ -125,6 +137,8 @@ docker compose exec backend ingest --corpus-dir /corpus
 ```
 
 Corpus content is governed by the Legal Corpus Reviewer role, not engineers. See [corpus governance](docs/corpus-governance.md) for mandatory dedicated PRs, provenance, quarterly source review, and stale-answer queue closure.
+
+For the SIH submission, **Shanmukha Sai Dasari** is the interim Legal Corpus Reviewer for source-consistency checks against public statute texts. This is a transparent demo-grade designation, not legal counsel or a claim of professional legal qualification; see the corpus-governance document for its limits.
 
 The command prints JSON counters for inserted, changed, unchanged documents and generated chunks. It hashes each document body, skips unchanged versions, and records changed versions in `corpus_change_log` before inserting their new chunks and Voyage embeddings.
 

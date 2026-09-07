@@ -4,7 +4,8 @@ services:
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-ipsakti}
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in the ignored root .env file}
+      # Development-only value; override in .env for a persistent local full-RAG stack.
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-local-demo-postgres-password}
     ports:
       - "5432:5432"
     volumes:
@@ -20,12 +21,14 @@ services:
       context: ./backend
     environment:
       APP_NAME: IP-SAKTI Sahayak
-      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in the ignored root .env file}@db:5432/${POSTGRES_DB:-ipsakti}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-local-demo-postgres-password}@db:5432/${POSTGRES_DB:-ipsakti}
       OTEL_SERVICE_NAME: ip-sakti-sahayak-backend
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
       OTEL_TRACES_EXPORTER: otlp
       OTEL_METRICS_EXPORTER: otlp
       DEPLOYMENT_ENVIRONMENT: local
+      # Safe default for judges/developers without provider keys. Set false with real keys for full RAG.
+      DEMO_MODE: ${DEMO_MODE:-true}
       VOYAGE_API_URL: https://api.voyageai.com/v1/embeddings
       VOYAGE_MODEL: voyage-3-large
       VOYAGE_API_KEY: ${VOYAGE_API_KEY:-}
@@ -35,8 +38,8 @@ services:
       MIN_RELEVANCE: ${MIN_RELEVANCE:-0.35}
       ANTHROPIC_API_URL: https://api.anthropic.com/v1/messages
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
-      JWT_SIGNING_KEY: ${JWT_SIGNING_KEY:?Set JWT_SIGNING_KEY in the ignored root .env file}
-      CREDENTIAL_KEK_SECRET_RESOURCE: ${CREDENTIAL_KEK_SECRET_RESOURCE:?Set CREDENTIAL_KEK_SECRET_RESOURCE in the ignored root .env file}
+      JWT_SIGNING_KEY: ${JWT_SIGNING_KEY:-local-demo-signing-key-with-at-least-32-characters}
+      CREDENTIAL_KEK_SECRET_RESOURCE: ${CREDENTIAL_KEK_SECRET_RESOURCE:-projects/local/secrets/credential-kek/versions/latest}
       ANTHROPIC_MODEL: claude-sonnet-4-6
       ANTHROPIC_API_VERSION: 2023-06-01
       WEAK_RERANKER_SCORE: ${WEAK_RERANKER_SCORE:-0.35}

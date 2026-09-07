@@ -44,3 +44,29 @@ def test_production_rejects_dev_session_endpoint() -> None:
             rate_limit_backend="gateway",
             enable_dev_session_endpoint=True,
         )
+
+
+def test_demo_repository_supports_ephemeral_visible_demo_actions() -> None:
+    from app.demo import DemoRepository
+
+    repository = DemoRepository()
+    first_id = asyncio.run(repository.create_escalation("session", "question", "reason", "normal"))
+    asyncio.run(repository.log_paid_source_consent("local-user", "stub", {}))
+    assert first_id >= 1
+
+
+def test_demo_repository_never_persists_privacy_or_paid_source_data() -> None:
+    from app.demo import DemoRepository
+
+    repository = DemoRepository()
+    asyncio.run(repository.store_paid_source_credential())
+    exported = asyncio.run(repository.export_user_data("demo-user"))
+    assert exported["demo_mode"] is True
+    assert exported["qa_log"] == []
+    assert asyncio.run(repository.list_review_queue(100)) == []
+    assert asyncio.run(repository.resolve_review_queue_item(1, "reviewed", "reviewer", "checked")) is False
+    assert asyncio.run(repository.delete_user_data("demo-user")) == {
+        "qa_log": 0,
+        "escalations": 0,
+        "paid_source_credentials": 0,
+    }

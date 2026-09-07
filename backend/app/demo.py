@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import html
 import re
+from itertools import count
 from pathlib import Path
 from typing import cast
 
@@ -58,8 +59,44 @@ class DemoClaudeClient:
 
 
 class DemoRepository:
+    """Deliberately non-persistent adapter for the local bundled-corpus demo."""
+
+    _escalation_ids = count(1)
+
     async def write_qa_log(self, *args: object, **kwargs: object) -> None:
         return None
 
     async def write_classification_result(self, *args: object, **kwargs: object) -> None:
         return None
+
+    async def create_escalation(self, *args: object, **kwargs: object) -> int:
+        return next(self._escalation_ids)
+
+    async def log_paid_source_consent(self, *args: object, **kwargs: object) -> None:
+        return None
+
+    async def store_paid_source_credential(self, *args: object, **kwargs: object) -> None:
+        """Deliberately discard credentials: demo mode must never persist them."""
+
+    async def list_review_queue(self, limit: int) -> list[dict[str, object]]:
+        """The bundled corpus has no persistent review queue."""
+        return []
+
+    async def resolve_review_queue_item(
+        self, queue_id: int, status: str, reviewer: str, resolution_note: str
+    ) -> bool:
+        """There are no retained review-queue records in demo mode."""
+        return False
+
+    async def export_user_data(self, user_id: str) -> dict[str, object]:
+        return {
+            "user_id": user_id,
+            "demo_mode": True,
+            "notice": "Demo mode does not persist personal data, questions, or credentials.",
+            "qa_log": [],
+            "escalations": [],
+            "paid_source_credentials": [],
+        }
+
+    async def delete_user_data(self, user_id: str) -> dict[str, int]:
+        return {"qa_log": 0, "escalations": 0, "paid_source_credentials": 0}

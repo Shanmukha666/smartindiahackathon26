@@ -197,6 +197,44 @@ class ClassificationResultResponse(BaseModel):
     regulatory_path: str
     ip_posture: str
     abs_note: str
+    tkdl_prior_art_guidance: str | None = None
+    recommended_ip_routes: list[str]
+    official_sources: list["OfficialSourceLink"]
+
+
+class OfficialSourceLink(BaseModel):
+    """A human-operated public portal; this service does not submit searches to it."""
+
+    label: str
+    url: str
+    description: str
+
+
+def official_sources_for(category: str) -> list[OfficialSourceLink]:
+    """Return relevant public research portals without implying a clearance search."""
+    sources = [OfficialSourceLink(
+        label="IP India E-Services",
+        url="https://ipindia.gov.in/pages/e-services",
+        description="Official Indian public-search and status-service directory.",
+    )]
+    if category in {"patent-or-proprietary", "new/non-classical drug", "phytopharmaceutical", "cosmetic"}:
+        sources.append(OfficialSourceLink(
+            label="WIPO PATENTSCOPE",
+            url="https://patentscope.wipo.int/search/en/search.jsf",
+            description="WIPO's public search portal for international and national patent collections.",
+        ))
+    if category in {"classical/generic", "Ayurveda-Aahar/nutraceutical", "phytopharmaceutical"}:
+        sources.append(OfficialSourceLink(
+            label="Traditional Knowledge Digital Library (TKDL)",
+            url="https://www.tkdl.res.in/tkdl/langdefault/common/Home.asp?GL=Eng",
+            description="Official TKDL information; database access is subject to its access arrangements.",
+        ))
+    sources.append(OfficialSourceLink(
+        label="WIPO Global Brand Database",
+        url="https://branddb.wipo.int/",
+        description="WIPO's public brand, appellation-of-origin, and official-emblem search portal.",
+    ))
+    return sources
 
 
 class ClassifyResponse(BaseModel):
@@ -525,7 +563,9 @@ async def classify_next(
         options=step.options,
         trail=step.trail,
         result=(
-            ClassificationResultResponse(**step.result.__dict__) if step.result is not None else None
+            ClassificationResultResponse(
+                **step.result.__dict__, official_sources=official_sources_for(step.result.category)
+            ) if step.result is not None else None
         ),
     )
 

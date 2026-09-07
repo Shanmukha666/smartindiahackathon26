@@ -1,7 +1,8 @@
 export type Jurisdiction = "IN" | "INTL" | "BOTH";
 export type IndicLanguage = "en" | "hi" | "bn" | "gu" | "kn" | "ml" | "mr" | "or" | "pa" | "ta" | "te" | "ur";
 export type TrailStep = { node_id: string; answer_index: number };
-export type ClassificationResult = { category: string; regulatory_path: string; ip_posture: string; abs_note: string };
+export type OfficialSourceLink = { label: string; url: string; description: string };
+export type ClassificationResult = { category: string; regulatory_path: string; ip_posture: string; abs_note: string; tkdl_prior_art_guidance: string | null; recommended_ip_routes: string[]; official_sources: OfficialSourceLink[] };
 export type ClassificationState = { complete: boolean; question: string | null; options: string[]; trail: TrailStep[]; result: ClassificationResult | null };
 export type RetrievedEvidence = { chunk_id: string; instrument: string; section: string; jurisdiction: "IN" | "INTL"; chunk_text: string; score: number };
 export type AskSection = { jurisdiction?: string; title?: string; text?: string; answer?: string };

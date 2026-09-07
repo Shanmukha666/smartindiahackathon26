@@ -51,6 +51,8 @@ nodes:
     regulatory_path: "Assess the applicable established-drug or generic formulation standards and licensing requirements."
     ip_posture: "Protectable differentiation is limited to genuinely novel, non-obvious improvements; established knowledge and generic formulations are not monopolized."
     abs_note: "Check biological-resource and traditional-knowledge provenance; benefit-sharing obligations may apply where biological resources or associated knowledge were accessed."
+    tkdl_prior_art_guidance: "Before asserting novelty, perform a documented traditional-knowledge prior-art review. TKDL access and coverage are subject to its official terms; absence of a result is not proof of novelty."
+    recommended_ip_routes: ["Trade mark / brand screening", "Geographical indication eligibility screening where origin-linked qualities apply", "Design screening for non-functional product appearance"]
 
   result_patent_or_proprietary:
     type: result
@@ -58,6 +60,8 @@ nodes:
     regulatory_path: "Assess the applicable drug approval, manufacturing, labeling, and safety pathway for the formulation."
     ip_posture: "Review patentability, freedom to operate, trade-secret controls, and ownership of formulation improvements."
     abs_note: "Document biological-resource and traditional-knowledge provenance and assess access and benefit-sharing requirements."
+    tkdl_prior_art_guidance: "Where the formulation draws on traditional knowledge, include a documented traditional-knowledge prior-art review before making novelty or freedom-to-operate claims."
+    recommended_ip_routes: ["Patent novelty and freedom-to-operate review", "Trade mark / brand screening", "Trade-secret and contractual know-how controls", "Design screening for non-functional product appearance"]
 
   result_new_non_classical_drug:
     type: result
@@ -65,6 +69,8 @@ nodes:
     regulatory_path: "Treat as a new or non-classical drug candidate and follow the applicable preclinical, clinical, approval, and post-market pathway."
     ip_posture: "Assess patentability and regulatory data/know-how protection without assuming that regulatory approval creates IP rights."
     abs_note: "Assess whether biological resources or associated knowledge contributed to discovery or development and record any ABS obligations."
+    tkdl_prior_art_guidance: "Check whether the claimed product, ingredient use, or process overlaps codified traditional knowledge; use qualified patent searching alongside any applicable TKDL review."
+    recommended_ip_routes: ["Patent novelty and freedom-to-operate review", "Trade mark / brand screening", "Trade-secret and contractual know-how controls"]
 
   result_phytopharmaceutical:
     type: result
@@ -72,6 +78,8 @@ nodes:
     regulatory_path: "Assess the phytopharmaceutical route, including botanical identity, standardization, quality, safety, efficacy, and manufacturing evidence."
     ip_posture: "Protect novel extraction, standardization, formulation, or process features where eligible; preserve provenance records."
     abs_note: "Biological-resource access and associated traditional knowledge require provenance review and potential benefit sharing."
+    tkdl_prior_art_guidance: "Document traditional-knowledge prior-art review for botanical uses and formulations. TKDL is a pointer, not an exhaustive novelty search."
+    recommended_ip_routes: ["Patent novelty and freedom-to-operate review", "Trade mark / brand screening", "Geographical indication eligibility screening where origin-linked qualities apply", "Trade-secret controls for non-public process know-how"]
 
   result_ayurveda_nutraceutical:
     type: result
@@ -79,6 +87,8 @@ nodes:
     regulatory_path: "Classify under the applicable Ayurveda-Aahar, food, or nutraceutical standards, including composition, claims, labeling, and manufacturing controls."
     ip_posture: "Traditional formulations and known properties are weak IP foundations; focus on eligible formulation, brand, and process improvements."
     abs_note: "Review traditional-knowledge and biological-resource provenance and document consent and benefit-sharing where applicable."
+    tkdl_prior_art_guidance: "Perform a traditional-knowledge prior-art review before making exclusivity claims for classical or known uses; confirm the applicable TKDL access route and other prior-art sources."
+    recommended_ip_routes: ["Trade mark / brand screening", "Geographical indication eligibility screening where origin-linked qualities apply", "Design screening for non-functional packaging or product appearance", "Patent review only for demonstrably novel eligible improvements"]
 
   result_cosmetic:
     type: result
@@ -86,3 +96,4 @@ nodes:
     regulatory_path: "Assess cosmetic composition, safety, labeling, claims, and manufacturing requirements; avoid therapeutic claims that change classification."
     ip_posture: "Consider trademarks, designs, trade dress, and protectable formulation or process improvements."
     abs_note: "Review plant and traditional-knowledge sourcing even where the product is ultimately classified as cosmetic."
+    recommended_ip_routes: ["Trade mark / brand screening", "Design screening for non-functional packaging or product appearance", "Patent review for eligible formulation or process improvements", "Trade-secret controls for non-public know-how"]

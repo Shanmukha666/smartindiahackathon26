@@ -86,9 +86,10 @@ async def test_modified_document_creates_corpus_change_log(tmp_path: Path) -> No
     path = tmp_path / "patents-act-section-3-p.md"
     repository = FakeRepository()
     embedder = FakeEmbedder()
+    seed_count = len(list(seed_dir.glob("*.md")))
 
     first = await ingest_directory(tmp_path, repository, embedder)
-    assert first.inserted == 4
+    assert first.inserted == seed_count
     assert first.changed == 0
     assert len(repository.change_log) == 0
 
@@ -103,6 +104,7 @@ async def test_modified_document_creates_corpus_change_log(tmp_path: Path) -> No
     assert len(repository.change_log) == 1
     assert repository.change_log[0]["previous_version_tag"] == "India Code 2024"
     assert repository.change_log[0]["new_version_tag"] == "India Code 2025"
-    assert repository.review_requests == [{"changed_document_id": 5, "previous_document_id": 4, "instrument": "Patents Act, 1970"}]
-    assert sum(document.active for document in repository.documents) == 4
+    previous_document = next(document for document in repository.documents if document.source.metadata.instrument == "Patents Act, 1970" and not document.active)
+    assert repository.review_requests == [{"changed_document_id": seed_count + 1, "previous_document_id": previous_document.id, "instrument": "Patents Act, 1970"}]
+    assert sum(document.active for document in repository.documents) == seed_count
     assert sum(not document.active for document in repository.documents) == 1

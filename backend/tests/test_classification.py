@@ -68,3 +68,22 @@ def test_alternate_yaml_changes_behavior_without_python_changes() -> None:
     final = tree.advance(first.trail, 0)
     assert final.result is not None
     assert final.result.regulatory_path == "Alternate regulatory path"
+
+
+def test_traditional_knowledge_routes_include_a_prior_art_check() -> None:
+    tree = load_tree()
+    established = tree.advance([], 0)
+    result = tree.advance(established.trail, 0).result
+    assert result is not None
+    assert result.category == "classical/generic"
+    assert result.tkdl_prior_art_guidance is not None
+    assert "prior-art" in result.tkdl_prior_art_guidance
+    assert "Trade mark / brand screening" in result.recommended_ip_routes
+
+
+def test_classification_result_has_relevant_official_research_portals() -> None:
+    from app.main import official_sources_for
+
+    sources = official_sources_for("patent-or-proprietary")
+    assert {source.label for source in sources} >= {"IP India E-Services", "WIPO PATENTSCOPE"}
+    assert all(source.url.startswith("https://") for source in sources)

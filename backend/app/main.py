@@ -21,7 +21,7 @@ from .ask import (
     ToolCall,
     answer_question,
 )
-from .auth import current_user, optional_current_user, require_role
+from .auth import current_user, issue_test_token, optional_current_user, require_role
 from .bhashini import BhashiniClient, IndicLanguage
 from .config import get_settings
 from .db import check_database_connection
@@ -180,6 +180,12 @@ class DataDeletionResponse(BaseModel):
     deleted: dict[str, int]
 
 
+class DevSessionResponse(BaseModel):
+    access_token: str
+    token_type: Literal["Bearer"] = "Bearer"
+    expires_in: int = 14_400
+
+
 class ClassifyRequest(BaseModel):
     session_id: str = Field(min_length=1, max_length=128)
     trail: list[TrailStep] = Field(default_factory=list)
@@ -270,6 +276,14 @@ async def expensive_endpoint_rate_limit(request: Request, call_next: Callable[[R
 @app.get("/health")
 async def health() -> dict[str, str]:
     return {"status": "ok"}
+
+
+@app.post("/auth/dev-session", response_model=DevSessionResponse)
+async def create_dev_session() -> DevSessionResponse:
+    """Issue an ephemeral local-demo identity; unreachable unless explicitly enabled."""
+    if not settings.enable_dev_session_endpoint:
+        raise HTTPException(status_code=404, detail="Not found")
+    return DevSessionResponse(access_token=issue_test_token(f"local-{new_request_id()}", expires_in_seconds=14_400))
 
 
 @app.get("/ready")

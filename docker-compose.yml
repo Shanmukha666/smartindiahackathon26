@@ -40,6 +40,8 @@ services:
       ANTHROPIC_MODEL: claude-sonnet-4-6
       ANTHROPIC_API_VERSION: 2023-06-01
       WEAK_RERANKER_SCORE: ${WEAK_RERANKER_SCORE:-0.35}
+      ENABLE_DEV_SESSION_ENDPOINT: "true"
+      ALLOW_STUB_CONNECTORS: "true"
     volumes:
       - ./backend:/app
       - ./corpus:/corpus:ro

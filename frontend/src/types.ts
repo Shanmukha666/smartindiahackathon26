@@ -1,0 +1,12 @@
+export type Jurisdiction = "IN" | "INTL" | "BOTH";
+export type IndicLanguage = "en" | "hi" | "bn" | "gu" | "kn" | "ml" | "mr" | "or" | "pa" | "ta" | "te" | "ur";
+export type TrailStep = { node_id: string; answer_index: number };
+export type ClassificationResult = { category: string; regulatory_path: string; ip_posture: string; abs_note: string };
+export type ClassificationState = { complete: boolean; question: string | null; options: string[]; trail: TrailStep[]; result: ClassificationResult | null };
+export type RetrievedEvidence = { chunk_id: string; instrument: string; section: string; jurisdiction: "IN" | "INTL"; chunk_text: string; score: number };
+export type AskSection = { jurisdiction?: string; title?: string; text?: string; answer?: string };
+export type AskResponse = { mode: "single" | "split" | null; answer: string | null; sections: AskSection[] | null; citations: string[]; confidence: "high" | "medium" | "low" | null; abstain: boolean; reason: string | null; disclaimer: string; evidence: RetrievedEvidence[] };
+export type EscalationResponse = { tracking_id: string; priority: string; status: string };
+export type DevSessionResponse = { access_token: string; token_type: "Bearer"; expires_in: number };
+export type SpeechResponse = { audio_base64: string; audio_format: string };
+export type PaidSourceResponse = { results: Array<{ title?: string; url?: string; summary?: string }> };

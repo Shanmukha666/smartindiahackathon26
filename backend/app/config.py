@@ -44,12 +44,13 @@ class Settings(BaseSettings):
     rate_limit_backend: str = "memory"
     allow_stub_connectors: bool = False
     demo_mode: bool = False
+    enable_dev_session_endpoint: bool = False
     max_request_body_bytes: int = 9_000_000
 
     @model_validator(mode="after")
     def production_guardrails(self) -> "Settings":
-        if self.deployment_environment not in {"development", "test", "staging", "production"}:
-            raise ValueError("DEPLOYMENT_ENVIRONMENT must be development, test, staging, or production")
+        if self.deployment_environment not in {"development", "local", "test", "staging", "production"}:
+            raise ValueError("DEPLOYMENT_ENVIRONMENT must be development, local, test, staging, or production")
         if self.deployment_environment == "production":
             if self.notification_provider != "webhook" or self.notification_webhook_url is None:
                 raise ValueError("production requires NOTIFICATION_PROVIDER=webhook and NOTIFICATION_WEBHOOK_URL")
@@ -66,6 +67,8 @@ class Settings(BaseSettings):
                 raise ValueError("production cannot enable stub connectors")
             if self.demo_mode:
                 raise ValueError("production cannot enable DEMO_MODE")
+        if self.enable_dev_session_endpoint and self.deployment_environment not in {"development", "local", "test"}:
+            raise ValueError("ENABLE_DEV_SESSION_ENDPOINT is allowed only in local, development, or test")
         if not 1_024 <= self.max_request_body_bytes <= 10_000_000:
             raise ValueError("MAX_REQUEST_BODY_BYTES must be between 1024 and 10000000")
         if not 0 <= self.weak_reranker_score <= self.high_confidence_reranker_score <= 1:

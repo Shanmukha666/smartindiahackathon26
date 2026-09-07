@@ -1,15 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
+import { postApi } from "./api/client";
+import { InlineCitations, PanelHeading, ResultField } from "./components/atoms";
 import { t } from "./i18n/resources";
-
-type Jurisdiction = "IN" | "INTL" | "BOTH";
-type IndicLanguage = "en" | "hi" | "bn" | "gu" | "kn" | "ml" | "mr" | "or" | "pa" | "ta" | "te" | "ur";
-type TrailStep = { node_id: string; answer_index: number };
-type ClassificationResult = { category: string; regulatory_path: string; ip_posture: string; abs_note: string };
-type ClassificationState = { complete: boolean; question: string | null; options: string[]; trail: TrailStep[]; result: ClassificationResult | null };
-type RetrievedEvidence = { chunk_id: string; instrument: string; section: string; jurisdiction: "IN" | "INTL"; chunk_text: string; score: number };
-type AskSection = { jurisdiction?: string; title?: string; text?: string; answer?: string };
-type AskResponse = { mode: "single" | "split" | null; answer: string | null; sections: AskSection[] | null; citations: string[]; confidence: "high" | "medium" | "low" | null; abstain: boolean; reason: string | null; disclaimer: string; evidence: RetrievedEvidence[] };
-type EscalationResponse = { tracking_id: string; priority: string; status: string };
+import type { AskResponse, ClassificationState, DevSessionResponse, EscalationResponse, IndicLanguage, Jurisdiction, PaidSourceResponse, RetrievedEvidence, SpeechResponse, TrailStep } from "./types";
 
 const languages: { code: IndicLanguage; label: string }[] = [
   { code: "en", label: "English" }, { code: "hi", label: "Hindi" }, { code: "bn", label: "Bengali" }, { code: "gu", label: "Gujarati" },
@@ -17,17 +10,7 @@ const languages: { code: IndicLanguage; label: string }[] = [
   { code: "pa", label: "Punjabi" }, { code: "ta", label: "Tamil" }, { code: "te", label: "Telugu" }, { code: "ur", label: "Urdu" },
 ];
 
-const api = async <T,>(path: string, body: unknown): Promise<T> => {
-  const response = await fetch(`/api${path}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-  if (!response.ok) throw new Error(`Request failed (${response.status})`);
-  return response.json() as Promise<T>;
-};
-
 const initialClassification: ClassificationState = { complete: false, question: null, options: [], trail: [], result: null };
-
-function InlineCitations({ text }: { text: string }) {
-  return <>{text.split(/(\[[^\]]+\])/g).map((part, index) => /^\[[^\]]+\]$/.test(part) ? <span className="citation-chip" key={`${part}-${index}`}>{part.slice(1, -1)}</span> : <span key={`${part}-${index}`}>{part}</span>)}</>;
-}
 
 function App() {
   const [jurisdiction, setJurisdiction] = useState<Jurisdiction>("BOTH");
@@ -41,12 +24,14 @@ function App() {
   const [escalation, setEscalation] = useState<EscalationResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [paidConsent, setPaidConsent] = useState(false);
+  const [devToken, setDevToken] = useState<string | null>(null);
+  const [paidResults, setPaidResults] = useState<PaidSourceResponse["results"]>([]);
   const [sessionId] = useState(() => crypto.randomUUID());
 
   const moveClassification = useCallback(async (trail: TrailStep[], answerIndex: number | null) => {
     setClassificationBusy(true); setError(null);
     try {
-      const next = await api<ClassificationState>("/classify/next", { session_id: sessionId, trail, answer_index: answerIndex });
+      const next = await postApi<ClassificationState>("/classify/next", { session_id: sessionId, trail, answer_index: answerIndex });
       setClassification(next);
     } catch { setError(t("classificationError")); } finally { setClassificationBusy(false); }
   }, [sessionId]);
@@ -55,7 +40,7 @@ function App() {
     let active = true;
     const load = async () => {
       try {
-        const next = await api<ClassificationState>("/classify/next", { session_id: sessionId, trail: [], answer_index: null });
+        const next = await postApi<ClassificationState>("/classify/next", { session_id: sessionId, trail: [], answer_index: null });
         if (active) setClassification(next);
       } catch {
         if (active) setError(t("classificationError"));
@@ -67,12 +52,16 @@ function App() {
     return () => { active = false; };
   }, [sessionId]);
 
+  useEffect(() => {
+    void postApi<DevSessionResponse>("/auth/dev-session", {}).then((session) => setDevToken(session.access_token)).catch(() => undefined);
+  }, []);
+
   const submitQuestion = async () => {
     const trimmedQuestion = question.trim();
     if (!trimmedQuestion || askBusy) return;
     setAskBusy(true); setError(null); setAnswer(null); setEscalation(null);
     try {
-      const response = await api<AskResponse>("/ask", { query: trimmedQuestion, jurisdiction, language, session_id: sessionId });
+      const response = await postApi<AskResponse>("/ask", { query: trimmedQuestion, jurisdiction, language, session_id: sessionId });
       setEvidence(response.evidence); setAnswer(response);
     } catch { setError(t("errorGeneric")); } finally { setAskBusy(false); }
   };
@@ -85,9 +74,29 @@ function App() {
     if (!question.trim() || !answer?.abstain) return;
     setAskBusy(true);
     try {
-      const response = await api<EscalationResponse>("/escalate", { session_id: sessionId, question, reason: "abstained-answer", priority: "normal" });
+      const response = await postApi<EscalationResponse>("/escalate", { session_id: sessionId, question, reason: "abstained-answer", priority: "normal" }, devToken ?? undefined);
       setEscalation(response);
     } catch { setError(t("errorGeneric")); } finally { setAskBusy(false); }
+  };
+
+  const searchPaidSources = async () => {
+    if (!paidConsent || !question.trim()) return;
+    setError(null); setPaidResults([]);
+    try {
+      const response = await postApi<PaidSourceResponse>("/paid-sources/stub/search", { query: question.trim(), consent_accepted: true }, devToken ?? undefined);
+      setPaidResults(response.results);
+    } catch { setError("Paid-source search is unavailable. Start the local demo session or configure an approved provider."); }
+  };
+
+  const listenToAnswer = async () => {
+    const text = answer?.answer ?? answer?.sections?.map((section) => section.text ?? section.answer ?? "").join(" ");
+    if (!text) return;
+    try {
+      const response = await postApi<SpeechResponse>("/speech/synthesize", { text, language });
+      const bytes = Uint8Array.from(atob(response.audio_base64), (character) => character.charCodeAt(0));
+      const url = URL.createObjectURL(new Blob([bytes], { type: response.audio_format }));
+      const audio = new Audio(url); audio.onended = () => URL.revokeObjectURL(url); await audio.play();
+    } catch { setError("Speech playback is unavailable for this language or environment."); }
   };
 
   return (
@@ -108,8 +117,9 @@ function App() {
 
       <section className="paid-consent" aria-label="Paid source consent">
         <label><input type="checkbox" checked={paidConsent} onChange={(event) => setPaidConsent(event.target.checked)} /> I explicitly consent to sending my paid-source query to the selected provider and recording the exact query for audit.</label>
-        <button className="outline-button" disabled={!paidConsent} title={paidConsent ? "Paid-source consent accepted" : "Accept consent before paid-source search"}>Paid-source search</button>
-        <p>Paid-source search controls remain disabled until this consent is accepted.</p>
+        <button className="outline-button" onClick={() => void searchPaidSources()} disabled={!paidConsent || !question.trim()} title={paidConsent ? "Search the current question" : "Accept consent before paid-source search"}>Paid-source search</button>
+        <p>{!paidConsent ? "Paid-source search controls remain disabled until this consent is accepted." : !question.trim() ? "Enter a question before searching." : "The selected provider receives this query and the consent is audited."}</p>
+        {paidResults.length > 0 && <ol className="paid-results">{paidResults.map((result, index) => <li key={`${result.title ?? "result"}-${index}`}><strong>{result.title ?? "Result"}</strong>{result.summary && <span>{result.summary}</span>}{result.url && <a href={result.url} target="_blank" rel="noreferrer">Open source</a>}</li>)}</ol>}
       </section>
 
       <div className="workspace-grid">
@@ -131,7 +141,7 @@ function App() {
           <div className="answer-area" aria-live="polite">
             {!answer && !askBusy && <div className="empty-state"><span className="empty-rule" />{t("qaEmpty")}</div>}
             {askBusy && <div className="empty-state"><span className="loading-pulse" />{t("qaWorking")}</div>}
-            {answer && !answer.abstain && <article className="answer-block"><div className="answer-header"><span className="answer-kicker">{answer.mode === "split" ? t("splitLabel") : t("result")}</span>{answer.confidence && <span className={`confidence-badge ${answer.confidence}`}>{t(answer.confidence)}</span>}</div>{answer.mode === "split" && answer.sections ? <div className="split-answer">{answer.sections.map((section, index) => <section className="jurisdiction-section" key={`${section.jurisdiction}-${index}`}><p className="section-marker">{section.jurisdiction ?? `${index + 1}`}</p><h3>{section.title ?? section.jurisdiction ?? ""}</h3><p><InlineCitations text={section.text ?? section.answer ?? ""} /></p></section>)}</div> : <p className="answer-copy"><InlineCitations text={answer.answer ?? ""} /></p>}<div className="answer-citations"><span className="question-label">{t("citations")}</span>{answer.citations.map((citation) => <span className="citation-chip" key={citation}>{citation}</span>)}</div></article>}
+            {answer && !answer.abstain && <article className="answer-block"><div className="answer-header"><span className="answer-kicker">{answer.mode === "split" ? t("splitLabel") : t("result")}</span>{answer.confidence && <span className={`confidence-badge ${answer.confidence}`}>{t(answer.confidence)}</span>}<button className="text-action" onClick={() => void listenToAnswer()}>Listen</button></div>{answer.mode === "split" && answer.sections ? <div className="split-answer">{answer.sections.map((section, index) => <section className="jurisdiction-section" key={`${section.jurisdiction}-${index}`}><p className="section-marker">{section.jurisdiction ?? `${index + 1}`}</p><h3>{section.title ?? section.jurisdiction ?? ""}</h3><p><InlineCitations text={section.text ?? section.answer ?? ""} /></p></section>)}</div> : <p className="answer-copy"><InlineCitations text={answer.answer ?? ""} /></p>}<div className="answer-citations"><span className="question-label">{t("citations")}</span>{answer.citations.map((citation) => <span className="citation-chip" key={citation}>{citation}</span>)}</div></article>}
             {answer?.abstain && <article className="abstain-block"><div className="abstain-symbol" aria-hidden="true">—</div><div><p className="answer-kicker">{t("abstained")}</p><p>{t("abstainedReason")}</p>{!escalation ? <button className="outline-button" onClick={() => void escalate()} disabled={askBusy}>{askBusy ? t("escalating") : t("escalate")} <span aria-hidden="true">→</span></button> : <p className="success-note">{t("escalated")} · {t("trackingId")}: {escalation.tracking_id}</p>}</div></article>}
           </div>
         </section>
@@ -143,14 +153,6 @@ function App() {
       </div>
     </main>
   );
-}
-
-function PanelHeading({ eyebrow, title, index }: { eyebrow: string; title: string; index: string }) {
-  return <div className="panel-heading"><div><p className="eyebrow">{eyebrow}</p><h2>{title}</h2></div><span className="panel-index">{index}</span></div>;
-}
-
-function ResultField({ label, value }: { label: string; value: string }) {
-  return <div className="result-field"><p>{label}</p><span>{value}</span></div>;
 }
 
 export default App;

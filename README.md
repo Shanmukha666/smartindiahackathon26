@@ -98,6 +98,8 @@ The backend reads configuration from process environment variables only; it does
 
 For a local demo without PostgreSQL or provider keys, set `DEMO_MODE=true` with `DEPLOYMENT_ENVIRONMENT=development`. It performs a lexical search over the bundled corpus and returns a clearly labeled, cited extract; it is not an LLM and production startup rejects this setting.
 
+Docker Compose also enables `ENABLE_DEV_SESSION_ENDPOINT=true` solely for the local frontend demo. It issues a four-hour, locally signed token so the UI can exercise authenticated escalation and the development-only stub paid-source connector. The endpoint is off by default and configuration rejects it outside `local`, `development`, or `test`; it is not a replacement for production identity-provider authentication.
+
 The production frontend image proxies `/api/*` to `BACKEND_ORIGIN`; set that variable to the HTTPS URL of the deployed backend service. Its Docker default (`http://backend:8000`) is only for the local Compose network.
 
 Indic-language queries use Bhashini before retrieval, so the English corpus remains the sole evidence source and its chunk IDs remain unchanged. Set `BHASHINI_API_KEY` and (when issued for the account) `BHASHINI_USER_ID`. The backend also provides `POST /speech/transcribe` and `POST /speech/synthesize` for Bhashini ASR/TTS. QA audit rows retain `original_query`, `translated_query`, and `query_language`.

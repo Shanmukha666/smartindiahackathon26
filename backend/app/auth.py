@@ -56,6 +56,14 @@ async def optional_current_user(request: Request) -> str | None:
     return await current_user(request)
 
 
+async def audit_record_user(request: Request) -> str | None:
+    """Bind persisted user records to an identity outside local/demo environments."""
+    user_id = await optional_current_user(request)
+    if get_settings().deployment_environment in {"staging", "production"} and user_id is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Bearer token required")
+    return user_id
+
+
 def require_role(role: str) -> Callable[[Request], Awaitable[str]]:
     async def dependency(request: Request) -> str:
         user_id = await current_user(request)

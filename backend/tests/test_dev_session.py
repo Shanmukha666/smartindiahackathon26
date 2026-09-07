@@ -5,7 +5,7 @@ from fastapi.testclient import TestClient
 from pydantic import ValidationError
 
 from app import main
-from app.auth import current_user
+from app.auth import audit_record_user, current_user
 from app.config import Settings
 
 
@@ -70,3 +70,10 @@ def test_demo_repository_never_persists_privacy_or_paid_source_data() -> None:
         "escalations": 0,
         "paid_source_credentials": 0,
     }
+
+
+def test_staging_and_production_require_an_identity_for_persisted_audit_records(monkeypatch) -> None:
+    request = type("Request", (), {"headers": {}})()
+    monkeypatch.setattr(main.settings, "deployment_environment", "production")
+    with pytest.raises(Exception, match="Bearer token required"):
+        asyncio.run(audit_record_user(request))

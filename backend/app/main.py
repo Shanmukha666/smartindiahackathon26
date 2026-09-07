@@ -21,7 +21,7 @@ from .ask import (
     ToolCall,
     answer_question,
 )
-from .auth import current_user, issue_test_token, optional_current_user, require_role
+from .auth import audit_record_user, current_user, issue_test_token, require_role
 from .bhashini import BhashiniClient, IndicLanguage
 from .config import get_settings
 from .db import check_database_connection
@@ -411,7 +411,7 @@ async def ask_endpoint(
     payload: AskRequest,
     repository: RepositoryDep,
     http_client: HttpClientDep,
-    user_id: str | None = Depends(optional_current_user),
+    user_id: str | None = Depends(audit_record_user),
 ) -> AskResponse:
     try:
         translated_payload = payload.model_copy(

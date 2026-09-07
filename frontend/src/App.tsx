@@ -61,7 +61,7 @@ function App() {
     if (!trimmedQuestion || askBusy) return;
     setAskBusy(true); setError(null); setAnswer(null); setEscalation(null);
     try {
-      const response = await postApi<AskResponse>("/ask", { query: trimmedQuestion, jurisdiction, language, session_id: sessionId });
+      const response = await postApi<AskResponse>("/ask", { query: trimmedQuestion, jurisdiction, language, session_id: sessionId }, devToken ?? undefined);
       setEvidence(response.evidence); setAnswer(response);
     } catch { setError(t("errorGeneric")); } finally { setAskBusy(false); }
   };

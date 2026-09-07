@@ -197,6 +197,7 @@ class ClassificationResultResponse(BaseModel):
     regulatory_path: str
     ip_posture: str
     abs_note: str
+    abs_actions: list[str]
     tkdl_prior_art_guidance: str | None = None
     recommended_ip_routes: list[str]
     official_sources: list["OfficialSourceLink"]

@@ -42,6 +42,7 @@ export const resources = {
       regulatoryPath: "Regulatory pathway",
       ipPosture: "IP posture",
       absNote: "ABS note",
+      absChecklist: "ABS action checklist",
       tkdlCheck: "TKDL / prior-art check",
       tkdlLink: "Official TKDL information",
       ipRoutes: "IP routes to screen",

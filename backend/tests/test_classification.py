@@ -79,6 +79,7 @@ def test_traditional_knowledge_routes_include_a_prior_art_check() -> None:
     assert result.tkdl_prior_art_guidance is not None
     assert "prior-art" in result.tkdl_prior_art_guidance
     assert "Trade mark / brand screening" in result.recommended_ip_routes
+    assert any("provenance" in action.lower() for action in result.abs_actions)
 
 
 def test_classification_result_has_relevant_official_research_portals() -> None:

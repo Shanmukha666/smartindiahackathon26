@@ -47,6 +47,7 @@ class ResultNode(BaseModel):
     regulatory_path: str = Field(min_length=1)
     ip_posture: str = Field(min_length=1)
     abs_note: str = Field(min_length=1)
+    abs_actions: list[str] = Field(min_length=1)
     tkdl_prior_art_guidance: str | None = Field(default=None, min_length=1)
     recommended_ip_routes: list[str] = Field(min_length=1)
 
@@ -103,6 +104,7 @@ class ClassificationResult:
     regulatory_path: str
     ip_posture: str
     abs_note: str
+    abs_actions: list[str]
     tkdl_prior_art_guidance: str | None
     recommended_ip_routes: list[str]
 
@@ -155,6 +157,7 @@ class DecisionTree:
                 regulatory_path=node.regulatory_path,
                 ip_posture=node.ip_posture,
                 abs_note=node.abs_note,
+                abs_actions=node.abs_actions,
                 tkdl_prior_art_guidance=node.tkdl_prior_art_guidance,
                 recommended_ip_routes=node.recommended_ip_routes,
             ),

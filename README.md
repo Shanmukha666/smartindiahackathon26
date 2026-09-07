@@ -130,7 +130,11 @@ The system's control mapping and explicit non-certification statement are in [AI
 
 ## SIH problem-statement mapping
 
-IP-SAKTI Sahayak is designed for the SIH scope of helping Indian innovators assess patentability and regulatory/IP pathways for traditional-knowledge, Ayurveda, formulation, and cosmetic products. Before submission, add the official SIH problem-statement ID and title supplied by the event to this section; the repository intentionally does not invent one.
+**Problem Statement ID:** 26045<br>
+**Title:** *IP-SAKTI Sahayak: A Multilingual, RAG-Based, Source-Cited AI Assistant for Intellectual Property and Regulatory Guidance in Ayurveda*<br>
+**Domain:** AYUSH / Intellectual Property Rights / Regulatory Technology
+
+The implementation map, phase boundaries, and open requirements are recorded in [requirements traceability](docs/requirements-traceability.md).
 
 Ingest the seeded public-source corpus after applying the database migration and setting `VOYAGE_API_KEY` in the ignored root `.env`:
 

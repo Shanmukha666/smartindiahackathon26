@@ -118,6 +118,10 @@ Set this Vercel environment variable for Production and Preview deployments:
 
 `VITE_API_BASE_URL` is public build-time configuration, not a secret. Before deploying the frontend, add its exact Vercel URL to the backend's `ALLOWED_ORIGINS` / production `TF_VAR_ALLOWED_ORIGINS`, and configure its hostname in the backend's `TRUSTED_HOSTS` where applicable. Do not put API keys, JWT signing keys, Google credentials, or database URLs in Vercel environment variables.
 
+## GitHub Pages frontend demo
+
+The `Deploy frontend to GitHub Pages` workflow builds the static frontend at `https://shanmukha666.github.io/smartindiahackathon26/`. In GitHub, enable **Settings → Pages → Source: GitHub Actions**, then run the workflow or push to `main`. This is a frontend-only demo: GitHub Pages cannot run FastAPI, PostgreSQL, or the RAG providers. To enable live calls, add the HTTPS backend origin as the repository Actions variable `VITE_API_BASE_URL`, and add the exact Pages origin to the backend's production CORS allowlist. Without that backend URL, the hosted page remains usable for its visual interface but API-driven classification and answers are unavailable.
+
 Indic-language queries use Bhashini before retrieval, so the English corpus remains the sole evidence source and its chunk IDs remain unchanged. The language selector identifies the query language for translation; the interface itself is currently English. Set `BHASHINI_API_KEY` and (when issued for the account) `BHASHINI_USER_ID`. The backend also provides `POST /speech/transcribe` and `POST /speech/synthesize` for Bhashini ASR/TTS. QA audit rows retain `original_query`, `translated_query`, and `query_language`.
 
 `/ask`, `/escalate`, privacy, and paid-source routes persist user-related records. Staging and production require a verified bearer identity for those records; local demo mode issues an ephemeral, development-only token. Before production, integrate the frontend with the chosen identity provider so it sends a user token rather than relying on the demo-session endpoint.

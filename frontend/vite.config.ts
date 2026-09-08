@@ -5,6 +5,8 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineConfig(({ mode }) => {
   const environment = loadEnv(mode, ".", "");
   return {
+    // GitHub Pages serves a project site beneath /REPOSITORY_NAME/.
+    base: mode === "github-pages" ? "/smartindiahackathon26/" : "/",
     plugins: [react(), tailwindcss()],
     server: {
       host: "0.0.0.0",

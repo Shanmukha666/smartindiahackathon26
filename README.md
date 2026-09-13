@@ -24,6 +24,32 @@ docker compose up --build
 
 This starts the database-free bundled-corpus demo by default and does not require AI-provider keys. To use the full PostgreSQL/provider-backed RAG path, set `DEMO_MODE=false` and add your local-only database/password, JWT, KEK-resource, Voyage, Cohere, and Anthropic values to the ignored `.env` file.
 
+### Native Windows Quickstart (PowerShell)
+
+Start the stack natively without Docker:
+
+`powershell
+# Terminal 1: Backend
+.\run_backend.ps1
+
+# Terminal 2: Frontend
+.\run_frontend.ps1
+`
+
+- **Frontend UI**: http://localhost:5173
+- **FastAPI Swagger Docs**: http://127.0.0.1:8000/docs
+
+### Sample AYUSH Patent Test Documents
+
+Realistic test documents across 5 formats are bundled under [sample_test_documents/](sample_test_documents/):
+
+- 	kdl_prior_art_report.pdf: TKDL prior art search report with citations (Charaka Samhita, Bhavaprakasha Nighantu) and Section 3(p) objections.
+- sample_ayush_patent_application.docx: Specification for novel nano-encapsulated Withania somnifera + Curcuma longa with Claim 1 and inventive step defense.
+- yush_formulation_synergy_data.xlsx: In vitro synergy assay table with Chou-Talalay combination indices overcoming Section 3(e) mere admixture.
+- herbal_formulation_ingredients.csv: Botanical ingredient compositions and pharmacopoeial standards.
+- 
+egulatory_compliance_memo.txt: Legal analysis on NBA Form III and Section 19/20 clearance.
+
 When running outside Docker, start the backend on port 8000, then run `npm run dev` in `frontend`. To use another backend port, set `VITE_API_PROXY_TARGET`, for example `VITE_API_PROXY_TARGET=http://127.0.0.1:8010 npm run dev`.
 
 Open the frontend at `http://localhost:5173`. The backend is available at `http://localhost:8000`; its liveness endpoint is `GET /health` and its database-backed readiness endpoint is `GET /ready`. View local traces at `http://localhost:16686`.

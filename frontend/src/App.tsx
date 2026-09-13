@@ -212,7 +212,29 @@ export default function App() {
       audio.onended = () => URL.revokeObjectURL(url);
       await audio.play();
     } catch {
-      setError("Speech playback is unavailable for this language or environment.");
+      // Browser-native Web Speech API fallback (supports Hindi, Kannada, etc. locally without requiring external cloud API keys)
+      if (typeof window !== "undefined" && "speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        const langMap: Record<string, string> = {
+          en: "en-IN",
+          hi: "hi-IN",
+          kn: "kn-IN",
+          ml: "ml-IN",
+          ta: "ta-IN",
+          te: "te-IN",
+          bn: "bn-IN",
+          mr: "mr-IN",
+          gu: "gu-IN",
+          pa: "pa-IN",
+          ur: "ur-IN",
+          or: "or-IN",
+        };
+        utterance.lang = langMap[language] || "en-IN";
+        window.speechSynthesis.speak(utterance);
+      } else {
+        setError("Speech playback is unavailable for this language or environment.");
+      }
     }
   };
 

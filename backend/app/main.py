@@ -300,9 +300,17 @@ async def request_context_middleware(
 @app.middleware("http")
 async def security_headers_middleware(request: Request, call_next: Callable[[Request], Awaitable[Response]]) -> Response:
     response = await call_next(request)
-    response.headers.update({"X-Content-Type-Options": "nosniff", "X-Frame-Options": "DENY",
-                             "Referrer-Policy": "no-referrer", "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
-                             "Cross-Origin-Opener-Policy": "same-origin", "Content-Security-Policy": "default-src 'none'; frame-ancestors 'none'"})
+    csp = "default-src 'none'; frame-ancestors 'none'"
+    if request.url.path in {"/docs", "/redoc", "/openapi.json"}:
+        csp = "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: https://fastapi.tiangolo.com; frame-ancestors 'none'"
+    response.headers.update({
+        "X-Content-Type-Options": "nosniff",
+        "X-Frame-Options": "DENY",
+        "Referrer-Policy": "no-referrer",
+        "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
+        "Cross-Origin-Opener-Policy": "same-origin",
+        "Content-Security-Policy": csp,
+    })
     if settings.deployment_environment == "production":
         response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
     return response
@@ -378,7 +386,13 @@ async def english_query(query: str, language: IndicLanguage, http_client: httpx.
     """Translate the retrieval representation without mutating the submitted query."""
     if language == "en":
         return query
-    return await BhashiniClient(settings, http_client).translate(query, language, "en")
+    if not settings.bhashini_api_key:
+        return query
+    try:
+        return await BhashiniClient(settings, http_client).translate(query, language, "en")
+    except Exception as error:
+        logger.warning("translation.fallback", extra={"error_type": type(error).__name__})
+        return query
 
 
 @app.post("/retrieve", response_model=RetrieveResponse)

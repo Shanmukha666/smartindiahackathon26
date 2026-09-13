@@ -19,6 +19,13 @@ $env:OTEL_EXPORTER_OTLP_ENDPOINT = "http://localhost:4317"
 $env:OTEL_TRACES_EXPORTER = "none"
 $env:OTEL_METRICS_EXPORTER = "none"
 
+# ── Bhashini Indic-language services (translation + speech) ──
+# Paste your Bhashini API key and User ID below.
+# Get free keys at: https://bhashini.gov.in/ulca/user/register
+# If left empty, Indic translation and speech will gracefully fall back.
+if (-not $env:BHASHINI_API_KEY) { $env:BHASHINI_API_KEY = "" }
+if (-not $env:BHASHINI_USER_ID) { $env:BHASHINI_USER_ID = "" }
+
 Write-Host "Starting IP-SAKTI Sahayak backend on http://127.0.0.1:8000 ..." -ForegroundColor Cyan
 Set-Location -Path "$PSScriptRoot\backend"
 uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload

@@ -14,11 +14,49 @@ from .retrieve import JurisdictionMode, RerankedCandidate, SearchCandidate, juri
 
 TOKEN_PATTERN = re.compile(r"[a-z0-9]+")
 
+# In-memory store for session uploads in demo mode: session_id -> list of SearchCandidate
+DEMO_SESSION_UPLOADS: dict[str, list[SearchCandidate]] = {}
 
-def retrieve_demo(query: str, jurisdiction: str, corpus_dir: Path) -> list[RerankedCandidate]:
+
+def add_demo_session_upload(session_id: str, filename: str, text: str) -> int:
+    """Store chunks in demo session memory so they can be retrieved."""
+    chunks = chunk_body(text, tags=["user-upload"])
+    existing = DEMO_SESSION_UPLOADS.setdefault(session_id, [])
+    doc_id = len(existing) + 1
+    for idx, chunk in enumerate(chunks, start=1):
+        existing.append(
+            SearchCandidate(
+                chunk_id=f"upload-{session_id[:6]}-{doc_id}-{idx}",
+                document_id=doc_id,
+                instrument=filename,
+                section="Uploaded document",
+                jurisdiction="USER_UPLOAD",
+                chunk_text=chunk.text,
+                fused_score=0.92,
+            )
+        )
+    return len(chunks)
+
+
+def retrieve_demo(
+    query: str,
+    jurisdiction: str,
+    corpus_dir: Path,
+    session_id: str | None = None,
+) -> list[RerankedCandidate]:
     terms = set(TOKEN_PATTERN.findall(query.lower()))
     allowed = set(jurisdictions_for(cast(JurisdictionMode, jurisdiction)))
     results: list[RerankedCandidate] = []
+
+    # 1. Search session uploaded files first if available
+    if session_id and session_id in DEMO_SESSION_UPLOADS:
+        for candidate in DEMO_SESSION_UPLOADS[session_id]:
+            chunk_terms = set(TOKEN_PATTERN.findall(candidate.chunk_text.lower()))
+            overlap = len(terms & chunk_terms)
+            score = min(0.98, 0.5 + (overlap / max(len(terms), 1))) if overlap > 0 else 0.75
+            results.append(RerankedCandidate(candidate, score))
+
+    # 2. Search local bundled corpus
     for document_id, path in enumerate(sorted(corpus_dir.glob("*.md")), start=1):
         source = parse_source_file(path)
         if source.metadata.jurisdiction not in allowed:
@@ -49,11 +87,12 @@ class DemoClaudeClient:
             return AskAnswer(mode="single", citations=[], confidence="low", abstain=True)
         chunk_id, text = match.groups()
         excerpt = html.unescape(text).strip()
+        prefix = "Based on uploaded document:" if "upload-" in chunk_id else "Demo mode — based on bundled local corpus:"
         return AskAnswer(
             mode="single",
-            answer=f"Demo mode — based only on the bundled local corpus: {excerpt} [{chunk_id}]",
+            answer=f"{prefix} {excerpt} [{chunk_id}]",
             citations=[chunk_id],
-            confidence="medium",
+            confidence="high" if "upload-" in chunk_id else "medium",
             abstain=False,
         )
 

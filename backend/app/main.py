@@ -25,7 +25,7 @@ from .auth import audit_record_user, current_user, issue_test_token, require_rol
 from .bhashini import BhashiniClient, IndicLanguage
 from .config import get_settings
 from .db import check_database_connection
-from .demo import DemoClaudeClient, DemoRepository, retrieve_demo
+from .demo import DemoClaudeClient, DemoRepository, add_demo_session_upload, retrieve_demo
 from .escalation import (
     EscalateRequest,
     LoggingNotificationChannel,
@@ -66,8 +66,10 @@ from .session_documents import (
     ingest_upload_for_session,
 )
 from .web_discovery import (
+    GLOBAL_DEMO_STAGING_REPO,
     AsyncpgStagingRepository,
     BraveSearchProvider,
+    StagingRepository,
     load_topics,
     run_discovery,
 )
@@ -361,9 +363,10 @@ async def retrieve_for_request(
     jurisdiction: Literal["IN", "INTL", "BOTH"],
     repository: AsyncpgCorpusRepository,
     http_client: httpx.AsyncClient,
+    session_id: str | None = None,
 ) -> list[RerankedCandidate]:
     if settings.demo_mode:
-        return retrieve_demo(query, jurisdiction, Path(__file__).resolve().parents[2] / "corpus")
+        return retrieve_demo(query, jurisdiction, Path(__file__).resolve().parents[2] / "corpus", session_id=session_id)
     async with VoyageEmbedder(settings, http_client) as embedder, CohereReranker(settings, http_client) as reranker:
         return await retrieve(
             query, jurisdiction, AsyncpgCorpusRepositoryAdapter(repository), embedder, reranker,
@@ -441,7 +444,7 @@ async def ask_endpoint(
         if settings.demo_mode:
             return await answer_question(
                 translated_payload,
-                lambda query, jurisdiction: retrieve_for_request(query, jurisdiction, repository, http_client),
+                lambda query, jurisdiction: retrieve_for_request(query, jurisdiction, repository, http_client, payload.session_id),
                 DemoClaudeClient(),
                 repository,
                 request_id_context.get(),
@@ -456,7 +459,7 @@ async def ask_endpoint(
                         jurisdiction = call.arguments.get("jurisdiction")
                         if not isinstance(query, str) or jurisdiction not in {"IN", "INTL", "BOTH"}:
                             return {"error": "retrieve_chunks requires query and a valid jurisdiction"}
-                        results = await retrieve_for_request(query, jurisdiction, repository, http_client)
+                        results = await retrieve_for_request(query, jurisdiction, repository, http_client, payload.session_id)
                         return {"chunks": [{"id": item.candidate.chunk_id,
                                             "untrusted_evidence": format_untrusted_chunk(
                                                 item.candidate.chunk_id, item.candidate.jurisdiction, item.candidate.chunk_text
@@ -477,7 +480,7 @@ async def ask_endpoint(
 
                 return await answer_question(
                     translated_payload,
-                    lambda query, jurisdiction: retrieve_for_request(query, jurisdiction, repository, http_client),
+                    lambda query, jurisdiction: retrieve_for_request(query, jurisdiction, repository, http_client, payload.session_id),
                     claude,
                     repository,
                     request_id_context.get(),
@@ -815,12 +818,6 @@ async def run_discovery_endpoint(
     _: str = Depends(require_role("legal_reviewer")),
 ) -> DiscoveryResponse:
     """Crawl seed sources and stage new candidate documents for review."""
-    if settings.demo_mode:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Discovery is disabled in DEMO_MODE",
-        )
-
     topics = load_topics()
     search_provider = None
     if settings.brave_search_api_key:
@@ -828,7 +825,12 @@ async def run_discovery_endpoint(
             settings.brave_search_api_key.get_secret_value(), http_client
         )
 
-    staging_repo = AsyncpgStagingRepository(repository._pool)
+    staging_repo: StagingRepository
+    if settings.demo_mode:
+        staging_repo = GLOBAL_DEMO_STAGING_REPO
+    else:
+        staging_repo = AsyncpgStagingRepository(repository._pool)
+
     async with WebScraper(settings, http_client) as scraper:
         stats = await run_discovery(
             topics,
@@ -855,7 +857,7 @@ async def list_staging_candidates(
     repository: RepositoryDep,
     _: str = Depends(require_role("legal_reviewer")),
 ) -> list[StagedCandidateResponse]:
-    staging_repo = AsyncpgStagingRepository(repository._pool)
+    staging_repo: StagingRepository = GLOBAL_DEMO_STAGING_REPO if settings.demo_mode else AsyncpgStagingRepository(repository._pool)
     candidates = await staging_repo.list_pending()
     return [StagedCandidateResponse(**c.__dict__) for c in candidates]
 
@@ -869,7 +871,7 @@ async def get_staging_candidate(
     repository: RepositoryDep,
     _: str = Depends(require_role("legal_reviewer")),
 ) -> StagedCandidateResponse:
-    staging_repo = AsyncpgStagingRepository(repository._pool)
+    staging_repo: StagingRepository = GLOBAL_DEMO_STAGING_REPO if settings.demo_mode else AsyncpgStagingRepository(repository._pool)
     candidate = await staging_repo.get(staging_id)
     if candidate is None:
         raise HTTPException(status_code=404, detail="Staging candidate not found")
@@ -886,7 +888,7 @@ async def act_on_staging_candidate(
     repository: RepositoryDep,
     reviewer: str = Depends(require_role("legal_reviewer")),
 ) -> Response:
-    staging_repo = AsyncpgStagingRepository(repository._pool)
+    staging_repo: StagingRepository = GLOBAL_DEMO_STAGING_REPO if settings.demo_mode else AsyncpgStagingRepository(repository._pool)
     candidate = await staging_repo.get(staging_id)
     if candidate is None:
         raise HTTPException(status_code=404, detail="Staging candidate not found")
@@ -947,9 +949,9 @@ async def upload_session_document(
         )
 
     if settings.demo_mode:
-        # In demo mode, return a mock response
+        chunk_count = add_demo_session_upload(payload.session_id, payload.filename, text)
         return SessionUploadResponse(
-            upload_id=0, filename=payload.filename, chunk_count=1, char_count=len(text)
+            upload_id=1, filename=payload.filename, chunk_count=chunk_count, char_count=len(text)
         )
 
     if not settings.voyage_api_key:

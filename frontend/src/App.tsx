@@ -14,7 +14,11 @@ import type {
   RetrievedEvidence,
   SpeechResponse,
   TrailStep,
+  SessionUploadResponse,
+  DiscoveryResponse,
+  StagedCandidate,
 } from "./types";
+import { getApi, patchApi } from "./api/client";
 
 const languages: { code: IndicLanguage; label: string }[] = [
   { code: "en", label: "English" },
@@ -65,14 +69,21 @@ export default function App() {
   const [paidResults, setPaidResults] = useState<PaidSourceResponse["results"]>([]);
   const [sessionId] = useState(() => crypto.randomUUID());
 
+  // AI Assistant file attachment state
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [uploadBusy, setUploadBusy] = useState(false);
+  const [uploadedDocInfo, setUploadedDocInfo] = useState<SessionUploadResponse | null>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+
   // Ingestion Hub state
-  const [ingestMode, setIngestMode] = useState<"gdrive" | "url" | "upload">("url");
+  const [ingestMode, setIngestMode] = useState<"discovery" | "url" | "upload">("discovery");
   const [ingestUrl, setIngestUrl] = useState("https://ayush.gov.in/");
-  const [ingestGdriveId, setIngestGdriveId] = useState("1mFlOji63T0ETs5XwDsdyAkFucB9Zxgsh");
   const [ingestFilename, setIngestFilename] = useState("ayush_regulation_2026.txt");
   const [ingestContent, setIngestContent] = useState("Section 1. Guidelines for AYUSH Patent Examination\nTraditional Knowledge Digital Library access must be consulted.");
   const [ingestBusy, setIngestBusy] = useState(false);
   const [ingestResult, setIngestResult] = useState<IngestResponse | null>(null);
+  const [discoveryResult, setDiscoveryResult] = useState<DiscoveryResponse | null>(null);
+  const [stagedCandidates, setStagedCandidates] = useState<StagedCandidate[]>([]);
   const [ingestError, setIngestError] = useState<string | null>(null);
 
   const moveClassification = useCallback(
@@ -205,19 +216,88 @@ export default function App() {
     }
   };
 
+  const handleFileUpload = async (file: File) => {
+    setUploadBusy(true);
+    setUploadError(null);
+    try {
+      const reader = new FileReader();
+      const base64Promise = new Promise<string>((resolve, reject) => {
+        reader.onload = () => {
+          const result = reader.result as string;
+          // Extract base64 part
+          const base64 = result.includes(",") ? result.split(",")[1] : result;
+          resolve(base64);
+        };
+        reader.onerror = reject;
+      });
+      reader.readAsDataURL(file);
+      const content_base64 = await base64Promise;
+
+      const res = await postApi<SessionUploadResponse>(
+        "/ask/upload",
+        {
+          session_id: sessionId,
+          filename: file.name,
+          content_base64,
+          content_type: file.type || "application/octet-stream",
+        },
+        devToken ?? undefined
+      );
+      setUploadedFile(file);
+      setUploadedDocInfo(res);
+    } catch (err: unknown) {
+      setUploadError(err instanceof Error ? err.message : "Failed to extract and index document");
+    } finally {
+      setUploadBusy(false);
+    }
+  };
+
+  const loadStagedCandidates = useCallback(async () => {
+    try {
+      const list = await getApi<StagedCandidate[]>("/admin/corpus-staging", devToken ?? undefined);
+      setStagedCandidates(list);
+    } catch {
+      // Ignore in non-auth
+    }
+  }, [devToken]);
+
+  useEffect(() => {
+    if (activeTab === "document-ingestion") {
+      void loadStagedCandidates();
+    }
+  }, [activeTab, loadStagedCandidates]);
+
+  const handleRunDiscovery = async () => {
+    setIngestBusy(true);
+    setIngestError(null);
+    setDiscoveryResult(null);
+    try {
+      const res = await postApi<DiscoveryResponse>("/discover", {}, devToken ?? undefined);
+      setDiscoveryResult(res);
+      await loadStagedCandidates();
+    } catch (err: unknown) {
+      setIngestError(err instanceof Error ? err.message : "Automated discovery failed.");
+    } finally {
+      setIngestBusy(false);
+    }
+  };
+
+  const handleStagingAction = async (id: number, action: "promote" | "reject") => {
+    try {
+      await patchApi(`/admin/corpus-staging/${id}`, { action, reason: `Reviewed by Legal Reviewer: ${action}` }, devToken ?? undefined);
+      await loadStagedCandidates();
+    } catch (err: unknown) {
+      setIngestError(err instanceof Error ? err.message : `Failed to ${action} candidate`);
+    }
+  };
+
   const handleIngest = async () => {
     setIngestBusy(true);
     setIngestError(null);
     setIngestResult(null);
     try {
       let res: IngestResponse;
-      if (ingestMode === "gdrive") {
-        res = await postApi<IngestResponse>(
-          "/ingest/gdrive",
-          { file_id: ingestGdriveId, jurisdiction: jurisdiction === "INTL" ? "INTL" : "IN" },
-          devToken ?? undefined
-        );
-      } else if (ingestMode === "url") {
+      if (ingestMode === "url") {
         res = await postApi<IngestResponse>(
           "/ingest/url",
           { url: ingestUrl, jurisdiction: jurisdiction === "INTL" ? "INTL" : "IN" },
@@ -567,6 +647,54 @@ export default function App() {
                   rows={3}
                   className="w-full p-3 rounded-lg bg-surface-container-low border border-surface-container text-sm text-on-surface placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-primary leading-relaxed resize-y"
                 />
+
+                {/* File Attachment Pill / Upload Option */}
+                <div className="mt-2.5 flex flex-wrap items-center gap-2">
+                  <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-surface-container bg-surface-container-low hover:bg-primary-container hover:text-on-primary hover:border-transparent text-xs font-semibold text-primary transition-all shadow-xs">
+                    <span className="material-symbols-outlined text-base">attach_file</span>
+                    <span>{uploadedFile ? `Change File (${uploadedFile.name})` : "Attach File (PDF, DOCX, XLSX, CSV, TXT)"}</span>
+                    <input
+                      type="file"
+                      accept=".pdf,.docx,.xlsx,.csv,.txt,.md,.json"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) void handleFileUpload(file);
+                      }}
+                    />
+                  </label>
+
+                  {uploadBusy && (
+                    <span className="text-xs text-on-surface-variant flex items-center gap-1.5">
+                      <span className="w-3 h-3 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                      <span>Extracting text &amp; indexing...</span>
+                    </span>
+                  )}
+
+                  {uploadedDocInfo && !uploadBusy && (
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-surface-tint/10 border border-surface-tint/30 text-surface-tint text-xs font-medium">
+                      <span className="material-symbols-outlined text-sm">check_circle</span>
+                      <span><strong>{uploadedDocInfo.filename}</strong> ({uploadedDocInfo.chunk_count} chunks indexed for this session)</span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setUploadedFile(null);
+                          setUploadedDocInfo(null);
+                        }}
+                        className="ml-1 text-on-surface-variant hover:text-error"
+                      >
+                        <span className="material-symbols-outlined text-xs">close</span>
+                      </button>
+                    </div>
+                  )}
+
+                  {uploadError && (
+                    <span className="text-xs text-error flex items-center gap-1">
+                      <span className="material-symbols-outlined text-xs">error</span>
+                      {uploadError}
+                    </span>
+                  )}
+                </div>
 
                 <div className="mt-3 flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-surface-container">
                   <div className="flex items-center gap-2 text-xs text-on-surface-variant">
@@ -987,6 +1115,18 @@ export default function App() {
               <div className="flex items-center gap-2 border-b border-surface-container pb-2">
                 <button
                   type="button"
+                  onClick={() => setIngestMode("discovery")}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                    ingestMode === "discovery"
+                      ? "bg-primary text-on-primary shadow-sm"
+                      : "text-on-surface-variant hover:bg-surface-container"
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-sm align-middle mr-1">travel_explore</span>
+                  Automated Web Discovery &amp; Staging
+                </button>
+                <button
+                  type="button"
                   onClick={() => setIngestMode("url")}
                   className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                     ingestMode === "url"
@@ -995,19 +1135,7 @@ export default function App() {
                   }`}
                 >
                   <span className="material-symbols-outlined text-sm align-middle mr-1">language</span>
-                  Web Scraper (URL)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setIngestMode("gdrive")}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                    ingestMode === "gdrive"
-                      ? "bg-primary text-on-primary shadow-sm"
-                      : "text-on-surface-variant hover:bg-surface-container"
-                  }`}
-                >
-                  <span className="material-symbols-outlined text-sm align-middle mr-1">add_to_drive</span>
-                  Google Drive Trigger
+                  Specific Web URL
                 </button>
                 <button
                   type="button"
@@ -1019,12 +1147,141 @@ export default function App() {
                   }`}
                 >
                   <span className="material-symbols-outlined text-sm align-middle mr-1">upload_file</span>
-                  Direct Upload
+                  Direct Text / Markdown
                 </button>
               </div>
 
               {/* Ingestion Form */}
               <div className="bg-surface-container-lowest rounded-xl border border-surface-container p-5 shadow-sm space-y-4">
+                {ingestMode === "discovery" && (
+                  <div className="space-y-4">
+                    <div>
+                      <h3 className="text-xs font-bold text-on-surface uppercase tracking-wider mb-1">
+                        Automated Web Crawler &amp; Legal Discovery Engine
+                      </h3>
+                      <p className="text-xs text-on-surface-variant leading-relaxed">
+                        Crawls outward from 11 verified official seeds (India Code, IP India, WIPO, TKDL, FSSAI, Plant Authority, NBA).
+                        All discovered sources are filtered through domain allowlists, checked for robots.txt compliance, and land in the
+                        <strong> Corpus Staging Review Queue</strong> for Legal Reviewer authorization before becoming retrievable law.
+                      </p>
+                    </div>
+
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        onClick={() => void handleRunDiscovery()}
+                        disabled={ingestBusy}
+                        className="px-4 py-2 rounded-lg bg-primary hover:bg-primary-container text-on-primary text-xs font-bold shadow-sm flex items-center gap-1.5 transition-all cursor-pointer"
+                      >
+                        {ingestBusy ? (
+                          <>
+                            <span className="w-3 h-3 border-2 border-on-primary border-t-transparent rounded-full animate-spin" />
+                            <span>Crawling Authoritative Web Seeds...</span>
+                          </>
+                        ) : (
+                          <>
+                            <span className="material-symbols-outlined text-sm">travel_explore</span>
+                            <span>Launch Automated Web Discovery</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+
+                    {discoveryResult && (
+                      <div className="p-3.5 rounded-xl bg-surface-container text-xs border border-surface-tint space-y-2">
+                        <div className="font-bold text-surface-tint flex items-center gap-1.5">
+                          <span className="material-symbols-outlined text-base">check_circle</span>
+                          <span>Discovery Crawl Complete</span>
+                        </div>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                          <div className="p-2 rounded bg-surface-container-lowest">
+                            <span className="text-[10px] text-on-surface-variant block">Candidates Found</span>
+                            <strong>{discoveryResult.candidates_found}</strong>
+                          </div>
+                          <div className="p-2 rounded bg-surface-container-lowest">
+                            <span className="text-[10px] text-on-surface-variant block">Staged for Review</span>
+                            <strong className="text-surface-tint">{discoveryResult.staged}</strong>
+                          </div>
+                          <div className="p-2 rounded bg-surface-container-lowest">
+                            <span className="text-[10px] text-on-surface-variant block">Duplicates Skipped</span>
+                            <strong>{discoveryResult.duplicate}</strong>
+                          </div>
+                          <div className="p-2 rounded bg-surface-container-lowest">
+                            <span className="text-[10px] text-on-surface-variant block">Robots.txt Blocked</span>
+                            <strong>{discoveryResult.robots_blocked}</strong>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Staged Candidates Review Table */}
+                    <div className="pt-3 border-t border-surface-container">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <span className="material-symbols-outlined text-base text-secondary">verified_user</span>
+                          <h4 className="text-xs font-bold text-on-surface uppercase tracking-wider">
+                            Corpus Staging Review Queue ({stagedCandidates.length} Pending)
+                          </h4>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => void loadStagedCandidates()}
+                          className="text-[11px] text-primary hover:underline flex items-center gap-1"
+                        >
+                          <span className="material-symbols-outlined text-xs">refresh</span>
+                          Refresh
+                        </button>
+                      </div>
+
+                      {stagedCandidates.length === 0 ? (
+                        <div className="p-4 rounded-lg bg-surface-container-low text-center text-xs text-on-surface-variant">
+                          No candidates currently pending review. Run automated discovery above to scan for new statutory sources.
+                        </div>
+                      ) : (
+                        <div className="space-y-2.5 max-h-72 overflow-y-auto pr-1">
+                          {stagedCandidates.map((cand) => (
+                            <div key={cand.id} className="p-3 rounded-xl bg-surface-container-low border border-surface-container text-xs space-y-2">
+                              <div className="flex items-start justify-between gap-2">
+                                <div>
+                                  <strong className="text-on-surface block text-xs">{cand.title}</strong>
+                                  <a href={cand.url} target="_blank" rel="noreferrer" className="text-primary hover:underline font-mono text-[10px] truncate max-w-md block">
+                                    {cand.url} ↗
+                                  </a>
+                                </div>
+                                <span className="px-2 py-0.5 rounded bg-primary-fixed text-on-primary-fixed text-[10px] font-bold">
+                                  {cand.jurisdiction}
+                                </span>
+                              </div>
+                              <p className="text-on-surface-variant text-[11px] line-clamp-2 leading-relaxed">
+                                {cand.body_text}
+                              </p>
+                              <div className="flex items-center justify-between pt-1 border-t border-surface-container">
+                                <span className="text-[10px] text-outline font-mono">Topic: {cand.topic}</span>
+                                <div className="flex items-center gap-2">
+                                  <button
+                                    type="button"
+                                    onClick={() => void handleStagingAction(cand.id, "reject")}
+                                    className="px-2.5 py-1 rounded border border-error/40 text-error hover:bg-error-container text-[11px] font-semibold transition-colors"
+                                  >
+                                    Reject
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => void handleStagingAction(cand.id, "promote")}
+                                    className="px-2.5 py-1 rounded bg-primary text-on-primary hover:bg-primary-container text-[11px] font-semibold transition-colors shadow-xs"
+                                  >
+                                    Promote to Legal Corpus
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
                 {ingestMode === "url" && (
                   <div>
                     <label className="block text-xs font-bold text-on-surface mb-1">
@@ -1034,29 +1291,11 @@ export default function App() {
                       type="url"
                       value={ingestUrl}
                       onChange={(e) => setIngestUrl(e.target.value)}
-                      placeholder="https://example.com/ayurveda-guidelines"
+                      placeholder="https://ayush.gov.in/"
                       className="w-full p-2.5 rounded-lg bg-surface-container-low border border-surface-container text-xs text-on-surface focus:outline-none focus:ring-2 focus:ring-primary font-mono"
                     />
                     <p className="text-[11px] text-on-surface-variant mt-1">
                       Automatically checks robots.txt, strips boilerplate HTML tags, chunks text, and embeds into pgvector &amp; Pinecone.
-                    </p>
-                  </div>
-                )}
-
-                {ingestMode === "gdrive" && (
-                  <div>
-                    <label className="block text-xs font-bold text-on-surface mb-1">
-                      Google Drive File ID:
-                    </label>
-                    <input
-                      type="text"
-                      value={ingestGdriveId}
-                      onChange={(e) => setIngestGdriveId(e.target.value)}
-                      placeholder="1mFlOji63T0ETs5XwDsdyAkFucB9Zxgsh"
-                      className="w-full p-2.5 rounded-lg bg-surface-container-low border border-surface-container text-xs text-on-surface focus:outline-none focus:ring-2 focus:ring-primary font-mono"
-                    />
-                    <p className="text-[11px] text-on-surface-variant mt-1">
-                      Downloads file content via service account and ingests it. Google Docs are automatically exported to plain text.
                     </p>
                   </div>
                 )}
@@ -1089,30 +1328,32 @@ export default function App() {
                   </div>
                 )}
 
-                <div className="pt-2 flex items-center justify-between border-t border-surface-container">
-                  <div className="text-[11px] text-on-surface-variant flex items-center gap-1">
-                    <span className="material-symbols-outlined text-sm text-surface-tint">security</span>
-                    <span>Requires Legal Reviewer Authorization (Dev Token active)</span>
+                {ingestMode !== "discovery" && (
+                  <div className="pt-2 flex items-center justify-between border-t border-surface-container">
+                    <div className="text-[11px] text-on-surface-variant flex items-center gap-1">
+                      <span className="material-symbols-outlined text-sm text-surface-tint">security</span>
+                      <span>Requires Legal Reviewer Authorization (Dev Token active)</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => void handleIngest()}
+                      disabled={ingestBusy}
+                      className="px-4 py-2 rounded-lg bg-primary hover:bg-primary-container text-on-primary text-xs font-bold shadow-sm flex items-center gap-1.5 transition-all cursor-pointer"
+                    >
+                      {ingestBusy ? (
+                        <>
+                          <span className="w-3 h-3 border-2 border-on-primary border-t-transparent rounded-full animate-spin" />
+                          <span>Processing Ingestion...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>Ingest into Knowledge Base</span>
+                          <span className="material-symbols-outlined text-sm">cloud_upload</span>
+                        </>
+                      )}
+                    </button>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => void handleIngest()}
-                    disabled={ingestBusy}
-                    className="px-4 py-2 rounded-lg bg-primary hover:bg-primary-container text-on-primary text-xs font-bold shadow-sm flex items-center gap-1.5 transition-all cursor-pointer"
-                  >
-                    {ingestBusy ? (
-                      <>
-                        <span className="w-3 h-3 border-2 border-on-primary border-t-transparent rounded-full animate-spin" />
-                        <span>Processing Ingestion...</span>
-                      </>
-                    ) : (
-                      <>
-                        <span>Ingest into Knowledge Base</span>
-                        <span className="material-symbols-outlined text-sm">cloud_upload</span>
-                      </>
-                    )}
-                  </button>
-                </div>
+                )}
 
                 {/* Status Feedback */}
                 {ingestError && (

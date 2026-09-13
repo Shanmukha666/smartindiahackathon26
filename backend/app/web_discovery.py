@@ -325,6 +325,110 @@ class AsyncpgStagingRepository:
         )
 
 
+
+
+class DemoStagingRepository:
+    """In-memory staging repository for demo mode."""
+
+    def __init__(self) -> None:
+        self._items: dict[int, StagedCandidate] = {}
+        self._hashes: set[str] = set()
+        self._next_id = 1
+        # Seed with a few initial candidates for demo review
+        self._seed_demo_candidates()
+
+    def _seed_demo_candidates(self) -> None:
+        seeds = [
+            (
+                "https://indiacode.nic.in/handle/123456789/1367",
+                "Copyright Act 1957 (India)",
+                "Copyright Act (India)",
+                "IN",
+                "An Act to amend and consolidate the law relating to copyright in India.",
+                "hash_seed_1",
+            ),
+            (
+                "https://www.wipo.int/en/web/pct-system/guide/",
+                "WIPO PCT Applicant's Guide - Traditional Knowledge Disclosure",
+                "WIPO administered treaties (PCT, Madrid, Hague, Budapest, GRATK)",
+                "INTL",
+                "WIPO Treaty on Intellectual Property, Genetic Resources and Associated Traditional Knowledge (2024). Mandatory disclosure requirements.",
+                "hash_seed_2",
+            ),
+            (
+                "https://nbaindia.org/act/",
+                "Biological Diversity Act 2002 & Amendments 2023",
+                "Biological Diversity Act, Rules, and amendments (India)",
+                "IN",
+                "Section 3: Approval of National Biodiversity Authority for accessing biological resources or traditional knowledge for commercial utilization.",
+                "hash_seed_3",
+            ),
+        ]
+        for url, title, topic, jur, body, h in seeds:
+            cid = self._next_id
+            self._next_id += 1
+            self._hashes.add(h)
+            self._items[cid] = StagedCandidate(
+                id=cid,
+                url=url,
+                title=title,
+                topic=topic,
+                jurisdiction=jur,  # type: ignore[arg-type]
+                body_text=body,
+                source_hash=h,
+                status="pending_review",
+            )
+
+    async def exists_by_hash(self, source_hash: str) -> bool:
+        return source_hash in self._hashes
+
+    async def insert_candidate(
+        self, candidate: SourceCandidate, body_text: str, source_hash: str
+    ) -> int | None:
+        if source_hash in self._hashes:
+            return None
+        self._hashes.add(source_hash)
+        cid = self._next_id
+        self._next_id += 1
+        self._items[cid] = StagedCandidate(
+            id=cid,
+            url=candidate.url,
+            title=candidate.title[:512],
+            topic=candidate.topic,
+            jurisdiction=candidate.jurisdiction,
+            body_text=body_text,
+            source_hash=source_hash,
+            status="pending_review",
+        )
+        return cid
+
+    async def list_pending(self) -> list[StagedCandidate]:
+        return [c for c in self._items.values() if c.status == "pending_review"]
+
+    async def get(self, staging_id: int) -> StagedCandidate | None:
+        return self._items.get(staging_id)
+
+    async def mark_promoted(self, staging_id: int, reviewer: str) -> None:
+        if staging_id in self._items:
+            c = self._items[staging_id]
+            self._items[staging_id] = StagedCandidate(
+                id=c.id, url=c.url, title=c.title, topic=c.topic,
+                jurisdiction=c.jurisdiction, body_text=c.body_text,
+                source_hash=c.source_hash, status="promoted",
+            )
+
+    async def mark_rejected(self, staging_id: int, reviewer: str, reason: str) -> None:
+        if staging_id in self._items:
+            c = self._items[staging_id]
+            self._items[staging_id] = StagedCandidate(
+                id=c.id, url=c.url, title=c.title, topic=c.topic,
+                jurisdiction=c.jurisdiction, body_text=c.body_text,
+                source_hash=c.source_hash, status="rejected",
+            )
+
+
+GLOBAL_DEMO_STAGING_REPO = DemoStagingRepository()
+
 async def run_discovery(
     topics: Sequence[DiscoveryTopic],
     scraper: WebScraper,

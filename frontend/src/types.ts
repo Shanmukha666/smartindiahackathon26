@@ -12,3 +12,6 @@ export type DevSessionResponse = { access_token: string; token_type: "Bearer"; e
 export type SpeechResponse = { audio_base64: string; audio_format: string };
 export type PaidSourceResponse = { results: Array<{ title?: string; url?: string; summary?: string }> };
 export type IngestResponse = { status: "inserted" | "changed" | "unchanged"; chunk_count: number; pinecone_synced: boolean };
+export type SessionUploadResponse = { upload_id: number; filename: string; chunk_count: number; char_count: number };
+export type DiscoveryResponse = { candidates_found: number; staged: number; duplicate: number; robots_blocked: number; fetch_failed: number; empty: number };
+export type StagedCandidate = { id: number; url: string; title: string; topic: string; jurisdiction: "IN" | "INTL"; body_text: string; source_hash: string; status: "pending_review" | "promoted" | "rejected" };

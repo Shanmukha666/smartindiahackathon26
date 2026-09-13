@@ -615,18 +615,33 @@ export default function App() {
                   </p>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-secondary-fixed text-on-secondary-fixed text-[11px] font-semibold">
+                  <button
+                    type="button"
+                    onClick={() => setQuestion("Can a classical Ayurvedic formulation of Turmeric and Neem be patented under Section 3(p) of the Indian Patents Act?")}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-secondary-fixed text-on-secondary-fixed text-[11px] font-semibold hover:opacity-90 transition-opacity cursor-pointer shadow-2xs"
+                    title="Click to populate question"
+                  >
                     <span className="material-symbols-outlined text-sm">warning</span>
                     Patents Act §3(p)
-                  </span>
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary-fixed text-on-primary-fixed text-[11px] font-semibold">
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setQuestion("Do I need National Biodiversity Authority (NBA Form III) approval before commercializing an Ashwagandha-based health supplement?")}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary-fixed text-on-primary-fixed text-[11px] font-semibold hover:opacity-90 transition-opacity cursor-pointer shadow-2xs"
+                    title="Click to populate question"
+                  >
                     <span className="material-symbols-outlined text-sm">eco</span>
                     Biological Diversity Act
-                  </span>
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-tertiary-fixed text-on-tertiary-fixed text-[11px] font-semibold">
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setQuestion("How does the Traditional Knowledge Digital Library (TKDL) serve as prior art against foreign bio-piracy patents?")}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-tertiary-fixed text-on-tertiary-fixed text-[11px] font-semibold hover:opacity-90 transition-opacity cursor-pointer shadow-2xs"
+                    title="Click to populate question"
+                  >
                     <span className="material-symbols-outlined text-sm">menu_book</span>
                     TKDL Prior Art
-                  </span>
+                  </button>
                 </div>
               </div>
 

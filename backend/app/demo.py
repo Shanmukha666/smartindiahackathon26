@@ -114,13 +114,27 @@ def _synthesize_answer(query: str, chunk_id: str, raw_text: str) -> str:
             f"of known components is non-patentable unless quantitative synergistic efficacy (inventive step) is demonstrated."
         )
 
-    # 3. Overcoming Section 3(p) and 3(e)
-    if "3(p)" in q_lower or "3(e)" in q_lower or "overcome" in q_lower or "synerg" in q_lower:
+    # 3. Patent Claims and Inventive Step
+    if "claim" in q_lower or "invention" in q_lower or "composition" in q_lower:
+        match_claim = re.search(r"(Claim\s+\d+:[^\.\n]+(?:\.|\n|$))", text, re.IGNORECASE)
+        if match_claim:
+            claim_text = match_claim.group(1).strip()
+            return (
+                f"**Patent Claim Analysis**:\n"
+                f"- **{claim_text}**\n\n"
+                f"**Legal Posture**: Under Section 2(1)(j) & (ja) of the Patents Act 1970, this claim presents an inventive step "
+                f"by utilizing nano-encapsulation to overcome the aggregation objections under Section 3(e) and traditional knowledge prohibitions under Section 3(p)."
+            )
+
+    # 4. Overcoming Section 3(p) and 3(e) / Synergy Index
+    if "3(p)" in q_lower or "3(e)" in q_lower or "overcome" in q_lower or "synerg" in q_lower or "ratio" in q_lower:
+        match_ratio = re.search(r"(\d+:\d+[\d\.:]*|\d+\.\d+x\s+enhanced)", text, re.IGNORECASE)
+        ratio_clause = f" (specifically noting the {match_ratio.group(1)} formulation parameter)" if match_ratio else ""
         return (
-            "To overcome Section 3(p) (traditional knowledge) and Section 3(e) (mere admixture) objections:\n"
-            "1. **Synergistic Efficacy**: Demonstrate quantifiable non-obvious synergy exceeding additive effects.\n"
-            "2. **Novel Technical Process**: Provide evidence of an inventive formulation or delivery technology.\n"
-            "3. **NBA Compliance**: Secure NBA Form III approval under the Biological Diversity Act 2002."
+            f"To overcome Section 3(p) (traditional knowledge) and Section 3(e) (mere admixture) objections{ratio_clause}:\n\n"
+            f"1. **Synergistic Efficacy**: Demonstrate quantifiable non-obvious synergy exceeding additive effects.\n"
+            f"2. **Novel Technical Delivery**: A proprietary delivery system (such as nano-encapsulation or supercritical CO2 extraction) enhancing bioavailability.\n"
+            f"3. **NBA Clearance**: Secure mandatory Form III approval from the National Biodiversity Authority under Section 19/20."
         )
 
     # Clean default: extract meaningful sentences without raw headers

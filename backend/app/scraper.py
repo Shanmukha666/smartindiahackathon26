@@ -5,7 +5,7 @@ from __future__ import annotations
 import hashlib
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Self
-from urllib.parse import urlparse
+from urllib.parse import urljoin, urlparse
 
 import httpx
 from bs4 import BeautifulSoup
@@ -96,6 +96,47 @@ class WebScraper:
                 text=clean_text,
                 source_hash=source_hash,
             )
+
+
+    async def fetch_links(self, url: str) -> list[str]:
+        """Fetch a page and extract all same-scheme href links.
+
+        Used by web_discovery to crawl outward from seed URLs. Returns
+        absolute URLs only; fragments and javascript: links are excluded.
+        """
+        parsed = urlparse(url)
+        if parsed.scheme not in ("http", "https"):
+            return []
+
+        headers = outbound_headers({"User-Agent": self._user_agent})
+        try:
+            if self._client is not None:
+                response = await self._client.get(
+                    url, headers=headers, follow_redirects=True
+                )
+            else:
+                async with httpx.AsyncClient(timeout=self._timeout) as client:
+                    response = await client.get(
+                        url, headers=headers, follow_redirects=True
+                    )
+            response.raise_for_status()
+        except httpx.HTTPError:
+            return []
+
+        soup = BeautifulSoup(response.text, "lxml")
+        links: list[str] = []
+        for anchor in soup.find_all("a", href=True):
+            href = str(anchor["href"]).strip()
+            if not href or href.startswith(("#", "javascript:", "mailto:")):
+                continue
+            absolute = urljoin(url, href)
+            abs_parsed = urlparse(absolute)
+            if abs_parsed.scheme in ("http", "https"):
+                # Strip fragment
+                clean = absolute.split("#")[0]
+                if clean not in links:
+                    links.append(clean)
+        return links
 
     async def check_robots_txt(self, url: str) -> bool:
         """Check whether robots.txt on the domain allows scraping the URL path for User-agent: *.

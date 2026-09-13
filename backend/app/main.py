@@ -32,6 +32,7 @@ from .escalation import (
     WebhookNotificationChannel,
     create_escalation,
 )
+from .file_extract import extract_text as extract_file_text
 from .gdrive import GoogleDriveClient
 from .graph import AsyncpgGraphRepository, RelationshipType
 from .ingest import (
@@ -60,6 +61,16 @@ from .prompt_policy import format_untrusted_chunk
 from .rate_limit import RateLimiter
 from .retrieve import AsyncpgCorpusRepositoryAdapter, CohereReranker, RerankedCandidate, retrieve
 from .scraper import WebScraper
+from .session_documents import (
+    AsyncpgSessionUploadRepository,
+    ingest_upload_for_session,
+)
+from .web_discovery import (
+    AsyncpgStagingRepository,
+    BraveSearchProvider,
+    load_topics,
+    run_discovery,
+)
 
 settings = get_settings()
 configure_logging()
@@ -765,3 +776,204 @@ async def ingest_upload_endpoint(
     except (RuntimeError, ValueError, httpx.HTTPError) as error:
         logger.warning("ingest.upload.failed", extra={"error_type": type(error).__name__})
         raise HTTPException(status_code=502, detail=f"Upload ingestion failed: {error}") from error
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Web Discovery & Corpus Staging
+# ──────────────────────────────────────────────────────────────────────────────
+
+
+class DiscoveryResponse(BaseModel):
+    candidates_found: int
+    staged: int
+    duplicate: int
+    robots_blocked: int
+    fetch_failed: int
+    empty: int
+
+
+class StagedCandidateResponse(BaseModel):
+    id: int
+    url: str
+    title: str
+    topic: str
+    jurisdiction: Literal["IN", "INTL"]
+    body_text: str
+    source_hash: str
+    status: Literal["pending_review", "promoted", "rejected"]
+
+
+class StagingActionRequest(BaseModel):
+    action: Literal["promote", "reject"]
+    reason: str = Field(default="", max_length=4000)
+
+
+@app.post("/discover", response_model=DiscoveryResponse)
+async def run_discovery_endpoint(
+    repository: RepositoryDep,
+    http_client: HttpClientDep,
+    _: str = Depends(require_role("legal_reviewer")),
+) -> DiscoveryResponse:
+    """Crawl seed sources and stage new candidate documents for review."""
+    if settings.demo_mode:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Discovery is disabled in DEMO_MODE",
+        )
+
+    topics = load_topics()
+    search_provider = None
+    if settings.brave_search_api_key:
+        search_provider = BraveSearchProvider(
+            settings.brave_search_api_key.get_secret_value(), http_client
+        )
+
+    staging_repo = AsyncpgStagingRepository(repository._pool)
+    async with WebScraper(settings, http_client) as scraper:
+        stats = await run_discovery(
+            topics,
+            scraper,
+            staging_repo,
+            search_provider,
+            settings.discovery_max_candidates_per_topic,
+        )
+
+    return DiscoveryResponse(
+        candidates_found=stats.candidates_found,
+        staged=stats.staged,
+        duplicate=stats.duplicate,
+        robots_blocked=stats.robots_blocked,
+        fetch_failed=stats.fetch_failed,
+        empty=stats.empty,
+    )
+
+
+@app.get(
+    "/admin/corpus-staging", response_model=list[StagedCandidateResponse]
+)
+async def list_staging_candidates(
+    repository: RepositoryDep,
+    _: str = Depends(require_role("legal_reviewer")),
+) -> list[StagedCandidateResponse]:
+    staging_repo = AsyncpgStagingRepository(repository._pool)
+    candidates = await staging_repo.list_pending()
+    return [StagedCandidateResponse(**c.__dict__) for c in candidates]
+
+
+@app.get(
+    "/admin/corpus-staging/{staging_id}",
+    response_model=StagedCandidateResponse,
+)
+async def get_staging_candidate(
+    staging_id: int,
+    repository: RepositoryDep,
+    _: str = Depends(require_role("legal_reviewer")),
+) -> StagedCandidateResponse:
+    staging_repo = AsyncpgStagingRepository(repository._pool)
+    candidate = await staging_repo.get(staging_id)
+    if candidate is None:
+        raise HTTPException(status_code=404, detail="Staging candidate not found")
+    return StagedCandidateResponse(**candidate.__dict__)
+
+
+@app.patch(
+    "/admin/corpus-staging/{staging_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+async def act_on_staging_candidate(
+    staging_id: int,
+    payload: StagingActionRequest,
+    repository: RepositoryDep,
+    reviewer: str = Depends(require_role("legal_reviewer")),
+) -> Response:
+    staging_repo = AsyncpgStagingRepository(repository._pool)
+    candidate = await staging_repo.get(staging_id)
+    if candidate is None:
+        raise HTTPException(status_code=404, detail="Staging candidate not found")
+    if candidate.status != "pending_review":
+        raise HTTPException(
+            status_code=409, detail=f"Candidate already {candidate.status}"
+        )
+    if payload.action == "promote":
+        await staging_repo.mark_promoted(staging_id, reviewer)
+    else:
+        await staging_repo.mark_rejected(staging_id, reviewer, payload.reason)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Session-scoped file upload for /ask
+# ──────────────────────────────────────────────────────────────────────────────
+
+
+class SessionUploadRequest(BaseModel):
+    session_id: str = Field(min_length=1, max_length=128)
+    filename: str = Field(min_length=1, max_length=512)
+    content_base64: str = Field(min_length=1)
+    content_type: str = Field(default="application/octet-stream")
+
+
+class SessionUploadResponse(BaseModel):
+    upload_id: int
+    filename: str
+    chunk_count: int
+    char_count: int
+
+
+@app.post("/ask/upload", response_model=SessionUploadResponse)
+async def upload_session_document(
+    payload: SessionUploadRequest,
+    repository: RepositoryDep,
+    http_client: HttpClientDep,
+    user_id: str | None = Depends(audit_record_user),
+) -> SessionUploadResponse:
+    """Upload a document for session-scoped Q&A. Not added to the verified corpus."""
+    import base64
+    import binascii
+
+    try:
+        file_bytes = base64.b64decode(payload.content_base64)
+    except (binascii.Error, ValueError):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid base64 content",
+        ) from None
+
+    text = extract_file_text(file_bytes, payload.filename, payload.content_type)
+    if not text.strip():
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="No extractable text in uploaded file",
+        )
+
+    if settings.demo_mode:
+        # In demo mode, return a mock response
+        return SessionUploadResponse(
+            upload_id=0, filename=payload.filename, chunk_count=1, char_count=len(text)
+        )
+
+    if not settings.voyage_api_key:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="VOYAGE_API_KEY must be configured",
+        )
+
+    async with VoyageEmbedder(settings, http_client) as embedder:
+        session_repo = AsyncpgSessionUploadRepository(repository._pool)
+        result = await ingest_upload_for_session(
+            session_id=payload.session_id,
+            filename=payload.filename,
+            text=text,
+            content_type=payload.content_type,
+            embedder=embedder,
+            repository=session_repo,
+            uploaded_by=user_id,
+            ttl_hours=settings.session_upload_ttl_hours,
+        )
+
+    return SessionUploadResponse(
+        upload_id=result.upload_id,
+        filename=result.filename,
+        chunk_count=result.chunk_count,
+        char_count=result.char_count,
+    )

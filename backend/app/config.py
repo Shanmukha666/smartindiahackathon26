@@ -57,6 +57,11 @@ class Settings(BaseSettings):
     # Web scraping
     scrape_max_pages: int = 10
     scrape_timeout_seconds: float = 30.0
+    # Web discovery
+    brave_search_api_key: SecretStr | None = None
+    discovery_max_candidates_per_topic: int = 8
+    # Session uploads
+    session_upload_ttl_hours: int = 24
     enable_dev_session_endpoint: bool = False
     max_request_body_bytes: int = 9_000_000
 

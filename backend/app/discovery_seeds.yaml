@@ -1,0 +1,93 @@
+# Starter seed list for automated corpus-source discovery.
+#
+# This file is NOT a claim of a complete or currently-accurate corpus. It exists so
+# `/discover` produces useful candidates with zero external search-API configuration,
+# by crawling outward (same-domain only, robots.txt-respecting) from a short list of
+# domains/pages the maintainers have manually verified as legitimate, official sources.
+#
+# Every candidate this seed list produces still lands in `corpus_staging` with
+# status='pending_review' -- it is never auto-activated. A Legal Corpus Reviewer must
+# verify and promote it, per docs/corpus-governance.md. Treat this file itself as
+# subject to the same governance: additions/edits should go through review, because a
+# wrong domain here silently widens what the crawler is allowed to fetch.
+#
+# `start_urls` are known-good pages fetched directly. `start_urls` may be omitted for
+# a topic if only the domain is confirmed; the crawler will still start from the
+# domain root. `keywords` bias which same-domain links get followed and are also used
+# as the query text when a real search-provider (e.g. Brave Search) is configured.
+
+topics:
+  - name: "Patents Act and Rules (India)"
+    jurisdiction: IN
+    allowed_domains: ["ipindia.gov.in", "indiacode.nic.in"]
+    start_urls:
+      - "https://ipindia.gov.in/"
+    keywords: ["Patents Act 1970", "Patent Rules 2024", "Section 3", "amendment rules"]
+
+  - name: "Copyright Act (India)"
+    jurisdiction: IN
+    allowed_domains: ["indiacode.nic.in"]
+    start_urls:
+      - "https://www.indiacode.nic.in/handle/123456789/1367"
+    keywords: ["Copyright Act 1957", "amendment"]
+
+  - name: "Protection of Plant Varieties and Farmers' Rights Act (India)"
+    jurisdiction: IN
+    allowed_domains: ["plantauthority.gov.in", "indiacode.nic.in"]
+    start_urls:
+      - "https://plantauthority.gov.in/"
+    keywords: ["PPV&FR Act 2001", "farmers rights", "plant variety registration"]
+
+  - name: "Drugs and Magic Remedies (Objectionable Advertisements) Act (India)"
+    jurisdiction: IN
+    allowed_domains: ["indiacode.nic.in", "cdsco.gov.in"]
+    keywords: ["Drugs and Magic Remedies Act 1954", "objectionable advertisements"]
+
+  - name: "FSSAI Ayurveda-Aahar and AYUSH product regulations (India)"
+    jurisdiction: IN
+    allowed_domains: ["fssai.gov.in", "ayush.gov.in"]
+    start_urls:
+      - "https://fssai.gov.in/"
+      - "https://ayush.gov.in/"
+    keywords: ["Ayurveda Aahar regulation", "AYUSH licensing", "nutraceutical"]
+
+  - name: "Biological Diversity Act, Rules, and amendments (India)"
+    jurisdiction: IN
+    allowed_domains: ["indiacode.nic.in", "nbaindia.org", "moef.gov.in"]
+    keywords: ["Biological Diversity Act 2002", "Biological Diversity Rules", "amendment 2023", "ABS"]
+
+  - name: "Traditional Knowledge Digital Library (India)"
+    jurisdiction: IN
+    allowed_domains: ["tkdl.res.in"]
+    start_urls:
+      - "http://www.tkdl.res.in/"
+    keywords: ["TKDL", "traditional knowledge", "prior art"]
+
+  - name: "Ayurvedic Pharmacopoeia of India"
+    jurisdiction: IN
+    allowed_domains: ["ayush.gov.in", "pcimh.gov.in"]
+    keywords: ["Ayurvedic Pharmacopoeia of India", "API monograph", "pharmacopoeial standard"]
+
+  - name: "TRIPS Agreement (WTO)"
+    jurisdiction: INTL
+    allowed_domains: ["wto.org"]
+    keywords: ["TRIPS Agreement", "Article 27", "intellectual property"]
+
+  - name: "Convention on Biological Diversity and Nagoya Protocol"
+    jurisdiction: INTL
+    allowed_domains: ["cbd.int"]
+    start_urls:
+      - "https://www.cbd.int/abs/text/default.shtml"
+    keywords: ["Nagoya Protocol", "access and benefit sharing", "genetic resources"]
+
+  - name: "WIPO administered treaties (PCT, Madrid, Hague, Budapest, GRATK)"
+    jurisdiction: INTL
+    allowed_domains: ["wipo.int"]
+    start_urls:
+      - "https://www.wipo.int/en/web/pct-system/guide/"
+    keywords:
+      - "PCT Applicant's Guide"
+      - "Madrid System trademark"
+      - "Hague System industrial design"
+      - "Budapest Treaty microorganisms"
+      - "genetic resources traditional knowledge folklore"

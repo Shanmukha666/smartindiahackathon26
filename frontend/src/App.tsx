@@ -215,7 +215,14 @@ export default function App() {
       // Browser-native Web Speech API fallback (supports Hindi, Kannada, etc. locally without requiring external cloud API keys)
       if (typeof window !== "undefined" && "speechSynthesis" in window) {
         window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(text);
+        // Strip markdown headers, citations like [demo-123], asterisks, and HTML entities
+        const cleanText = text
+          .replace(/\[[^\]]+\]/g, "")
+          .replace(/[#*_`]/g, "")
+          .replace(/Demo mode — based on bundled local corpus:/gi, "")
+          .trim();
+
+        const utterance = new SpeechSynthesisUtterance(cleanText);
         const langMap: Record<string, string> = {
           en: "en-IN",
           hi: "hi-IN",
@@ -230,7 +237,17 @@ export default function App() {
           ur: "ur-IN",
           or: "or-IN",
         };
-        utterance.lang = langMap[language] || "en-IN";
+        const targetLang = langMap[language] || "en-IN";
+        utterance.lang = targetLang;
+
+        // Try to pick an available voice matching the language if browser loaded them
+        const voices = window.speechSynthesis.getVoices();
+        const matchingVoice = voices.find((v) => v.lang.toLowerCase().startsWith(language) || v.lang === targetLang);
+        if (matchingVoice) {
+          utterance.voice = matchingVoice;
+        }
+
+        utterance.rate = 0.95;
         window.speechSynthesis.speak(utterance);
       } else {
         setError("Speech playback is unavailable for this language or environment.");
@@ -429,7 +446,7 @@ export default function App() {
       <aside className="fixed left-0 top-16 bottom-0 w-64 bg-surface-container-lowest border-r border-surface-container z-40 flex flex-col justify-between shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
         <div className="flex-1 overflow-y-auto py-4 px-3">
           <div className="px-3 mb-2 text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">
-            Intelligence Suites
+            {t("menu", language)}
           </div>
           <nav className="space-y-1 mb-6">
             <button
@@ -443,7 +460,7 @@ export default function App() {
             >
               <div className="flex items-center gap-2.5">
                 <span className="material-symbols-outlined text-[20px]">neurology</span>
-                <span className="text-xs font-semibold">AI Assistant</span>
+                <span className="text-xs font-semibold">{t("qa", language)}</span>
               </div>
               <span className="px-1.5 py-0.5 rounded bg-primary-fixed text-on-primary-fixed font-mono text-[10px] font-bold">
                 RAG
@@ -461,7 +478,7 @@ export default function App() {
             >
               <div className="flex items-center gap-2.5">
                 <span className="material-symbols-outlined text-[20px]">account_tree</span>
-                <span className="text-xs font-semibold">Formulation Classifier</span>
+                <span className="text-xs font-semibold">{t("classification", language)}</span>
               </div>
               <span className="px-1.5 py-0.5 rounded bg-surface-container text-on-surface font-mono text-[10px]">
                 Tree
@@ -479,7 +496,7 @@ export default function App() {
             >
               <div className="flex items-center gap-2.5">
                 <span className="material-symbols-outlined text-[20px]">cloud_sync</span>
-                <span className="text-xs font-semibold">Ingestion &amp; Scraping</span>
+                <span className="text-xs font-semibold">{t("ingestionTab", language)}</span>
               </div>
               <span className="px-1.5 py-0.5 rounded bg-secondary-fixed text-on-secondary-fixed font-mono text-[10px] font-bold">
                 n8n
@@ -497,7 +514,7 @@ export default function App() {
             >
               <div className="flex items-center gap-2.5">
                 <span className="material-symbols-outlined text-[20px]">menu_book</span>
-                <span className="text-xs font-semibold">Statutory Corpus</span>
+                <span className="text-xs font-semibold">{t("corpusTab", language)}</span>
               </div>
               <span className="px-1.5 py-0.5 rounded bg-surface-container text-on-surface font-mono text-[10px]">
                 5 Acts
@@ -515,7 +532,7 @@ export default function App() {
             >
               <div className="flex items-center gap-2.5">
                 <span className="material-symbols-outlined text-[20px]">gavel</span>
-                <span className="text-xs font-semibold">Review &amp; Escalations</span>
+                <span className="text-xs font-semibold">{t("reviewTab", language)}</span>
               </div>
               {escalation ? (
                 <span className="px-1.5 py-0.5 rounded-full bg-secondary text-on-secondary text-[10px] font-bold">
@@ -736,7 +753,7 @@ export default function App() {
                 <div className="mt-3 flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-surface-container">
                   <div className="flex items-center gap-2 text-xs text-on-surface-variant">
                     <span className="material-symbols-outlined text-base text-tertiary">keyboard</span>
-                    <span>Press <kbd className="px-1.5 py-0.5 rounded bg-surface-container font-mono text-[10px]">Ctrl+Enter</kbd> to submit</span>
+                    <span>{t("pressSubmit", language)}</span>
                   </div>
 
                   <div className="flex items-center gap-2">
@@ -747,7 +764,7 @@ export default function App() {
                         className="px-3 py-1.5 rounded-lg border border-surface-container text-xs font-semibold text-primary hover:bg-surface-container flex items-center gap-1.5 transition-colors"
                       >
                         <span className="material-symbols-outlined text-base text-tertiary">volume_up</span>
-                        <span>Listen</span>
+                        <span>{t("listen", language)}</span>
                       </button>
                     )}
                     <button
@@ -759,11 +776,11 @@ export default function App() {
                       {askBusy ? (
                         <>
                           <span className="w-3 h-3 border-2 border-on-primary border-t-transparent rounded-full animate-spin" />
-                          <span>Thinking...</span>
+                          <span>{t("qaWorking", language)}</span>
                         </>
                       ) : (
                         <>
-                          <span>Ask Sahayak</span>
+                          <span>{t("qaSubmit", language)}</span>
                           <span className="material-symbols-outlined text-sm">send</span>
                         </>
                       )}

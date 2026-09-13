@@ -1,0 +1,19 @@
+REGULATORY COMPLIANCE MEMORANDUM: AYUSH PATENTABILITY & TKDL SCRUTINY
+
+Date: September 2026
+Applicant: AYUSH Research Consortium
+Document ID: ARC-2026-TK-045
+
+EXECUTIVE SUMMARY:
+This memorandum reviews the patent eligibility of a standardized herbal extract containing Holy Basil (Ocimum sanctum) and Ginger (Zingiber officinale) under the Indian Patents Act, 1970 and Biological Diversity Act, 2002.
+
+KEY STATUTORY FINDINGS:
+1. Section 3(p) Analysis:
+The examiner has issued a First Examination Report (FER) citing Section 3(p), alleging the combination is an anticipation based on TKDL references (TKDL ID: AK/1429 and JA/881).
+Defense Strategy: Applicant must submit comparative efficacy data demonstrating a non-obvious synergistic therapeutic index exceeding 1.85, distinguishing it from traditional decoctions (Kwatha).
+
+2. Biological Diversity Act, 2002:
+Under Section 6, any person seeking intellectual property rights based on biological resources obtained from India must obtain prior approval from the National Biodiversity Authority (NBA). Benefit sharing guidelines under Regulation 2014 mandate 0.1% to 0.5% of annual gross ex-factory sale value.
+
+3. Formulations Under Drugs & Cosmetics Act, 1940:
+The formulation qualifies as an Ayurvedic Proprietary Medicine under Section 3(h) and must adhere to Schedule T Good Manufacturing Practices (GMP).

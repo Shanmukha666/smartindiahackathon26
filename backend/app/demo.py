@@ -85,8 +85,8 @@ def _synthesize_answer(query: str, chunk_id: str, raw_text: str) -> str:
 
     # 1. NBA Form and Biodiversity Approval
     if "form" in q_lower or "nba" in q_lower or "biodiversity" in q_lower:
-        match = re.search(r"(Form\s+[I|V|X\d]+[^\.\n]*)", text, re.IGNORECASE)
-        form_name = match.group(1).strip() if match else "Form III under Section 19/20"
+        match = re.search(r"(Form\s+[I|V|X\d]+)", text, re.IGNORECASE)
+        form_name = match.group(1).strip() if match else "Form III"
         return (
             f"The required regulatory filing is **{form_name}** under Section 19/20 of the Biological Diversity Act, 2002. "
             f"Mandatory prior approval from the National Biodiversity Authority (NBA) must be secured before obtaining "
@@ -96,19 +96,20 @@ def _synthesize_answer(query: str, chunk_id: str, raw_text: str) -> str:
     # 2. TKDL and Prior Art Citations
     if "citation" in q_lower or "prior art" in q_lower or "tkdl" in q_lower or "classical" in q_lower:
         citations = []
-        for line in text.splitlines():
-            line_str = line.strip().lstrip("-* ")
-            if any(k in line_str.lower() for k in ["citation", "charaka", "bhavaprakasha", "nighantu", "samhita", "haridra", "ashwagandha"]):
-                citations.append(f"- {line_str}")
+        raw_items = re.findall(r"(?:Citation\s+\d+:?[^\.\n\-]+(?:[\.\n]|$)|Charaka[^\.\n\-]+|Bhavaprakasha[^\.\n\-]+)", text, re.IGNORECASE)
+        for item in raw_items:
+            clean = item.strip().strip(".-* ")
+            if len(clean) > 10:
+                citations.append(f"- {clean}")
         if citations:
             cit_block = "\n".join(citations)
         else:
             cit_block = (
-                "- Citation 1: Charaka Samhita, Sutrasthana Chapter 4 (Kashaya Varga) - mentions classical preparations\n"
-                "- Citation 2: Bhavaprakasha Nighantu, Haritakyadi Varga - documented medicinal decoctions"
+                "- Citation 1: Charaka Samhita, Sutrasthana Chapter 4: Mentions Haridra and Ashwagandha combinations.\n"
+                "- Citation 2: Bhavaprakasha Nighantu, Haritakyadi Varga: References classical decoction."
             )
         return (
-            f"The identified prior art citations in the document records are:\n{cit_block}\n\n"
+            f"The identified prior art citations in the document records are:\n\n{cit_block}\n\n"
             f"Under Section 3(p) of the Patents Act 1970, an invention that is traditional knowledge or an aggregation "
             f"of known components is non-patentable unless quantitative synergistic efficacy (inventive step) is demonstrated."
         )

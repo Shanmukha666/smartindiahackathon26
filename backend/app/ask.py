@@ -56,7 +56,7 @@ class RetrievedEvidence(BaseModel):
     chunk_id: str
     instrument: str
     section: str
-    jurisdiction: Literal["IN", "INTL"]
+    jurisdiction: Literal["IN", "INTL", "USER_UPLOAD"]
     chunk_text: str
     score: float
 

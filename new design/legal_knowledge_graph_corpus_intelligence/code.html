@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><title>IP-SAKTI Sahayak — AYUSH IPR &amp; Regulatory Intelligence</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Public+Sans:wght@500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "surface-tint": "#2d6a48",
+          "primary-container": "#0f5132",
+          "on-secondary-fixed-variant": "#7d2d00",
+          "on-surface-variant": "#404942",
+          "on-error-container": "#93000a",
+          "on-secondary-fixed": "#360f00",
+          "tertiary-fixed": "#dde1ff",
+          "inverse-on-surface": "#ebf1ff",
+          "on-tertiary-container": "#a0b1ff",
+          "tertiary-container": "#173baa",
+          "on-primary-fixed-variant": "#0f5132",
+          "surface-dim": "#ccdbf4",
+          "background": "#f8f9ff",
+          "surface-container-lowest": "#ffffff",
+          "primary-fixed": "#b0f1c7",
+          "error-container": "#ffdad6",
+          "surface": "#f8f9ff",
+          "surface-container": "#e6eeff",
+          "surface-variant": "#d5e3fd",
+          "tertiary-fixed-dim": "#b8c4ff",
+          "primary-fixed-dim": "#95d4ac",
+          "secondary-container": "#fd844c",
+          "on-tertiary-fixed-variant": "#173bab",
+          "secondary-fixed": "#ffdbcd",
+          "on-background": "#0d1c2f",
+          "inverse-surface": "#233144",
+          "on-error": "#ffffff",
+          "secondary": "#a14009",
+          "on-primary-container": "#84c39b",
+          "on-surface": "#0d1c2f",
+          "error": "#ba1a1a",
+          "on-primary-fixed": "#002111",
+          "surface-bright": "#f8f9ff",
+          "outline-variant": "#c0c9c0",
+          "on-tertiary": "#ffffff",
+          "on-secondary-container": "#6a2500",
+          "surface-container-high": "#dde9ff",
+          "on-secondary": "#ffffff",
+          "outline": "#707971",
+          "inverse-primary": "#95d4ac",
+          "tertiary": "#002584",
+          "surface-container-highest": "#d5e3fd",
+          "secondary-fixed-dim": "#ffb596",
+          "primary": "#003820",
+          "surface-container-low": "#eff4ff",
+          "on-primary": "#ffffff",
+          "on-tertiary-fixed": "#001453"
+        },
+        "borderRadius": {
+          "DEFAULT": "0.125rem",
+          "lg": "0.25rem",
+          "xl": "0.5rem",
+          "full": "0.75rem"
+        },
+        "spacing": {
+          "gutter": "1.5rem",
+          "space-xs": "0.25rem",
+          "margin": "2rem",
+          "gutter-mobile": "1rem",
+          "space-lg": "1.5rem",
+          "margin-mobile": "1rem",
+          "space-sm": "0.5rem",
+          "space-xl": "2rem",
+          "space-md": "1rem"
+        },
+        "fontFamily": {
+          "label-md": ["Inter"],
+          "label-sm": ["Inter"],
+          "headline-lg": ["Public Sans"],
+          "body-sm": ["Inter"],
+          "body-lg": ["Inter"],
+          "headline-xl": ["Public Sans"],
+          "headline-md": ["Public Sans"],
+          "label-lg": ["Inter"],
+          "headline-xl-mobile": ["Public Sans"],
+          "display-lg": ["Public Sans"],
+          "code-sm": ["Inter"],
+          "display-lg-mobile": ["Public Sans"],
+          "body-md": ["Inter"],
+          "headline-sm": ["Public Sans"]
+        },
+        "fontSize": {
+          "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600"}],
+          "label-sm": ["11px", {"lineHeight": "14px", "letterSpacing": "0.03em", "fontWeight": "600"}],
+          "headline-lg": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+          "body-sm": ["13px", {"lineHeight": "18px", "letterSpacing": "0.005em", "fontWeight": "400"}],
+          "body-lg": ["16px", {"lineHeight": "26px", "letterSpacing": "0em", "fontWeight": "400"}],
+          "headline-xl": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.015em", "fontWeight": "600"}],
+          "headline-md": ["20px", {"lineHeight": "28px", "letterSpacing": "-0.005em", "fontWeight": "600"}],
+          "label-lg": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+          "headline-xl-mobile": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+          "display-lg": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+          "code-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+          "display-lg-mobile": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.015em", "fontWeight": "700"}],
+          "body-md": ["14px", {"lineHeight": "22px", "letterSpacing": "0em", "fontWeight": "400"}],
+          "headline-sm": ["16px", {"lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "600"}]
+        }
+      }
+    }
+  }</script></head><body class="bg-background font-body-md text-body-md text-on-surface antialiased selection:bg-primary-fixed selection:text-on-primary-fixed"><header class="fixed top-0 left-0 right-0 h-16 bg-surface-container-lowest/95 backdrop-blur-md z-50 shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 w-full px-space-md flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-sm"><img alt="IP-SAKTI Sahayak Emblem" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1Ufrf9H3_0U7acwXYOxJzHIMWquKBB1Uv6RqoVQAffOT1GyZ0Z96TBQ__FdUdkX6goLUiq-jtI1wC3K_ZC9oHmcTSGp99AlEPhI9jc6PFPos3Dm6yZvjSJsA6PPo5DH-YKq8KHclefxPmVCqiWDuac3I05sSII94sg0qcAVou8IEQZIwLQ3KeV2sHsBy2P9Eti2M6t64eVEgkyWrkQEfVfwMjIzXSMZbyMycobjcHRnlj_NxvGrvk-Ig5G8"/><div class="flex flex-col"><div class="flex items-center gap-space-xs"><span class="font-headline-sm text-headline-sm text-primary tracking-tight">IP-SAKTI Sahayak</span><span class="px-space-xs py-0.5 rounded-lg bg-surface-container-high text-on-surface font-label-sm text-label-sm">SIH 26045</span></div><span class="font-label-sm text-label-sm text-on-surface-variant font-normal">AYUSH IPR &amp; Regulatory Intelligence</span></div></div><div class="hidden xl:flex items-center gap-space-xs pl-space-xs"><span class="px-space-xs py-0.5 rounded-lg bg-primary-container text-on-primary-container font-label-sm text-label-sm">Govt. of India Initiative</span><span class="px-space-xs py-0.5 rounded-lg bg-tertiary-fixed text-on-tertiary-fixed-variant font-label-sm text-label-sm flex items-center gap-1"><span class="material-symbols-outlined text-[13px]">translate</span>Bhashini Enabled</span></div></div><div class="flex items-center gap-space-md"><div class="hidden lg:flex items-center bg-surface-container-low rounded-xl p-0.5"><button class="px-space-sm py-1 rounded-lg bg-surface-container-lowest text-primary shadow-[0_1px_2px_rgba(15,23,42,0.04)] font-label-sm text-label-sm" type="button">India (IN)</button><button class="px-space-sm py-1 rounded-lg text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm transition-colors" type="button">International</button><button class="px-space-sm py-1 rounded-lg text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm transition-colors" type="button">Both</button></div><div class="hidden md:flex items-center gap-space-xs bg-surface-container-low px-space-sm py-1 rounded-xl"><span class="material-symbols-outlined text-[16px] text-tertiary">language</span><select aria-label="Select System Language" class="bg-transparent font-label-sm text-label-sm text-on-surface outline-none cursor-pointer pr-1"><option selected="">English</option><option>हिन्दी (Hindi)</option><option>தமிழ் (Tamil)</option><option>తెలుగు (Telugu)</option><option>বাংলা (Bengali)</option></select><span class="w-1.5 h-1.5 rounded-full bg-secondary-container" title="Bhashini NLP Active"></span></div><div class="hidden 2xl:flex items-center gap-space-sm px-space-sm py-1 bg-surface-container-low rounded-xl"><div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-surface-tint"></span><span class="font-code-sm text-code-sm text-on-surface">RAG Engine: pgvector + Claude 3.5</span></div><span class="text-outline-variant font-code-sm text-code-sm">|</span><div class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px] text-surface-tint">database</span><span class="font-code-sm text-code-sm text-on-surface-variant">DB Connected</span></div></div><div class="flex items-center gap-space-sm pl-space-xs"><div class="flex items-center gap-space-sm px-space-sm py-1 rounded-xl bg-surface-container-low"><img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuArK3WZCSxnn7aCyy6QsXxIoAYoCHgvD0x4xeaCgqnf1vrcweSyhj4O7VnUe_rktdTx3LPSBBUfFXkrRg22wqK_siIeZ6_DgXdkMkCx1nyjygrbc_6HxnZ18MFcSqM3jatDeu3O6J-uySdyLW6f4NJYN91hlXKvEULIhG93hQ4FJXdThq9-A8eTei0qkHByt_gSWejdTCChWtmQIJG4tY8y9XGSj-5fDmClcWm8gYZIJ3AWVlgcnSsaNw"/><div class="hidden sm:flex flex-col text-left"><span class="font-label-md text-label-md text-on-surface leading-none">Dr. S. Dasari</span><span class="font-label-sm text-label-sm text-secondary leading-tight mt-0.5">Legal Reviewer</span></div><span class="material-symbols-outlined text-on-surface-variant text-[18px]">expand_more</span></div></div></div></div></header><aside class="fixed left-0 top-16 bottom-0 w-72 bg-surface-container-lowest z-40 flex flex-col justify-between shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="flex-1 overflow-y-auto py-space-md px-space-sm"><div class="px-space-sm mb-space-xs font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Intelligence Suites</div><nav class="space-y-1 mb-space-lg" data-active-classes="bg-primary-container text-on-primary-container font-headline-sm rounded-xl"><a class="flex items-center justify-between px-space-md py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="ai-research-assistant" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[20px]">neurology</span><span class="font-label-lg text-label-lg">AI Research Assistant</span></div><span class="px-1.5 py-0.5 rounded bg-primary-fixed text-on-primary-fixed font-code-sm text-code-sm">Active</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="formulation-classifier" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[20px]">account_tree</span><span class="font-label-lg text-label-lg">Formulation Classifier</span></div><span class="px-1.5 py-0.5 rounded bg-surface-container text-on-surface font-code-sm text-code-sm">Tree</span></a><a aria-current="page" class="flex items-center justify-between px-space-md py-space-sm transition-colors bg-primary-container text-on-primary-container font-headline-sm rounded-xl" data-path="legal-knowledge-graph" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[20px]">menu_book</span><span class="font-label-lg text-label-lg">Knowledge Graph</span></div><span class="px-1.5 py-0.5 rounded bg-surface-container text-on-surface font-code-sm text-code-sm">5 Acts</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="human-review-escalations" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[20px]">gavel</span><span class="font-label-lg text-label-lg">Review &amp; Escalations</span></div><span class="px-1.5 py-0.5 rounded-full bg-secondary text-on-secondary font-label-sm text-label-sm">3</span></a></nav><div class="px-space-sm mb-space-xs font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Statutory Registries</div><div class="space-y-1"><a class="flex items-center justify-between px-space-md py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" href="#" rel="noreferrer" target="_blank"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[18px]">library_books</span><span class="font-body-sm text-body-sm">TKDL Access Portal</span></div><span class="material-symbols-outlined text-[16px]">open_in_new</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" href="#" rel="noreferrer" target="_blank"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[18px]">verified</span><span class="font-body-sm text-body-sm">IP India E-Services</span></div><span class="material-symbols-outlined text-[16px]">open_in_new</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" href="#" rel="noreferrer" target="_blank"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[18px]">public</span><span class="font-body-sm text-body-sm">WIPO PATENTSCOPE</span></div><span class="material-symbols-outlined text-[16px]">open_in_new</span></a></div></div><div class="p-space-sm m-space-sm bg-surface-container-low rounded-xl"><div class="flex items-start gap-space-xs"><span class="material-symbols-outlined text-[16px] text-secondary mt-0.5">shield</span><div><div class="font-label-sm text-label-sm text-on-surface uppercase">Compliance Notice</div><p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5 leading-snug">Regulatory assistive system. Information only, not legal advice.</p></div></div></div></aside><div class="pl-72"><main class="w-full pt-16 bg-background min-h-screen"><div class="flex flex-col w-full">
+<!-- Visual Ambient Backing & Page Header Strip -->
+<div class="px-space-xl pt-space-lg pb-space-md">
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-space-md">
+<div>
+<div class="flex items-center gap-space-xs mb-1">
+<span class="px-space-xs py-0.5 rounded-lg bg-surface-container-high text-on-surface font-code-sm text-code-sm uppercase tracking-wider">CORPUS-ENGINE // RAG-GRAPH v3.4</span>
+<span class="w-1.5 h-1.5 rounded-full bg-surface-tint animate-pulse"></span>
+<span class="font-code-sm text-code-sm text-surface-tint">Graph Sync Active</span>
+</div>
+<h1 class="font-headline-xl text-headline-xl text-primary tracking-tight">Statutory Corpus &amp; Relational Legal Graph</h1>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-3xl mt-1">
+          Relational adjacency model mapping statutory exclusions, biodiversity access rules, and classical Ayurvedic formulation categories across domestic &amp; multilateral IP frameworks.
+        </p>
+</div>
+<div class="flex items-center gap-space-sm self-start lg:self-center">
+<button class="px-space-md py-space-sm bg-surface-container rounded-xl text-primary font-label-md text-label-md hover:bg-surface-container-high transition-colors flex items-center gap-1.5 shadow-sm" type="button">
+<span class="material-symbols-outlined text-[18px]">account_tree</span>
+<span>Re-compute Adjacency</span>
+</button>
+<button class="px-space-md py-space-sm bg-primary text-on-primary rounded-xl font-label-md text-label-md hover:bg-primary-container transition-colors flex items-center gap-1.5 shadow-sm" type="button">
+<span class="material-symbols-outlined text-[18px]">publish</span>
+<span>Ingest Gazette Chunk</span>
+</button>
+</div>
+</div>
+<!-- Stats Ribbon Strip -->
+<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-space-md mt-space-lg">
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm flex items-start gap-space-sm relative overflow-hidden">
+<div class="w-1 absolute top-0 left-0 bottom-0 bg-primary"></div>
+<div class="p-2 rounded-lg bg-surface-container text-primary">
+<span class="material-symbols-outlined text-[22px]">policy</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Ingested Instruments</span>
+<span class="font-headline-md text-headline-md text-on-surface mt-0.5">5 Statutes &amp; Treaties</span>
+<span class="font-code-sm text-code-sm text-surface-tint mt-0.5">Patents Act, BDA, TKDL, WIPO GRATK</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm flex items-start gap-space-sm relative overflow-hidden">
+<div class="w-1 absolute top-0 left-0 bottom-0 bg-surface-tint"></div>
+<div class="p-2 rounded-lg bg-surface-container text-surface-tint">
+<span class="material-symbols-outlined text-[22px]">database</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Vector Chunks</span>
+<span class="font-headline-md text-headline-md text-on-surface mt-0.5">1,420 Active Chunks</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant mt-0.5">pgvector 1536d • HNSW Index</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm flex items-start gap-space-sm relative overflow-hidden">
+<div class="w-1 absolute top-0 left-0 bottom-0 bg-tertiary-container"></div>
+<div class="p-2 rounded-lg bg-surface-container text-tertiary">
+<span class="material-symbols-outlined text-[22px]">hub</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Semantic Topology</span>
+<span class="font-headline-md text-headline-md text-on-surface mt-0.5">98 Entities &amp; Edges</span>
+<span class="font-code-sm text-code-sm text-tertiary mt-0.5">6 Relation Predicates Active</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm flex items-start gap-space-sm relative overflow-hidden">
+<div class="w-1 absolute top-0 left-0 bottom-0 bg-secondary"></div>
+<div class="p-2 rounded-lg bg-secondary-fixed text-secondary">
+<span class="material-symbols-outlined text-[22px]">verified_user</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Audited Authority</span>
+<span class="font-headline-sm text-headline-sm text-on-surface truncate mt-0.5">Dr. Shanmukha Sai Dasari</span>
+<span class="font-label-sm text-label-sm text-secondary truncate mt-0.5">Interim Legal Reviewer • Logged</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Dual Workspace Panes -->
+<div class="px-space-xl pb-space-xl flex-1">
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-space-lg items-start">
+<!-- LEFT: Visual Relational Graph Explorer (7 cols) -->
+<div class="xl:col-span-7 flex flex-col bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden min-w-0">
+<!-- Graph Control Bar -->
+<div class="px-space-md py-space-sm bg-surface-container-low flex flex-wrap items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[18px] text-primary">polyline</span>
+<span class="font-label-md text-label-md text-on-surface">Interactive Topology Canvas</span>
+<span class="px-1.5 py-0.5 bg-surface-container-high rounded text-on-surface font-code-sm text-code-sm">Neo4j + NetworkX</span>
+</div>
+<!-- Filter Pills -->
+<div class="flex items-center gap-1.5">
+<div class="flex items-center bg-surface-container rounded-lg p-0.5 text-on-surface font-label-sm text-label-sm">
+<button class="px-2 py-0.5 bg-surface-container-lowest text-primary rounded shadow-sm font-label-sm text-label-sm" type="button">All Jurisdictions</button>
+<button class="px-2 py-0.5 text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm" type="button">IN Only</button>
+<button class="px-2 py-0.5 text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm" type="button">INTL</button>
+</div>
+<div class="relative">
+<button class="px-space-sm py-1 bg-surface-container-lowest hover:bg-surface-container rounded-lg text-on-surface font-label-sm text-label-sm flex items-center gap-1 shadow-sm" id="toggleFilterBtn" type="button">
+<span class="material-symbols-outlined text-[15px]">filter_list</span>
+<span>Entities (5)</span>
+</button>
+</div>
+<button class="p-1 bg-surface-container-lowest hover:bg-surface-container rounded-lg text-on-surface-variant" title="Center Topology" type="button">
+<span class="material-symbols-outlined text-[18px]">center_focus_strong</span>
+</button>
+</div>
+</div>
+<!-- Filter Sub-tray (Collapsible Concept) -->
+<div class="px-space-md py-space-xs bg-surface-container-high/60 flex flex-wrap items-center gap-1.5">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Filters:</span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary-container text-on-primary-container font-label-sm text-label-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-primary-fixed"></span>Section
+          </span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-tertiary-container text-on-tertiary-container font-label-sm text-label-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary-fixed"></span>Treaty
+          </span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>FormulationCategory
+          </span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-container text-on-surface font-label-sm text-label-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-surface-tint"></span>Instrument
+          </span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-container text-on-surface font-label-sm text-label-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-outline"></span>RegistryRecord
+          </span>
+</div>
+<!-- Interactive SVG Graph Canvas -->
+<div class="relative w-full h-[540px] bg-surface-bright overflow-hidden select-none">
+<!-- Ambient Watermark & Coordinate Grid -->
+<svg class="absolute inset-0 w-full h-full opacity-15" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<pattern height="32" id="grid" patternunits="userSpaceOnUse" width="32">
+<path class="text-outline-variant" d="M 32 0 L 0 0 0 32" fill="none" stroke="currentColor" stroke-width="0.75"></path>
+</pattern>
+</defs>
+<rect fill="url(#grid)" height="100%" width="100%"></rect>
+</svg>
+<!-- SVG Directed Graph Render -->
+<svg class="absolute inset-0 w-full h-full" id="knowledgeGraphSvg" viewbox="0 0 760 540">
+<defs>
+<!-- Arrowhead Markers -->
+<marker id="arrow-green" markerheight="6" markerwidth="6" orient="auto-start-reverse" refx="22" refy="5" viewbox="0 0 10 10">
+<path class="fill-primary" d="M 0 1 L 10 5 L 0 9 z"></path>
+</marker>
+<marker id="arrow-amber" markerheight="6" markerwidth="6" orient="auto-start-reverse" refx="22" refy="5" viewbox="0 0 10 10">
+<path class="fill-secondary" d="M 0 1 L 10 5 L 0 9 z"></path>
+</marker>
+<marker id="arrow-blue" markerheight="6" markerwidth="6" orient="auto-start-reverse" refx="22" refy="5" viewbox="0 0 10 10">
+<path class="fill-tertiary" d="M 0 1 L 10 5 L 0 9 z"></path>
+</marker>
+<marker id="arrow-slate" markerheight="6" markerwidth="6" orient="auto-start-reverse" refx="22" refy="5" viewbox="0 0 10 10">
+<path class="fill-on-surface-variant" d="M 0 1 L 10 5 L 0 9 z"></path>
+</marker>
+</defs>
+<!-- Edge Lines with Semantic Badges -->
+<!-- Edge 1: Patents Act §3(p) -> Classical Formulation [APPLIES_TO_CATEGORY] -->
+<path d="M 230 180 C 230 250, 480 190, 480 140" fill="none" marker-end="url(#arrow-green)" stroke="#003820" stroke-dasharray="4 2" stroke-width="2.5"></path>
+<rect class="fill-surface-container-high" height="22" rx="4" width="168" x="300" y="180"></rect>
+<text class="fill-primary font-code-sm text-[11px] font-semibold" text-anchor="middle" x="384" y="195">APPLIES_TO_CATEGORY</text>
+<!-- Edge 2: Patents Act 1970 §3(p) -> BDA 2002 [SUPERSEDES/COORDINATES] -->
+<path d="M 230 180 C 180 290, 190 340, 220 380" fill="none" marker-end="url(#arrow-amber)" stroke="#a14009" stroke-width="2"></path>
+<rect class="fill-secondary-fixed" height="20" rx="4" width="94" x="130" y="278"></rect>
+<text class="fill-secondary font-code-sm text-[11px] font-semibold" text-anchor="middle" x="177" y="292">SUPERSEDES</text>
+<!-- Edge 3: BDA 2002 -> WIPO GRATK Treaty 2024 [CROSS_REFERENCES] -->
+<path d="M 270 410 C 370 440, 460 410, 520 370" fill="none" marker-end="url(#arrow-blue)" stroke="#002584" stroke-width="2.2"></path>
+<rect class="fill-tertiary-fixed" height="22" rx="4" width="138" x="340" y="405"></rect>
+<text class="fill-tertiary font-code-sm text-[11px] font-semibold" text-anchor="middle" x="409" y="420">CROSS_REFERENCES</text>
+<!-- Edge 4: Classical Formulation -> WIPO GRATK 2024 [DISCLOSURE_TRIGGER] -->
+<path d="M 520 160 C 560 210, 570 280, 550 330" fill="none" marker-end="url(#arrow-slate)" stroke="#404942" stroke-dasharray="3 3" stroke-width="1.5"></path>
+<rect class="fill-surface-container-lowest" height="20" rx="4" width="144" x="520" y="235"></rect>
+<text class="fill-on-surface-variant font-code-sm text-[10px] font-medium" text-anchor="middle" x="592" y="249">DISCLOSURE_OBLIGATION</text>
+<!-- Edge 5: Patents Act Root Instrument -> §3(p) -->
+<path d="M 120 100 C 160 120, 180 135, 200 155" fill="none" stroke="#003820" stroke-width="1.8"></path>
+<!-- Edge 6: TKDL Registry -> Classical Formulation -->
+<path d="M 640 95 C 580 95, 570 110, 530 120" fill="none" stroke="#2d6a48" stroke-dasharray="2 2" stroke-width="1.8"></path>
+<!-- NODES (Interactive Groups) -->
+<!-- Node 1: Patents Act Instrument Parent -->
+<g class="cursor-pointer transition-transform hover:scale-105" transform="translate(40, 60)">
+<rect class="fill-surface-container shadow-sm" height="52" rx="8" width="140"></rect>
+<circle class="fill-surface-tint" cx="20" cy="26" r="10"></circle>
+<text class="fill-on-primary font-headline-sm text-[11px]" text-anchor="middle" x="20" y="30">IN</text>
+<text class="fill-on-surface font-headline-sm text-[13px] font-semibold" x="38" y="22">The Patents Act</text>
+<text class="fill-on-surface-variant font-code-sm text-[11px]" x="38" y="38">Act 39 of 1970</text>
+</g>
+<!-- Node 2: [HIGHLIGHTED / SELECTED] Patents Act 1970 §3(p) -->
+<g class="cursor-pointer" id="nodeSection3p" transform="translate(140, 140)">
+<!-- Focus pulse halo -->
+<rect class="fill-primary-container/20 animate-pulse" height="76" rx="14" width="202" x="-6" y="-6"></rect>
+<rect class="fill-primary text-on-primary shadow-md" height="64" rx="10" width="190"></rect>
+<circle class="fill-primary-fixed" cx="24" cy="32" r="14"></circle>
+<text class="fill-on-primary-fixed font-headline-sm text-[13px] font-bold" text-anchor="middle" x="24" y="37">§</text>
+<text class="fill-on-primary font-headline-sm text-[14px] font-bold" x="46" y="27">Patents Act § 3(p)</text>
+<text class="fill-on-primary-container font-label-sm text-[11px]" x="46" y="43">TK Exclusion Clause</text>
+<text class="fill-primary-fixed font-code-sm text-[10px] tracking-wide" x="46" y="55">SEC:3(P):IN:1970</text>
+</g>
+<!-- Node 3: Classical Formulation Node -->
+<g class="cursor-pointer transition-transform hover:scale-105" transform="translate(440, 100)">
+<rect class="fill-secondary-fixed text-on-secondary-fixed shadow-sm" height="60" rx="10" width="170"></rect>
+<circle class="fill-secondary" cx="22" cy="30" r="12"></circle>
+<text class="fill-on-secondary font-headline-sm text-[11px]" text-anchor="middle" x="22" y="35">CF</text>
+<text class="fill-on-secondary-fixed font-headline-sm text-[13px] font-semibold" x="42" y="26">Classical Formulation</text>
+<text class="fill-on-secondary-fixed-variant font-label-sm text-[11px]" x="42" y="42">Samhita / Rasashastra</text>
+<text class="fill-secondary font-code-sm text-[10px]" x="42" y="53">CATEGORY:AYUSH:TK</text>
+</g>
+<!-- Node 4: Biological Diversity Act 2002 -->
+<g class="cursor-pointer transition-transform hover:scale-105" transform="translate(130, 360)">
+<rect class="fill-surface-container-lowest text-on-surface shadow-md" height="64" rx="10" width="190"></rect>
+<rect class="fill-secondary" height="64" rx="2" width="6" x="0" y="0"></rect>
+<circle class="fill-secondary-fixed" cx="26" cy="32" r="12"></circle>
+<text class="fill-secondary font-headline-sm text-[11px]" text-anchor="middle" x="26" y="37">BDA</text>
+<text class="fill-on-surface font-headline-sm text-[13px] font-semibold" x="46" y="26">Biological Diversity Act</text>
+<text class="fill-on-surface-variant font-label-sm text-[11px]" x="46" y="42">Sec 6(1) Form III Mandate</text>
+<text class="fill-secondary font-code-sm text-[10px]" x="46" y="54">STATUTE:BDA:2002</text>
+</g>
+<!-- Node 5: WIPO GRATK Treaty 2024 -->
+<g class="cursor-pointer transition-transform hover:scale-105" transform="translate(480, 330)">
+<rect class="fill-tertiary-container text-on-tertiary-container shadow-md" height="64" rx="10" width="200"></rect>
+<circle class="fill-tertiary-fixed" cx="26" cy="32" r="12"></circle>
+<text class="fill-on-tertiary-fixed font-headline-sm text-[11px]" text-anchor="middle" x="26" y="37">INT</text>
+<text class="fill-on-tertiary font-headline-sm text-[13px] font-bold" x="46" y="26">WIPO GRATK Treaty</text>
+<text class="fill-on-tertiary-container font-label-sm text-[11px]" x="46" y="42">Genetic Resources &amp; TK</text>
+<text class="fill-tertiary-fixed font-code-sm text-[10px]" x="46" y="54">TREATY:WIPO:2024:GENEVA</text>
+</g>
+<!-- Node 6: TKDL Reference Registry -->
+<g class="cursor-pointer transition-transform hover:scale-105" transform="translate(600, 70)">
+<rect class="fill-surface-container-high text-on-surface shadow-sm" height="48" rx="8" width="130"></rect>
+<circle class="fill-primary" cx="18" cy="24" r="9"></circle>
+<text class="fill-on-primary font-headline-sm text-[10px]" text-anchor="middle" x="18" y="28">TK</text>
+<text class="fill-on-surface font-headline-sm text-[12px] font-semibold" x="34" y="21">TKDL Master</text>
+<text class="fill-on-surface-variant font-code-sm text-[10px]" x="34" y="35">CSIR-AYUSH Portal</text>
+</g>
+</svg>
+<!-- Floating Graph Overlay Card: Adjacency Details -->
+<div class="absolute bottom-space-md left-space-md bg-surface-container-lowest/95 backdrop-blur-md p-space-sm rounded-xl shadow-md max-w-sm">
+<div class="flex items-center justify-between gap-space-sm pb-1 mb-1">
+<span class="font-label-sm text-label-sm text-primary uppercase tracking-wider font-semibold">Active Focus Node</span>
+<span class="px-1.5 py-0.5 bg-primary-fixed text-on-primary-fixed rounded font-code-sm text-code-sm">Rank #1 (Degree: 8)</span>
+</div>
+<div class="font-headline-sm text-headline-sm text-on-surface leading-snug">Patents Act, 1970 — § 3(p)</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+              Strict statutory bar for traditional knowledge aggregation. High adjacency connectivity with BDA Sec 6(1) approval gates.
+            </div>
+<div class="mt-2 pt-2 flex items-center justify-between font-code-sm text-code-sm text-on-surface-variant">
+<span>Outgoing Edges: 3</span>
+<span>Incoming Edges: 5</span>
+<span class="text-surface-tint font-medium">Closeness: 0.94</span>
+</div>
+</div>
+<!-- Zoom & Tool Dock -->
+<div class="absolute right-space-md bottom-space-md flex flex-col gap-1 bg-surface-container-lowest rounded-xl shadow-md p-1">
+<button class="p-1.5 hover:bg-surface-container rounded-lg text-on-surface-variant" title="Zoom In" type="button">
+<span class="material-symbols-outlined text-[18px]">add</span>
+</button>
+<button class="p-1.5 hover:bg-surface-container rounded-lg text-on-surface-variant" title="Zoom Out" type="button">
+<span class="material-symbols-outlined text-[18px]">remove</span>
+</button>
+<button class="p-1.5 hover:bg-surface-container rounded-lg text-on-surface-variant" title="Reset Zoom" type="button">
+<span class="material-symbols-outlined text-[18px]">restart_alt</span>
+</button>
+</div>
+</div>
+<!-- Adjacency Relation Table Drawer Strip -->
+<div class="p-space-md bg-surface-container-lowest">
+<div class="flex items-center justify-between mb-space-xs">
+<div class="font-label-md text-label-md text-on-surface uppercase tracking-wider">Direct Graph Neighbors (§ 3(p))</div>
+<span class="font-code-sm text-code-sm text-on-surface-variant">Adjacency Matrix Sparsity: 0.82</span>
+</div>
+<div class="space-y-1.5 font-body-sm text-body-sm">
+<div class="p-2 rounded-lg bg-surface-container-low hover:bg-surface-container flex items-center justify-between gap-space-sm transition-colors cursor-pointer">
+<div class="flex items-center gap-space-sm min-w-0">
+<span class="w-2 h-2 rounded-full bg-primary flex-shrink-0"></span>
+<span class="font-label-md text-label-md text-on-surface truncate">Classical Formulation Category</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant font-code-sm text-code-sm">APPLIES_TO_CATEGORY</span>
+</div>
+<div class="flex items-center gap-space-xs flex-shrink-0">
+<span class="font-code-sm text-code-sm text-on-surface-variant">Weight: 1.00</span>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant">chevron_right</span>
+</div>
+</div>
+<div class="p-2 rounded-lg bg-surface-container-low hover:bg-surface-container flex items-center justify-between gap-space-sm transition-colors cursor-pointer">
+<div class="flex items-center gap-space-sm min-w-0">
+<span class="w-2 h-2 rounded-full bg-secondary flex-shrink-0"></span>
+<span class="font-label-md text-label-md text-on-surface truncate">Biological Diversity Act 2002 — § 6(1)</span>
+<span class="px-1.5 py-0.5 rounded bg-secondary-fixed text-on-secondary-fixed font-code-sm text-code-sm">SUPERSEDES / PRE-REQ</span>
+</div>
+<div class="flex items-center gap-space-xs flex-shrink-0">
+<span class="font-code-sm text-code-sm text-on-surface-variant">Weight: 0.88</span>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant">chevron_right</span>
+</div>
+</div>
+<div class="p-2 rounded-lg bg-surface-container-low hover:bg-surface-container flex items-center justify-between gap-space-sm transition-colors cursor-pointer">
+<div class="flex items-center gap-space-sm min-w-0">
+<span class="w-2 h-2 rounded-full bg-tertiary flex-shrink-0"></span>
+<span class="font-label-md text-label-md text-on-surface truncate">WIPO Treaty on Genetic Resources &amp; TK (2024)</span>
+<span class="px-1.5 py-0.5 rounded bg-tertiary-fixed text-on-tertiary-fixed-variant font-code-sm text-code-sm">CROSS_REFERENCES</span>
+</div>
+<div class="flex items-center gap-space-xs flex-shrink-0">
+<span class="font-code-sm text-code-sm text-on-surface-variant">Weight: 0.79</span>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant">chevron_right</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- RIGHT: Corpus Document & Chunk Inspector (5 cols) -->
+<div class="xl:col-span-5 flex flex-col gap-space-md">
+<!-- Inspector Card -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm p-space-md relative overflow-hidden">
+<div class="w-1 absolute top-0 left-0 bottom-0 bg-primary"></div>
+<!-- Document Header -->
+<div class="flex items-start justify-between gap-space-sm pb-space-sm mb-space-sm">
+<div>
+<div class="flex items-center gap-space-xs">
+<span class="px-space-xs py-0.5 rounded bg-primary-fixed text-on-primary-fixed font-code-sm text-code-sm">ACT_CHUNK_ID: 1970_SEC_3P_001</span>
+<span class="px-space-xs py-0.5 rounded bg-surface-container text-on-surface-variant font-code-sm text-code-sm">Chunk #14/42</span>
+</div>
+<h2 class="font-headline-md text-headline-md text-on-surface mt-1">The Patents Act, 1970</h2>
+<div class="font-label-sm text-label-sm text-primary font-semibold">CHAPTER II — Inventions Not Patentable • Section 3(p)</div>
+</div>
+<div class="flex items-center gap-1">
+<button class="p-1.5 rounded-lg bg-surface-container-low hover:bg-surface-container text-on-surface" title="Copy Statutory Citation" type="button">
+<span class="material-symbols-outlined text-[18px]">content_copy</span>
+</button>
+<button class="p-1.5 rounded-lg bg-surface-container-low hover:bg-surface-container text-on-surface" title="View Source Gazette PDF" type="button">
+<span class="material-symbols-outlined text-[18px]">picture_as_pdf</span>
+</button>
+</div>
+</div>
+<!-- Verbatim Statutory Text View -->
+<div class="space-y-space-sm">
+<div class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Verbatim Enacted Text</div>
+<div class="p-space-md bg-surface-container-low rounded-xl font-body-md text-body-md text-on-surface leading-relaxed relative">
+<p class="text-on-surface-variant text-[13px] mb-2 font-code-sm">
+                Section 3. What are not inventions. — The following are not inventions within the meaning of this Act, —
+              </p>
+<!-- Highlighted Subsection 3(p) Callout -->
+<div class="p-space-sm rounded-lg bg-surface-container-lowest shadow-sm mb-2">
+<div class="flex items-start gap-2">
+<span class="px-1.5 py-0.5 rounded bg-secondary-fixed text-on-secondary-fixed font-headline-sm text-headline-sm leading-none mt-0.5">§ 3(p)</span>
+<div class="flex-1">
+<p class="font-body-md text-body-md text-on-surface font-medium">
+                      “an invention which in effect, is <mark class="bg-secondary-fixed text-on-secondary-fixed px-1 py-0.5 rounded font-semibold">traditional knowledge</mark> or which is an <mark class="bg-secondary-fixed text-on-secondary-fixed px-1 py-0.5 rounded font-semibold">aggregation or duplication</mark> of known properties of traditionally known component or components.”
+                    </p>
+<div class="mt-2 text-on-surface-variant font-body-sm text-body-sm">
+                      [Inserted by Act 38 of 2002, sec. 4 (w.e.f. 20-5-2003)]
+                    </div>
+</div>
+</div>
+</div>
+<p class="text-on-surface-variant text-[13px] font-code-sm">
+                Complementary Cross-Rule: Rule 12(1A) Patent Rules 2003 mandates reference of traditional knowledge databases (TKDL) in Form 1 declarations.
+              </p>
+</div>
+</div>
+<!-- Embedding & Reranker Diagnostics Tag Group -->
+<div class="mt-space-md p-space-sm bg-surface-container rounded-xl">
+<div class="font-label-sm text-label-sm text-on-surface uppercase tracking-wider mb-2 flex items-center justify-between">
+<span>Embedding &amp; Retrieval Vector Specs</span>
+<span class="material-symbols-outlined text-[16px] text-surface-tint">memory</span>
+</div>
+<div class="grid grid-cols-2 gap-space-xs font-code-sm text-code-sm">
+<div class="bg-surface-container-lowest p-2 rounded-lg">
+<span class="text-on-surface-variant block text-[11px]">Primary Dense Embed</span>
+<span class="text-primary font-semibold">Voyage-law-2</span>
+<span class="text-on-surface-variant block text-[10px] mt-0.5">1536 dims • Cosine</span>
+</div>
+<div class="bg-surface-container-lowest p-2 rounded-lg">
+<span class="text-on-surface-variant block text-[11px]">Neural Reranker</span>
+<span class="text-tertiary font-semibold">Cohere rerank-v3</span>
+<span class="text-on-surface-variant block text-[10px] mt-0.5">Cross-Encoder • Top-K 5</span>
+</div>
+<div class="bg-surface-container-lowest p-2 rounded-lg">
+<span class="text-on-surface-variant block text-[11px]">Chunk Token Length</span>
+<span class="text-on-surface font-semibold">248 tokens</span>
+<span class="text-on-surface-variant block text-[10px] mt-0.5">Overlap: 32 tokens</span>
+</div>
+<div class="bg-surface-container-lowest p-2 rounded-lg">
+<span class="text-on-surface-variant block text-[11px]">Vector ID Digest</span>
+<span class="text-on-surface font-semibold truncate block">0x8a92f...c31b</span>
+<span class="text-surface-tint block text-[10px] mt-0.5">pgvector index synced</span>
+</div>
+</div>
+</div>
+<!-- Citation Lineage & Answer Invalidation Log -->
+<div class="mt-space-md">
+<div class="flex items-center justify-between mb-space-xs">
+<div class="font-label-md text-label-md text-on-surface uppercase tracking-wider flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px] text-surface-tint">fact_check</span>
+<span>Corpus Citation &amp; Queue Invalidation</span>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-surface-container-high text-primary font-code-sm text-code-sm">
+                0 pending in qa_review_queue
+              </span>
+</div>
+<!-- Invalidation Log Strip -->
+<div class="bg-surface-container-low p-space-sm rounded-xl space-y-2">
+<div class="flex items-center justify-between text-body-sm font-body-sm">
+<span class="text-on-surface">Downstream RAG Query Hits (Last 30d):</span>
+<span class="font-code-sm font-semibold text-primary">8,941 executions</span>
+</div>
+<div class="flex items-center justify-between text-body-sm font-body-sm">
+<span class="text-on-surface">Stale Answer Invalidation Hash:</span>
+<span class="font-code-sm text-on-surface-variant">sha256:7f4c9...verified</span>
+</div>
+<div class="flex items-center justify-between text-body-sm font-body-sm">
+<span class="text-on-surface">Reviewer Sign-off:</span>
+<span class="inline-flex items-center gap-1 text-secondary font-medium">
+<span class="material-symbols-outlined text-[15px]">verified</span>
+                  Dr. Shanmukha Sai Dasari
+                </span>
+</div>
+<div class="pt-2 border-t border-outline-variant/30 flex items-center justify-between">
+<span class="font-code-sm text-code-sm text-on-surface-variant">Re-embedding Status: Nominal</span>
+<button class="text-primary hover:text-primary-container font-label-sm text-label-sm font-semibold flex items-center gap-0.5" type="button">
+<span>Re-test Retrieval Fixtures</span>
+<span class="material-symbols-outlined text-[15px]">play_arrow</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Canonical Legal Case Law Annotations Related to § 3(p) -->
+<div class="mt-space-md">
+<div class="font-label-md text-label-md text-on-surface uppercase tracking-wider mb-space-xs">
+              Controller Decisions &amp; High Court Precedents
+            </div>
+<div class="space-y-1.5">
+<div class="p-2.5 rounded-lg bg-surface-container hover:bg-surface-container-high transition-colors">
+<div class="flex items-center justify-between">
+<span class="font-headline-sm text-headline-sm text-on-surface">Curcuma Longa (Turmeric) Revocation</span>
+<span class="px-1.5 py-0.5 rounded bg-primary-fixed text-on-primary-fixed font-code-sm text-code-sm">USPTO 5,401,504</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">
+                  Seminal CSIR challenge utilizing Ayurvedic classical texts as anticipation prior art under Indian TK doctrine.
+                </p>
+</div>
+<div class="p-2.5 rounded-lg bg-surface-container hover:bg-surface-container-high transition-colors">
+<div class="flex items-center justify-between">
+<span class="font-headline-sm text-headline-sm text-on-surface">Neem Antifungal Patent Revocation</span>
+<span class="px-1.5 py-0.5 rounded bg-primary-fixed text-on-primary-fixed font-code-sm text-code-sm">EPO 0436257</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">
+                  Affirmed lack of inventive step for traditional hydrophobic extracts under reciprocal Section 3(p) equivalent doctrines.
+                </p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+  // Simple interactive demonstration for the Knowledge Graph Node selection
+  document.addEventListener('DOMContentLoaded', () => {
+    const node3p = document.getElementById('nodeSection3p');
+    if (node3p) {
+      node3p.addEventListener('click', () => {
+        // Visual feedback micro-interaction
+        node3p.classList.add('scale-105');
+        setTimeout(() => node3p.classList.remove('scale-105'), 200);
+      });
+    }
+
+    const toggleBtn = document.getElementById('toggleFilterBtn');
+    if (toggleBtn) {
+      toggleBtn.addEventListener('click', () => {
+        toggleBtn.classList.toggle('bg-primary');
+        toggleBtn.classList.toggle('text-on-primary');
+      });
+    }
+  });
+</script></main></div></body></html>

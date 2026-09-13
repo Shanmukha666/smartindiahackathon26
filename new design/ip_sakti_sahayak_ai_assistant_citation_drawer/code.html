@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><title>IP-SAKTI Sahayak — AYUSH IPR &amp; Regulatory Intelligence</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Public+Sans:wght@500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "surface-tint": "#2d6a48",
+          "primary-container": "#0f5132",
+          "on-secondary-fixed-variant": "#7d2d00",
+          "on-surface-variant": "#404942",
+          "on-error-container": "#93000a",
+          "on-secondary-fixed": "#360f00",
+          "tertiary-fixed": "#dde1ff",
+          "inverse-on-surface": "#ebf1ff",
+          "on-tertiary-container": "#a0b1ff",
+          "tertiary-container": "#173baa",
+          "on-primary-fixed-variant": "#0f5132",
+          "surface-dim": "#ccdbf4",
+          "background": "#f8f9ff",
+          "surface-container-lowest": "#ffffff",
+          "primary-fixed": "#b0f1c7",
+          "error-container": "#ffdad6",
+          "surface": "#f8f9ff",
+          "surface-container": "#e6eeff",
+          "surface-variant": "#d5e3fd",
+          "tertiary-fixed-dim": "#b8c4ff",
+          "primary-fixed-dim": "#95d4ac",
+          "secondary-container": "#fd844c",
+          "on-tertiary-fixed-variant": "#173bab",
+          "secondary-fixed": "#ffdbcd",
+          "on-background": "#0d1c2f",
+          "inverse-surface": "#233144",
+          "on-error": "#ffffff",
+          "secondary": "#a14009",
+          "on-primary-container": "#84c39b",
+          "on-surface": "#0d1c2f",
+          "error": "#ba1a1a",
+          "on-primary-fixed": "#002111",
+          "surface-bright": "#f8f9ff",
+          "outline-variant": "#c0c9c0",
+          "on-tertiary": "#ffffff",
+          "on-secondary-container": "#6a2500",
+          "surface-container-high": "#dde9ff",
+          "on-secondary": "#ffffff",
+          "outline": "#707971",
+          "inverse-primary": "#95d4ac",
+          "tertiary": "#002584",
+          "surface-container-highest": "#d5e3fd",
+          "secondary-fixed-dim": "#ffb596",
+          "primary": "#003820",
+          "surface-container-low": "#eff4ff",
+          "on-primary": "#ffffff",
+          "on-tertiary-fixed": "#001453"
+        },
+        "borderRadius": {
+          "DEFAULT": "0.125rem",
+          "lg": "0.25rem",
+          "xl": "0.5rem",
+          "full": "0.75rem"
+        },
+        "spacing": {
+          "gutter": "1.5rem",
+          "space-xs": "0.25rem",
+          "margin": "2rem",
+          "gutter-mobile": "1rem",
+          "space-lg": "1.5rem",
+          "margin-mobile": "1rem",
+          "space-sm": "0.5rem",
+          "space-xl": "2rem",
+          "space-md": "1rem"
+        },
+        "fontFamily": {
+          "label-md": ["Inter"],
+          "label-sm": ["Inter"],
+          "headline-lg": ["Public Sans"],
+          "body-sm": ["Inter"],
+          "body-lg": ["Inter"],
+          "headline-xl": ["Public Sans"],
+          "headline-md": ["Public Sans"],
+          "label-lg": ["Inter"],
+          "headline-xl-mobile": ["Public Sans"],
+          "display-lg": ["Public Sans"],
+          "code-sm": ["Inter"],
+          "display-lg-mobile": ["Public Sans"],
+          "body-md": ["Inter"],
+          "headline-sm": ["Public Sans"]
+        },
+        "fontSize": {
+          "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600"}],
+          "label-sm": ["11px", {"lineHeight": "14px", "letterSpacing": "0.03em", "fontWeight": "600"}],
+          "headline-lg": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+          "body-sm": ["13px", {"lineHeight": "18px", "letterSpacing": "0.005em", "fontWeight": "400"}],
+          "body-lg": ["16px", {"lineHeight": "26px", "letterSpacing": "0em", "fontWeight": "400"}],
+          "headline-xl": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.015em", "fontWeight": "600"}],
+          "headline-md": ["20px", {"lineHeight": "28px", "letterSpacing": "-0.005em", "fontWeight": "600"}],
+          "label-lg": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+          "headline-xl-mobile": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+          "display-lg": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+          "code-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+          "display-lg-mobile": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.015em", "fontWeight": "700"}],
+          "body-md": ["14px", {"lineHeight": "22px", "letterSpacing": "0em", "fontWeight": "400"}],
+          "headline-sm": ["16px", {"lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "600"}]
+        }
+      }
+    }
+  }</script></head><body class="bg-background font-body-md text-body-md text-on-surface antialiased selection:bg-primary-fixed selection:text-on-primary-fixed"><header class="fixed top-0 left-0 right-0 h-16 bg-surface-container-lowest/95 backdrop-blur-md z-50 shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 w-full px-space-md flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-sm"><img alt="IP-SAKTI Sahayak Emblem" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1Ufrf9H3_0U7acwXYOxJzHIMWquKBB1Uv6RqoVQAffOT1GyZ0Z96TBQ__FdUdkX6goLUiq-jtI1wC3K_ZC9oHmcTSGp99AlEPhI9jc6PFPos3Dm6yZvjSJsA6PPo5DH-YKq8KHclefxPmVCqiWDuac3I05sSII94sg0qcAVou8IEQZIwLQ3KeV2sHsBy2P9Eti2M6t64eVEgkyWrkQEfVfwMjIzXSMZbyMycobjcHRnlj_NxvGrvk-Ig5G8"/><div class="flex flex-col"><div class="flex items-center gap-space-xs"><span class="font-headline-sm text-headline-sm text-primary tracking-tight">IP-SAKTI Sahayak</span><span class="px-space-xs py-0.5 rounded-lg bg-surface-container-high text-on-surface font-label-sm text-label-sm">SIH 26045</span></div><span class="font-label-sm text-label-sm text-on-surface-variant font-normal">AYUSH IPR &amp; Regulatory Intelligence</span></div></div><div class="hidden xl:flex items-center gap-space-xs pl-space-xs"><span class="px-space-xs py-0.5 rounded-lg bg-primary-container text-on-primary-container font-label-sm text-label-sm">Govt. of India Initiative</span><span class="px-space-xs py-0.5 rounded-lg bg-tertiary-fixed text-on-tertiary-fixed-variant font-label-sm text-label-sm flex items-center gap-1"><span class="material-symbols-outlined text-[13px]">translate</span>Bhashini Enabled</span></div></div><div class="flex items-center gap-space-md"><div class="hidden lg:flex items-center bg-surface-container-low rounded-xl p-0.5"><button class="px-space-sm py-1 rounded-lg bg-surface-container-lowest text-primary shadow-[0_1px_2px_rgba(15,23,42,0.04)] font-label-sm text-label-sm" type="button">India (IN)</button><button class="px-space-sm py-1 rounded-lg text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm transition-colors" type="button">International</button><button class="px-space-sm py-1 rounded-lg text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm transition-colors" type="button">Both</button></div><div class="hidden md:flex items-center gap-space-xs bg-surface-container-low px-space-sm py-1 rounded-xl"><span class="material-symbols-outlined text-[16px] text-tertiary">language</span><select aria-label="Select System Language" class="bg-transparent font-label-sm text-label-sm text-on-surface outline-none cursor-pointer pr-1"><option selected="">English</option><option>हिन्दी (Hindi)</option><option>தமிழ் (Tamil)</option><option>తెలుగు (Telugu)</option><option>বাংলা (Bengali)</option></select><span class="w-1.5 h-1.5 rounded-full bg-secondary-container" title="Bhashini NLP Active"></span></div><div class="hidden 2xl:flex items-center gap-space-sm px-space-sm py-1 bg-surface-container-low rounded-xl"><div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-surface-tint"></span><span class="font-code-sm text-code-sm text-on-surface">RAG Engine: pgvector + Claude 3.5</span></div><span class="text-outline-variant font-code-sm text-code-sm">|</span><div class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px] text-surface-tint">database</span><span class="font-code-sm text-code-sm text-on-surface-variant">DB Connected</span></div></div><div class="flex items-center gap-space-sm pl-space-xs"><div class="flex items-center gap-space-sm px-space-sm py-1 rounded-xl bg-surface-container-low"><img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuArK3WZCSxnn7aCyy6QsXxIoAYoCHgvD0x4xeaCgqnf1vrcweSyhj4O7VnUe_rktdTx3LPSBBUfFXkrRg22wqK_siIeZ6_DgXdkMkCx1nyjygrbc_6HxnZ18MFcSqM3jatDeu3O6J-uySdyLW6f4NJYN91hlXKvEULIhG93hQ4FJXdThq9-A8eTei0qkHByt_gSWejdTCChWtmQIJG4tY8y9XGSj-5fDmClcWm8gYZIJ3AWVlgcnSsaNw"/><div class="hidden sm:flex flex-col text-left"><span class="font-label-md text-label-md text-on-surface leading-none">Dr. S. Dasari</span><span class="font-label-sm text-label-sm text-secondary leading-tight mt-0.5">Legal Reviewer</span></div><span class="material-symbols-outlined text-on-surface-variant text-[18px]">expand_more</span></div></div></div></div></header><aside class="fixed left-0 top-16 bottom-0 w-72 bg-surface-container-lowest z-40 flex flex-col justify-between shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="flex-1 overflow-y-auto py-space-md px-space-sm"><div class="px-space-sm mb-space-xs font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Intelligence Suites</div><nav class="space-y-1 mb-space-lg" data-active-classes="bg-primary-container text-on-primary-container font-headline-sm rounded-xl"><a aria-current="page" class="flex items-center justify-between px-space-md py-space-sm transition-colors bg-primary-container text-on-primary-container font-headline-sm rounded-xl" data-path="ai-research-assistant" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[20px]">neurology</span><span class="font-label-lg text-label-lg">AI Research Assistant</span></div><span class="px-1.5 py-0.5 rounded bg-primary-fixed text-on-primary-fixed font-code-sm text-code-sm">Active</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="formulation-classifier" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[20px]">account_tree</span><span class="font-label-lg text-label-lg">Formulation Classifier</span></div><span class="px-1.5 py-0.5 rounded bg-surface-container text-on-surface font-code-sm text-code-sm">Tree</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="legal-knowledge-graph" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[20px]">menu_book</span><span class="font-label-lg text-label-lg">Knowledge Graph</span></div><span class="px-1.5 py-0.5 rounded bg-surface-container text-on-surface font-code-sm text-code-sm">5 Acts</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="human-review-escalations" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[20px]">gavel</span><span class="font-label-lg text-label-lg">Review &amp; Escalations</span></div><span class="px-1.5 py-0.5 rounded-full bg-secondary text-on-secondary font-label-sm text-label-sm">3</span></a></nav><div class="px-space-sm mb-space-xs font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Statutory Registries</div><div class="space-y-1"><a class="flex items-center justify-between px-space-md py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" href="#" rel="noreferrer" target="_blank"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[18px]">library_books</span><span class="font-body-sm text-body-sm">TKDL Access Portal</span></div><span class="material-symbols-outlined text-[16px]">open_in_new</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" href="#" rel="noreferrer" target="_blank"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[18px]">verified</span><span class="font-body-sm text-body-sm">IP India E-Services</span></div><span class="material-symbols-outlined text-[16px]">open_in_new</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" href="#" rel="noreferrer" target="_blank"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[18px]">public</span><span class="font-body-sm text-body-sm">WIPO PATENTSCOPE</span></div><span class="material-symbols-outlined text-[16px]">open_in_new</span></a></div></div><div class="p-space-sm m-space-sm bg-surface-container-low rounded-xl"><div class="flex items-start gap-space-xs"><span class="material-symbols-outlined text-[16px] text-secondary mt-0.5">shield</span><div><div class="font-label-sm text-label-sm text-on-surface uppercase">Compliance Notice</div><p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5 leading-snug">Regulatory assistive system. Information only, not legal advice.</p></div></div></div></aside><div class="pl-72"><main class="w-full pt-16 bg-background min-h-screen"><div class="flex flex-col w-full">
+<!-- Interactive & State Logic Component -->
+<div class="w-full px-space-md lg:px-space-xl py-space-md">
+<!-- Top Context & Statutory Anchor Ribbon -->
+<div class="w-full bg-surface-container-lowest rounded-xl shadow-sm p-space-md mb-space-md flex flex-wrap items-center justify-between gap-space-md">
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs">
+<span class="w-2 h-2 rounded-full bg-surface-tint"></span>
+<span class="font-headline-sm text-headline-sm text-primary">AYUSH IPR Guidance &amp; Legal Assistant</span>
+<span class="px-space-xs py-0.5 rounded bg-surface-container text-on-surface-variant font-code-sm text-code-sm">v2.4 Statutory Corpus: Feb 2026</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+          Autonomous regulatory triage engine grounded in Indian Patent Office (IPO) jurisprudence, NBA directives &amp; TKDL catalogs.
+        </p>
+</div>
+<!-- Quick Statute Status Pills -->
+<div class="flex flex-wrap items-center gap-1.5">
+<div class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[14px]">warning</span>
+          Patents Act 1970 §3(p)
+        </div>
+<div class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[14px]">eco</span>
+          Biological Diversity Act 2002
+        </div>
+<div class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[14px]">menu_book</span>
+          TKDL Access Directives
+        </div>
+<div class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container-high text-on-surface font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[14px]">public</span>
+          WIPO GRATK Treaty (2024)
+        </div>
+</div>
+</div>
+<!-- Main Grid: Two Columns (Center Main Stream + Right Citation Inspector) -->
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-space-md items-start">
+<!-- Center Main: Stream + Grounded Input Area (7 cols on XL) -->
+<div class="xl:col-span-7 flex flex-col gap-space-md">
+<!-- Conversation Thread Container -->
+<div class="flex flex-col gap-space-md">
+<!-- User Query Card -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm p-space-md ml-auto max-w-2xl">
+<div class="flex items-center justify-between gap-space-md pb-space-xs">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-tertiary">person</span>
+<span class="font-label-md text-label-md text-on-surface">Dr. A. V. Nambiar (R&amp;D Lead, Arya Herbals)</span>
+</div>
+<div class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-tertiary-fixed text-on-tertiary-fixed font-code-sm text-code-sm">
+<span class="material-symbols-outlined text-[12px]">graphic_eq</span>
+                Bhashini Transcribed (Indic ASR)
+              </div>
+</div>
+<p class="font-body-lg text-body-lg text-on-surface mt-1.5 leading-relaxed font-medium">
+              “Can I patent an enhanced bioavailable formulation of Curcuma longa (Turmeric) and Piperine with novel liposomal encapsulation?”
+            </p>
+<div class="mt-2.5 pt-2 bg-surface-container-low rounded-lg p-space-xs text-on-surface-variant font-body-sm text-body-sm">
+<div class="flex items-center gap-1 text-tertiary font-label-sm text-label-sm mb-0.5">
+<span class="material-symbols-outlined text-[13px]">translate</span>
+<span>मूल हिंदी प्रतिलेख (Original Hindi Transcription):</span>
+</div>
+              “क्या मैं करक्यूमा लोंगा (हल्दी) और पिपेरिन के उन्नत जैव-उपलब्ध फॉर्मूलेशन को नोवेल लिपोसोमल एनकैप्सुलेशन के साथ पेटेंट करा सकता हूँ?”
+            </div>
+</div>
+<!-- AI Assistant Response Card -->
+<div class="bg-surface-container-lowest rounded-xl shadow-md p-space-lg relative overflow-hidden">
+<!-- Accent Indicator Bar -->
+<div class="absolute left-0 top-0 bottom-0 w-1.5 bg-primary-container"></div>
+<!-- Metadata & Confidence Banner -->
+<div class="flex flex-wrap items-center justify-between gap-space-sm pb-space-sm">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-lg bg-primary-container flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined text-[18px]">neurology</span>
+</div>
+<div>
+<span class="font-headline-sm text-headline-sm text-primary">IP-SAKTI Regulatory Intelligence</span>
+<div class="flex items-center gap-2 text-on-surface-variant font-code-sm text-code-sm">
+<span>Latency: 840ms</span>
+<span>•</span>
+<span>Corpus nodes traversed: 42</span>
+</div>
+</div>
+</div>
+<!-- Confidence & Model Badges -->
+<div class="flex items-center gap-1.5">
+<div class="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-primary-fixed text-on-primary-fixed font-code-sm text-code-sm">
+<span class="material-symbols-outlined text-[14px]">verified</span>
+                  High Confidence: 0.91 (Cohere Rerank)
+                </div>
+<div class="inline-flex items-center gap-1 px-2 py-1 rounded bg-surface-container text-on-surface font-code-sm text-code-sm">
+                  RAG-pgvector: 3 Chunks
+                </div>
+</div>
+</div>
+<!-- Structured Regulatory Analysis Breakdown -->
+<div class="space-y-space-md mt-space-sm">
+<!-- Section 1: 3(p) Analysis -->
+<div class="bg-surface-container-low rounded-xl p-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-5 h-5 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm flex items-center justify-center font-bold">1</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Section 3(p) Traditional Knowledge Assessment</h3>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm">High Scrutiny Alert</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface mt-2 leading-relaxed">
+                  The Indian Patents Act 1970 explicitly bars inventions that are essentially <em>“an aggregation or duplication of known properties of traditionally known component(s)”</em> under Section 3(p). Turmeric (<em class="italic">Curcuma longa</em>, Haridra) combined with Black Pepper (<em class="italic">Piper nigrum / Piperine</em>, Maricha) is an established <strong>Trikatu/classical combination</strong> extensively documented across Ayurvedic texts (Charaka Samhita, Sushruta Samhita) for digestive and bio-enhancing actions.
+                </p>
+<div class="mt-2.5 p-2 rounded bg-surface-container text-on-surface-variant font-body-sm text-body-sm flex items-start gap-2">
+<span class="material-symbols-outlined text-secondary text-[18px] shrink-0 mt-0.5">gavel</span>
+<span>
+<strong>Statutory Threshold:</strong> To overcome Section 3(p), you cannot claim the systemic efficacy of the herb duo itself. You must limit independent claims solely to the <em>thermodynamic liposomal carrier platform</em>, demonstrating comparative synergistic data surpassing mere physical aggregation.
+                  </span>
+</div>
+</div>
+<!-- Section 2: Biological Diversity Act 2002 -->
+<div class="bg-surface-container-low rounded-xl p-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-5 h-5 rounded-full bg-primary-container text-on-primary font-label-sm text-label-sm flex items-center justify-center font-bold">2</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Biological Diversity Act (BDA) 2002 Mandate</h3>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm">Section 6 Pre-Requisite</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface mt-2 leading-relaxed">
+                  Under <strong>Section 6(1) of the Biological Diversity Act 2002</strong>, no person or corporate entity may apply for any intellectual property right in India or abroad for an invention based on any biological resource obtained from India without obtaining <strong>prior approval of the National Biodiversity Authority (NBA)</strong>.
+                </p>
+<div class="mt-2.5 grid grid-cols-1 sm:grid-cols-2 gap-2 text-on-surface font-body-sm text-body-sm">
+<div class="p-2 rounded bg-surface-container flex items-center gap-2">
+<span class="material-symbols-outlined text-surface-tint text-[18px]">assignment_turned_in</span>
+<span><strong>Filing Form:</strong> Mandatory Form III submission to NBA before patent grant.</span>
+</div>
+<div class="p-2 rounded bg-surface-container flex items-center gap-2">
+<span class="material-symbols-outlined text-surface-tint text-[18px]">payments</span>
+<span><strong>Benefit Sharing:</strong> 0.1% to 0.5% ex-factory commercial sales levy applicable.</span>
+</div>
+</div>
+</div>
+<!-- Section 3: WIPO GRATK Treaty & Global Posture -->
+<div class="bg-surface-container-low rounded-xl p-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-5 h-5 rounded-full bg-tertiary-container text-on-tertiary font-label-sm text-label-sm flex items-center justify-center font-bold">3</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Global Patent Filings &amp; WIPO GRATK Treaty</h3>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm">May 2024 Treaty</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface mt-2 leading-relaxed">
+                  If pursuing PCT international phases (USPTO / EPO / JPO), the new <strong>WIPO Treaty on Intellectual Property, Genetic Resources and Associated Traditional Knowledge</strong> imposes a strict mandatory disclosure regime. You must declare the geographical origin of the Curcuma and Piperine samples in PCT Form Request Box VIII.
+                </p>
+</div>
+</div>
+<!-- Clickable Citation Badges Linking to Right Drawer -->
+<div class="mt-space-md pt-space-md bg-surface-container-lowest">
+<div class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-2">
+                Referenced Statutory Grounds &amp; Canonical Citations:
+              </div>
+<div class="flex flex-wrap items-center gap-2">
+<button class="px-3 py-1.5 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface font-label-sm text-label-sm inline-flex items-center gap-1.5 transition-colors" onclick="inspectCitation('chk_pat_03p')" type="button">
+<span class="material-symbols-outlined text-[16px] text-secondary">feed</span>
+<span>Citation #1: Patents Act §3(p) Exclusions</span>
+<span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</button>
+<button class="px-3 py-1.5 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface font-label-sm text-label-sm inline-flex items-center gap-1.5 transition-colors" onclick="inspectCitation('chk_bda_06')" type="button">
+<span class="material-symbols-outlined text-[16px] text-surface-tint">verified_user</span>
+<span>Citation #2: BDA 2002 §6(1) Form III Requirement</span>
+<span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</button>
+<button class="px-3 py-1.5 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface font-label-sm text-label-sm inline-flex items-center gap-1.5 transition-colors" onclick="inspectCitation('chk_tkdl_1044')" type="button">
+<span class="material-symbols-outlined text-[16px] text-tertiary">library_books</span>
+<span>Citation #3: TKDL Formulation TK-AY-1044</span>
+<span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Escalation & Actions Footer -->
+<div class="mt-space-md pt-space-md flex flex-wrap items-center justify-between gap-space-sm bg-surface-container-lowest">
+<div class="flex items-center gap-2">
+<button class="px-space-md py-2 rounded-xl bg-primary-container text-on-primary hover:bg-primary transition-colors inline-flex items-center gap-2 font-label-md text-label-md shadow-sm" type="button">
+<span class="material-symbols-outlined text-[18px]">gavel</span>
+<span>Escalate to Legal Reviewer</span>
+</button>
+<span class="font-code-sm text-code-sm text-on-surface-variant bg-surface-container px-2 py-1 rounded">Auto-Track: #ESC-2026-891</span>
+</div>
+<div class="flex items-center gap-1.5 text-on-surface-variant">
+<button class="p-2 rounded-lg hover:bg-surface-container transition-colors" title="Save to Dossier" type="button">
+<span class="material-symbols-outlined text-[18px]">bookmark_add</span>
+</button>
+<button class="p-2 rounded-lg hover:bg-surface-container transition-colors" title="Export Legal Audit Summary" type="button">
+<span class="material-symbols-outlined text-[18px]">download</span>
+</button>
+<button class="p-2 rounded-lg hover:bg-surface-container transition-colors" title="Share with Co-Counsel" type="button">
+<span class="material-symbols-outlined text-[18px]">share</span>
+</button>
+</div>
+</div>
+<!-- Verified Statutory Disclaimer -->
+<div class="mt-space-md p-space-sm rounded-lg bg-surface-container-low flex items-center gap-2 text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[16px] text-secondary">info</span>
+<span>Information generated via official statutory corpus as of Feb 2026. Consult an enrolled Indian Patent Agent for statutory filings.</span>
+</div>
+</div>
+</div>
+<!-- Grounded Interactive Chat Input Box -->
+<div class="bg-surface-container-lowest rounded-xl shadow-md p-space-md sticky bottom-2 z-20">
+<!-- Input Bar with Jurisdiction and Indic Voice -->
+<div class="flex items-center gap-2 bg-surface-container-low rounded-xl px-space-md py-2 focus-within:ring-2 focus-within:ring-primary-container transition-all">
+<!-- Indic Voice Mic Button -->
+<button class="w-9 h-9 rounded-full bg-surface-container hover:bg-surface-container-high flex items-center justify-center text-secondary relative transition-colors" id="indic-voice-btn" onclick="toggleVoicePulse()" title="Bhashini Indic Voice Input (14 Languages)" type="button">
+<span class="material-symbols-outlined text-[20px]" id="mic-icon">mic</span>
+<span class="hidden absolute -inset-0.5 rounded-full bg-secondary-container/40 animate-ping" id="mic-pulse"></span>
+</button>
+<!-- Query Input Field -->
+<input class="flex-1 bg-transparent text-on-surface placeholder:text-on-surface-variant font-body-md text-body-md outline-none" placeholder="Ask about Section 3(d)/(p), prior art, TKDL references, or regulatory filings..." type="text" value="Evaluate novelty of synergistic extract of Ocimum sanctum (Tulsi) with nano-zinc oxide"/>
+<!-- Jurisdiction Selector Dropdown -->
+<div class="hidden sm:flex items-center bg-surface-container-lowest rounded-lg p-0.5 px-2 text-on-surface font-label-sm text-label-sm shadow-sm">
+<span class="text-on-surface-variant mr-1">Jurisdiction:</span>
+<select class="bg-transparent font-label-sm text-label-sm text-primary font-semibold outline-none cursor-pointer">
+<option selected="">IN (India - IPO)</option>
+<option>INTL (WIPO / PCT)</option>
+<option>BOTH (Dual Filing)</option>
+</select>
+</div>
+<!-- Send Action Button -->
+<button class="w-9 h-9 rounded-xl bg-primary-container text-on-primary hover:bg-primary flex items-center justify-center transition-colors shadow-sm" type="button">
+<span class="material-symbols-outlined text-[18px]">arrow_upward</span>
+</button>
+</div>
+<!-- Query Presets Chips -->
+<div class="flex items-center gap-1.5 mt-space-sm overflow-x-auto pb-0.5">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase whitespace-nowrap">Suggested Queries:</span>
+<button class="px-2.5 py-1 rounded-full bg-surface-container-low hover:bg-surface-container-high text-on-surface font-label-sm text-label-sm whitespace-nowrap transition-colors" type="button">
+              Section 3(p) traditional knowledge
+            </button>
+<button class="px-2.5 py-1 rounded-full bg-surface-container-low hover:bg-surface-container-high text-on-surface font-label-sm text-label-sm whitespace-nowrap transition-colors" type="button">
+              Ayurvedic proprietary medicine licensing
+            </button>
+<button class="px-2.5 py-1 rounded-full bg-surface-container-low hover:bg-surface-container-high text-on-surface font-label-sm text-label-sm whitespace-nowrap transition-colors" type="button">
+              NBA Form III procedure
+            </button>
+<button class="px-2.5 py-1 rounded-full bg-surface-container-low hover:bg-surface-container-high text-on-surface font-label-sm text-label-sm whitespace-nowrap transition-colors" type="button">
+              Classical vs Sastric formulation
+            </button>
+</div>
+</div>
+</div>
+<!-- Right Side Inspector Panel: Tabbed Citations & Interactive Classifier Preview (5 cols on XL) -->
+<div class="xl:col-span-5 flex flex-col gap-space-md">
+<!-- Inspector Card Container -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden sticky top-20">
+<!-- Inspector Tabs -->
+<div class="flex items-center bg-surface-container-low p-1 gap-1">
+<button class="flex-1 py-2 px-space-sm rounded-lg bg-surface-container-lowest font-label-md text-label-md text-primary shadow-sm flex items-center justify-center gap-1.5 transition-all" id="tab-btn-citations" onclick="switchInspectorTab('citations')" type="button">
+<span class="material-symbols-outlined text-[16px]">library_books</span>
+              Active Citations &amp; Legal Chunks
+              <span class="px-1.5 py-0.2 rounded-full bg-primary-fixed text-on-primary-fixed font-code-sm text-code-sm">3</span>
+</button>
+<button class="flex-1 py-2 px-space-sm rounded-lg text-on-surface-variant hover:text-on-surface font-label-md text-label-md flex items-center justify-center gap-1.5 transition-all" id="tab-btn-classifier" onclick="switchInspectorTab('classifier')" type="button">
+<span class="material-symbols-outlined text-[16px]">account_tree</span>
+              Interactive Classifier
+            </button>
+</div>
+<!-- Tab Content: Active Citations & Legal Chunks -->
+<div class="p-space-md space-y-space-md" id="inspector-tab-citations">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-bold">Retrieved Statutory Chunks</span>
+<span class="font-code-sm text-code-sm text-surface-tint flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-surface-tint"></span>
+                Vector Index: Cosine Sim ≥ 0.88
+              </span>
+</div>
+<!-- Chunk #1: Section 3(p) Patent Act -->
+<div class="bg-surface-container-low rounded-xl p-space-md transition-all duration-200" id="card-chk-pat-03p">
+<div class="flex items-start justify-between gap-2 mb-1.5">
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 rounded bg-secondary-fixed text-on-secondary-fixed font-code-sm text-code-sm font-semibold">#chk_pat_03p_v2</span>
+<span class="font-label-md text-label-md text-on-surface">The Patents Act, 1970 — §3(p)</span>
+</div>
+<span class="font-code-sm text-code-sm text-secondary font-bold">Rel: 0.94 (#1)</span>
+</div>
+<div class="p-2.5 rounded bg-surface-container-lowest text-on-surface font-body-sm text-body-sm leading-relaxed mb-2 font-mono">
+                “What are not inventions. — The following are not inventions within the meaning of this Act,—<br/>
+<strong>(p)</strong> an invention which in effect, is traditional knowledge or which is an aggregation or duplication of known properties of traditionally known component or components.”
+              </div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-on-surface-variant">
+<span>IPO Guidelines for Examination 2016, Rule 22</span>
+<span class="text-primary font-semibold">Precedent: CSIR v. Laxminarayan</span>
+</div>
+</div>
+<!-- Chunk #2: Biological Diversity Act 2002 §6 -->
+<div class="bg-surface-container-low rounded-xl p-space-md transition-all duration-200" id="card-chk-bda-06">
+<div class="flex items-start justify-between gap-2 mb-1.5">
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 rounded bg-primary-fixed text-on-primary-fixed font-code-sm text-code-sm font-semibold">#chk_bda_06_v1</span>
+<span class="font-label-md text-label-md text-on-surface">Biological Diversity Act, 2002 — §6(1)</span>
+</div>
+<span class="font-code-sm text-code-sm text-primary font-bold">Rel: 0.89 (#2)</span>
+</div>
+<div class="p-2.5 rounded bg-surface-container-lowest text-on-surface font-body-sm text-body-sm leading-relaxed mb-2">
+<p>
+                  “No person shall apply for any intellectual property right, by whatever name called, in or outside India for any invention based on any research or information on a biological resource obtained from India without obtaining the <strong>previous approval of the National Biodiversity Authority</strong> before making such application.”
+                </p>
+</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-on-surface-variant">
+<span>Form III statutory filing required</span>
+<span class="text-surface-tint font-semibold">NBA Compliance Rule 18</span>
+</div>
+</div>
+<!-- Chunk #3: TKDL Formulation Record -->
+<div class="bg-surface-container-low rounded-xl p-space-md transition-all duration-200" id="card-chk-tkdl-1044">
+<div class="flex items-start justify-between gap-2 mb-1.5">
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 rounded bg-tertiary-fixed text-on-tertiary-fixed font-code-sm text-code-sm font-semibold">#chk_tkdl_1044</span>
+<span class="font-label-md text-label-md text-on-surface">TKDL Database Reference: TK-AY-1044</span>
+</div>
+<span class="font-code-sm text-code-sm text-tertiary font-bold">Rel: 0.88 (#3)</span>
+</div>
+<div class="space-y-1 text-on-surface font-body-sm text-body-sm">
+<div class="flex justify-between">
+<span class="text-on-surface-variant">Classical Text:</span>
+<span class="font-medium">Chakradatta (Raktapitta Chikitsa)</span>
+</div>
+<div class="flex justify-between">
+<span class="text-on-surface-variant">Botanical Ingr:</span>
+<span>Haridra (Curcuma longa) + Maricha (Piper nigrum)</span>
+</div>
+<div class="flex justify-between">
+<span class="text-on-surface-variant">Therapeutic Index:</span>
+<span>Deepana, Pachana, Shothahara (Anti-inflammatory)</span>
+</div>
+</div>
+<div class="mt-space-sm pt-space-xs flex items-center justify-between">
+<a class="text-tertiary hover:underline inline-flex items-center gap-1 font-label-sm text-label-sm font-semibold" href="https://www.tkdl.res.in" rel="noreferrer" target="_blank">
+<span>Open Official TKDL Archive Entry</span>
+<span class="material-symbols-outlined text-[14px]">open_in_new</span>
+</a>
+<span class="font-code-sm text-code-sm text-on-surface-variant">IPC Code: A61K 36/9066</span>
+</div>
+</div>
+</div>
+<!-- Tab Content: Quick Decision Tree / Classifier Preview (Hidden by default, toggleable) -->
+<div class="p-space-md space-y-space-md hidden" id="inspector-tab-classifier">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-bold">AYUSH Product Classifier v1.2</span>
+<span class="px-2 py-0.5 rounded bg-surface-container text-on-surface font-code-sm text-code-sm">Step 2 of 4</span>
+</div>
+<!-- Mini Interactive Wizard Card -->
+<div class="bg-surface-container-low rounded-xl p-space-md">
+<div class="font-headline-sm text-headline-sm text-on-surface mb-1">
+                Product Categorization Gate
+              </div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-space-md">
+                Determine the regulatory licensing route under Drugs &amp; Cosmetics Act (Rule 158B) vs Patentability under Patents Act §3(p).
+              </p>
+<!-- Classifier Step Selector -->
+<div class="space-y-2">
+<label class="flex items-start gap-2.5 p-space-sm rounded-lg bg-surface-container-lowest cursor-pointer hover:bg-surface-container-high transition-colors">
+<input class="mt-1" name="classifier_cat" type="radio"/>
+<div>
+<div class="font-label-md text-label-md text-on-surface">Classical / Sastric Ayurvedic Medicine</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Exact composition in First Schedule authoritative books. Non-patentable; Form 24D license.</div>
+</div>
+</label>
+<label class="flex items-start gap-2.5 p-space-sm rounded-lg bg-surface-container-lowest cursor-pointer hover:bg-surface-container-high transition-colors">
+<input checked="" class="mt-1" name="classifier_cat" type="radio"/>
+<div>
+<div class="font-label-md text-label-md text-primary font-bold">Patentable Novel Delivery System / Extract</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Purified bioactive fraction with non-traditional delivery matrix (e.g., liposome/nanoparticle).</div>
+</div>
+</label>
+<label class="flex items-start gap-2.5 p-space-sm rounded-lg bg-surface-container-lowest cursor-pointer hover:bg-surface-container-high transition-colors">
+<input class="mt-1" name="classifier_cat" type="radio"/>
+<div>
+<div class="font-label-md text-label-md text-on-surface">Ayurvedic Proprietary Medicine (Patent or Proprietary)</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Section 3(a) D&amp;C Act. Standard proprietary ASU product with modified adjuvant proportions.</div>
+</div>
+</label>
+</div>
+<!-- Classification Result Status Box -->
+<div class="mt-space-md p-space-sm rounded-xl bg-surface-container-lowest">
+<div class="flex items-center gap-1.5 font-label-md text-label-md text-secondary mb-1">
+<span class="material-symbols-outlined text-[16px]">rule</span>
+<span>Triage Decision: Conditional Patentability</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+<strong>Regulatory Route:</strong> Section 3(p) Bar applies unless synergistic efficacy proven beyond existing Sastric texts. Drug Controller General license requires Rule 158B clinical evidence trial.
+                </p>
+</div>
+<!-- Action Button to Launch Full Classifier -->
+<div class="mt-space-md">
+<button class="w-full py-2.5 px-space-md rounded-xl bg-primary-container text-on-primary hover:bg-primary transition-colors flex items-center justify-center gap-2 font-label-md text-label-md shadow-sm" type="button">
+<span>Open Full Classification Wizard</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Botanical Origin & NBA Quick Clearance Tracker -->
+<div class="bg-surface-container-low rounded-xl p-space-md">
+<div class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant mb-2">Biological Resource Provenance Checklist</div>
+<ul class="space-y-1.5 text-on-surface font-body-sm text-body-sm">
+<li class="flex items-center justify-between">
+<span class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-surface-tint text-[16px]">check_circle</span>
+                    Curcuma longa (Salem variety)
+                  </span>
+<span class="font-code-sm text-code-sm text-primary font-semibold">TN SBB Declared</span>
+</li>
+<li class="flex items-center justify-between">
+<span class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-surface-tint text-[16px]">check_circle</span>
+                    Piper nigrum (Malabar variety)
+                  </span>
+<span class="font-code-sm text-code-sm text-primary font-semibold">Kerala SBB Declared</span>
+</li>
+<li class="flex items-center justify-between">
+<span class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-secondary text-[16px]">pending</span>
+                    Phosphatidylcholine (Lipid Excipient)
+                  </span>
+<span class="font-code-sm text-code-sm text-secondary font-semibold">Non-Bio/Synthetic</span>
+</li>
+</ul>
+</div>
+</div>
+<!-- Bottom Inspector Quick Action Strip -->
+<div class="bg-surface-container px-space-md py-2.5 flex items-center justify-between">
+<div class="flex items-center gap-1.5 text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[16px]">history_edu</span>
+<span>Audit Hash: #7b4a2f89c</span>
+</div>
+<button class="text-primary hover:underline font-label-sm text-label-sm font-semibold flex items-center gap-1" type="button">
+<span>View Full Vector Trace</span>
+<span class="material-symbols-outlined text-[14px]">tune</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Inline Script for Micro-Interactions -->
+<script>
+    function switchInspectorTab(tabId) {
+      const citationsTab = document.getElementById('inspector-tab-citations');
+      const classifierTab = document.getElementById('inspector-tab-classifier');
+      const btnCitations = document.getElementById('tab-btn-citations');
+      const btnClassifier = document.getElementById('tab-btn-classifier');
+
+      if (tabId === 'citations') {
+        citationsTab.classList.remove('hidden');
+        classifierTab.classList.add('hidden');
+        btnCitations.className = 'flex-1 py-2 px-space-sm rounded-lg bg-surface-container-lowest font-label-md text-label-md text-primary shadow-sm flex items-center justify-center gap-1.5 transition-all';
+        btnClassifier.className = 'flex-1 py-2 px-space-sm rounded-lg text-on-surface-variant hover:text-on-surface font-label-md text-label-md flex items-center justify-center gap-1.5 transition-all';
+      } else {
+        citationsTab.classList.add('hidden');
+        classifierTab.classList.remove('hidden');
+        btnClassifier.className = 'flex-1 py-2 px-space-sm rounded-lg bg-surface-container-lowest font-label-md text-label-md text-primary shadow-sm flex items-center justify-center gap-1.5 transition-all';
+        btnCitations.className = 'flex-1 py-2 px-space-sm rounded-lg text-on-surface-variant hover:text-on-surface font-label-md text-label-md flex items-center justify-center gap-1.5 transition-all';
+      }
+    }
+
+    function inspectCitation(chunkKey) {
+      // Ensure citations tab is active
+      switchInspectorTab('citations');
+      
+      const targetId = 'card-' + chunkKey.replace(/_/g, '-');
+      const el = document.getElementById(targetId);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // Flash animation for visual grounding
+        el.classList.add('bg-primary-fixed-dim');
+        setTimeout(() => {
+          el.classList.remove('bg-primary-fixed-dim');
+        }, 1200);
+      }
+    }
+
+    function toggleVoicePulse() {
+      const pulse = document.getElementById('mic-pulse');
+      const micIcon = document.getElementById('mic-icon');
+      if (pulse.classList.contains('hidden')) {
+        pulse.classList.remove('hidden');
+        micIcon.classList.add('text-secondary-container');
+      } else {
+        pulse.classList.add('hidden');
+        micIcon.classList.remove('text-secondary-container');
+      }
+    }
+  </script>
+</div></main></div></body></html>

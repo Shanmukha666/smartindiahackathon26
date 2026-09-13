@@ -5,7 +5,7 @@ import json
 import re
 from collections.abc import Sequence
 from dataclasses import dataclass
-from datetime import date
+from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, Protocol, Self
 
@@ -17,6 +17,9 @@ from .observability import outbound_headers, stage
 
 if TYPE_CHECKING:
     from .config import Settings
+    from .gdrive import GoogleDriveClient
+    from .pinecone_store import Embedder, VectorStore
+    from .scraper import WebScraper
 
 MAX_CHUNK_TOKENS = 400
 CHUNK_OVERLAP_TOKENS = 40
@@ -523,10 +526,46 @@ def chunk_body(body: str, tags: list[str]) -> list[CorpusChunk]:
     return chunks
 
 
+async def ingest_document(
+    source: SourceDocument,
+    repository: CorpusRepository,
+    embedder: EmbeddingClient,
+    pinecone_store: VectorStore | None = None,
+    pinecone_embedder: Embedder | None = None,
+) -> IngestOutcome:
+    existing = await repository.get_active_document(source.metadata.instrument)
+    if existing is not None and existing.source_hash == source.source_hash:
+        return IngestOutcome("unchanged", 0)
+
+    chunks = chunk_body(source.body, source.metadata.tags)
+    embeddings = await embedder.embed([chunk.text for chunk in chunks])
+    outcome = await repository.upsert_document(source, chunks, embeddings)
+
+    if pinecone_store is not None and pinecone_embedder is not None and chunks:
+        pinecone_embeddings = await pinecone_embedder.embed([chunk.text for chunk in chunks])
+        ids = [f"{source.metadata.instrument}#{source.metadata.version_tag}#{i}" for i in range(len(chunks))]
+        metadatas = [
+            {
+                "text": chunk.text,
+                "instrument": source.metadata.instrument,
+                "section": source.metadata.section,
+                "jurisdiction": source.metadata.jurisdiction,
+                "version_tag": source.metadata.version_tag,
+                "file-name": source.metadata.instrument,
+            }
+            for chunk in chunks
+        ]
+        await pinecone_store.upsert(ids, pinecone_embeddings, metadatas)
+
+    return outcome
+
+
 async def ingest_directory(
     corpus_dir: Path,
     repository: CorpusRepository,
     embedder: EmbeddingClient,
+    pinecone_store: VectorStore | None = None,
+    pinecone_embedder: Embedder | None = None,
 ) -> IngestStats:
     if not corpus_dir.is_dir():
         raise FileNotFoundError(f"Corpus directory does not exist: {corpus_dir}")
@@ -534,14 +573,7 @@ async def ingest_directory(
     stats = IngestStats()
     for path in sorted(item for item in corpus_dir.rglob("*") if item.is_file()):
         source = parse_source_file(path)
-        existing = await repository.get_active_document(source.metadata.instrument)
-        if existing is not None and existing.source_hash == source.source_hash:
-            stats.unchanged += 1
-            continue
-
-        chunks = chunk_body(source.body, source.metadata.tags)
-        embeddings = await embedder.embed([chunk.text for chunk in chunks])
-        outcome = await repository.upsert_document(source, chunks, embeddings)
+        outcome = await ingest_document(source, repository, embedder, pinecone_store, pinecone_embedder)
         stats.chunks += outcome.chunk_count
         if outcome.status == "inserted":
             stats.inserted += 1
@@ -550,3 +582,114 @@ async def ingest_directory(
         else:
             stats.unchanged += 1
     return stats
+
+
+def parse_source_text(
+    text: str,
+    filename: str,
+    fallback_section: str,
+    fallback_tags: list[str],
+    default_jurisdiction: Literal["IN", "INTL"],
+    source_url: str,
+) -> SourceDocument:
+    raw = text.strip()
+    if not raw:
+        raise ValueError("Provided document text is empty")
+    lines = raw.splitlines(keepends=True)
+    if lines and lines[0].strip() == "---":
+        end_index = next((index for index in range(1, len(lines)) if lines[index].strip() == "---"), None)
+        if end_index is not None:
+            frontmatter = yaml.safe_load("".join(lines[1:end_index]))
+            if isinstance(frontmatter, dict):
+                if "version_tag" in frontmatter:
+                    frontmatter["version_tag"] = str(frontmatter["version_tag"])
+                metadata = CorpusFrontmatter.model_validate(frontmatter)
+                body = "".join(lines[end_index + 1 :]).strip()
+                if body:
+                    source_hash = hashlib.sha256(body.encode("utf-8")).hexdigest()
+                    return SourceDocument(metadata=metadata, body=body, source_hash=source_hash, path=Path(f"/parsed/{filename}"))
+    body = raw
+    source_hash = hashlib.sha256(body.encode("utf-8")).hexdigest()
+    metadata = CorpusFrontmatter(
+        instrument=filename,
+        section=fallback_section,
+        jurisdiction=default_jurisdiction,
+        tags=fallback_tags,
+        version_tag=f"auto-{source_hash[:8]}",
+        source_url=source_url,
+        retrieved_at=datetime.now(UTC).date(),
+    )
+    return SourceDocument(metadata=metadata, body=body, source_hash=source_hash, path=Path(f"/parsed/{filename}"))
+
+
+async def ingest_from_gdrive(
+    file_id: str,
+    gdrive_client: GoogleDriveClient,
+    repository: CorpusRepository,
+    embedder: EmbeddingClient,
+    pinecone_store: VectorStore | None = None,
+    pinecone_embedder: Embedder | None = None,
+    jurisdiction: Literal["IN", "INTL"] = "IN",
+) -> IngestOutcome:
+    content_bytes, filename, mime_type = await gdrive_client.download_file(file_id)
+    text = content_bytes.decode("utf-8", errors="replace").strip()
+    source = parse_source_text(
+        text=text,
+        filename=filename,
+        fallback_section="General",
+        fallback_tags=["gdrive", mime_type],
+        default_jurisdiction=jurisdiction,
+        source_url=f"https://drive.google.com/file/d/{file_id}/view",
+    )
+    return await ingest_document(source, repository, embedder, pinecone_store, pinecone_embedder)
+
+
+async def ingest_from_url(
+    url: str,
+    scraper: WebScraper,
+    repository: CorpusRepository,
+    embedder: EmbeddingClient,
+    pinecone_store: VectorStore | None = None,
+    pinecone_embedder: Embedder | None = None,
+    jurisdiction: Literal["IN", "INTL"] = "IN",
+) -> IngestOutcome:
+    scraped = await scraper.scrape(url)
+    if not scraped.text.strip():
+        raise ValueError(f"Scraped web page {url} contains no readable text")
+    instrument_name = scraped.title.strip() or url
+    metadata = CorpusFrontmatter(
+        instrument=instrument_name[:128],
+        section="Web",
+        jurisdiction=jurisdiction,
+        tags=["web-scrape"],
+        version_tag=f"web-{scraped.source_hash[:8]}",
+        source_url=url,
+        retrieved_at=datetime.now(UTC).date(),
+    )
+    source = SourceDocument(
+        metadata=metadata,
+        body=scraped.text,
+        source_hash=scraped.source_hash,
+        path=Path(f"/web/{scraped.source_hash[:8]}"),
+    )
+    return await ingest_document(source, repository, embedder, pinecone_store, pinecone_embedder)
+
+
+async def ingest_from_text(
+    filename: str,
+    text: str,
+    repository: CorpusRepository,
+    embedder: EmbeddingClient,
+    pinecone_store: VectorStore | None = None,
+    pinecone_embedder: Embedder | None = None,
+    jurisdiction: Literal["IN", "INTL"] = "IN",
+) -> IngestOutcome:
+    source = parse_source_text(
+        text=text,
+        filename=filename,
+        fallback_section="Upload",
+        fallback_tags=["direct-upload"],
+        default_jurisdiction=jurisdiction,
+        source_url=f"local://upload/{filename}",
+    )
+    return await ingest_document(source, repository, embedder, pinecone_store, pinecone_embedder)

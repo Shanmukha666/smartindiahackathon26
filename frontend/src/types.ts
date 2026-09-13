@@ -11,3 +11,4 @@ export type EscalationResponse = { tracking_id: string; priority: string; status
 export type DevSessionResponse = { access_token: string; token_type: "Bearer"; expires_in: number };
 export type SpeechResponse = { audio_base64: string; audio_format: string };
 export type PaidSourceResponse = { results: Array<{ title?: string; url?: string; summary?: string }> };
+export type IngestResponse = { status: "inserted" | "changed" | "unchanged"; chunk_count: number; pinecone_synced: boolean };

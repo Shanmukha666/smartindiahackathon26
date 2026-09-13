@@ -32,8 +32,15 @@ from .escalation import (
     WebhookNotificationChannel,
     create_escalation,
 )
+from .gdrive import GoogleDriveClient
 from .graph import AsyncpgGraphRepository, RelationshipType
-from .ingest import AsyncpgCorpusRepository, VoyageEmbedder
+from .ingest import (
+    AsyncpgCorpusRepository,
+    VoyageEmbedder,
+    ingest_from_gdrive,
+    ingest_from_text,
+    ingest_from_url,
+)
 from .observability import (
     annotate_request,
     configure_logging,
@@ -48,9 +55,11 @@ from .paid_sources import (
     consent_event,
     envelope_encrypt,
 )
+from .pinecone_store import OpenAIEmbedder, PineconeStore
 from .prompt_policy import format_untrusted_chunk
 from .rate_limit import RateLimiter
 from .retrieve import AsyncpgCorpusRepositoryAdapter, CohereReranker, RerankedCandidate, retrieve
+from .scraper import WebScraper
 
 settings = get_settings()
 configure_logging()
@@ -585,3 +594,174 @@ async def escalate_endpoint(
 ) -> EscalateResponse:
     escalation = await create_escalation(payload, repository, notification_channel, user_id)
     return EscalateResponse(tracking_id=escalation.tracking_id, priority=escalation.priority)
+
+
+class IngestGDriveRequest(BaseModel):
+    file_id: str = Field(min_length=1)
+    jurisdiction: Literal["IN", "INTL"] = "IN"
+
+
+class IngestUrlRequest(BaseModel):
+    url: str = Field(min_length=1)
+    jurisdiction: Literal["IN", "INTL"] = "IN"
+
+
+class IngestUploadRequest(BaseModel):
+    filename: str = Field(min_length=1)
+    content: str = Field(min_length=1)
+    jurisdiction: Literal["IN", "INTL"] = "IN"
+
+
+class IngestResponse(BaseModel):
+    status: Literal["inserted", "changed", "unchanged"]
+    chunk_count: int
+    pinecone_synced: bool = False
+
+
+@app.post("/ingest/gdrive", response_model=IngestResponse)
+async def ingest_gdrive_endpoint(
+    payload: IngestGDriveRequest,
+    repository: RepositoryDep,
+    http_client: HttpClientDep,
+    _: str = Depends(require_role("legal_reviewer")),
+) -> IngestResponse:
+    if settings.demo_mode:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Document ingestion is disabled in DEMO_MODE",
+        )
+    if not settings.voyage_api_key:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="VOYAGE_API_KEY must be configured for document ingestion",
+        )
+    if not settings.google_drive_credentials_json:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="GOOGLE_DRIVE_CREDENTIALS_JSON must be configured for Google Drive ingestion",
+        )
+
+    try:
+        async with (
+            GoogleDriveClient(settings, http_client) as gdrive_client,
+            VoyageEmbedder(settings, http_client) as embedder,
+        ):
+            pinecone_store, pinecone_embedder = None, None
+            pinecone_synced = False
+            if settings.pinecone_api_key and settings.openai_api_key:
+                pinecone_store = PineconeStore(settings, http_client)
+                pinecone_embedder = OpenAIEmbedder(settings, http_client)
+                pinecone_synced = True
+
+            outcome = await ingest_from_gdrive(
+                file_id=payload.file_id,
+                gdrive_client=gdrive_client,
+                repository=repository,
+                embedder=embedder,
+                pinecone_store=pinecone_store,
+                pinecone_embedder=pinecone_embedder,
+                jurisdiction=payload.jurisdiction,
+            )
+            return IngestResponse(
+                status=outcome.status,
+                chunk_count=outcome.chunk_count,
+                pinecone_synced=pinecone_synced,
+            )
+    except (RuntimeError, ValueError, httpx.HTTPError) as error:
+        logger.warning("ingest.gdrive.failed", extra={"error_type": type(error).__name__})
+        raise HTTPException(status_code=502, detail=f"Google Drive ingestion failed: {error}") from error
+
+
+@app.post("/ingest/url", response_model=IngestResponse)
+async def ingest_url_endpoint(
+    payload: IngestUrlRequest,
+    repository: RepositoryDep,
+    http_client: HttpClientDep,
+    _: str = Depends(require_role("legal_reviewer")),
+) -> IngestResponse:
+    if settings.demo_mode:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Document ingestion is disabled in DEMO_MODE",
+        )
+    if not settings.voyage_api_key:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="VOYAGE_API_KEY must be configured for document ingestion",
+        )
+
+    try:
+        async with (
+            WebScraper(settings, http_client) as scraper,
+            VoyageEmbedder(settings, http_client) as embedder,
+        ):
+            pinecone_store, pinecone_embedder = None, None
+            pinecone_synced = False
+            if settings.pinecone_api_key and settings.openai_api_key:
+                pinecone_store = PineconeStore(settings, http_client)
+                pinecone_embedder = OpenAIEmbedder(settings, http_client)
+                pinecone_synced = True
+
+            outcome = await ingest_from_url(
+                url=payload.url,
+                scraper=scraper,
+                repository=repository,
+                embedder=embedder,
+                pinecone_store=pinecone_store,
+                pinecone_embedder=pinecone_embedder,
+                jurisdiction=payload.jurisdiction,
+            )
+            return IngestResponse(
+                status=outcome.status,
+                chunk_count=outcome.chunk_count,
+                pinecone_synced=pinecone_synced,
+            )
+    except (RuntimeError, ValueError, httpx.HTTPError) as error:
+        logger.warning("ingest.url.failed", extra={"error_type": type(error).__name__})
+        raise HTTPException(status_code=502, detail=f"Web scraping ingestion failed: {error}") from error
+
+
+@app.post("/ingest/upload", response_model=IngestResponse)
+async def ingest_upload_endpoint(
+    payload: IngestUploadRequest,
+    repository: RepositoryDep,
+    http_client: HttpClientDep,
+    _: str = Depends(require_role("legal_reviewer")),
+) -> IngestResponse:
+    if settings.demo_mode:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Document ingestion is disabled in DEMO_MODE",
+        )
+    if not settings.voyage_api_key:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="VOYAGE_API_KEY must be configured for document ingestion",
+        )
+
+    try:
+        async with VoyageEmbedder(settings, http_client) as embedder:
+            pinecone_store, pinecone_embedder = None, None
+            pinecone_synced = False
+            if settings.pinecone_api_key and settings.openai_api_key:
+                pinecone_store = PineconeStore(settings, http_client)
+                pinecone_embedder = OpenAIEmbedder(settings, http_client)
+                pinecone_synced = True
+
+            outcome = await ingest_from_text(
+                filename=payload.filename,
+                text=payload.content,
+                repository=repository,
+                embedder=embedder,
+                pinecone_store=pinecone_store,
+                pinecone_embedder=pinecone_embedder,
+                jurisdiction=payload.jurisdiction,
+            )
+            return IngestResponse(
+                status=outcome.status,
+                chunk_count=outcome.chunk_count,
+                pinecone_synced=pinecone_synced,
+            )
+    except (RuntimeError, ValueError, httpx.HTTPError) as error:
+        logger.warning("ingest.upload.failed", extra={"error_type": type(error).__name__})
+        raise HTTPException(status_code=502, detail=f"Upload ingestion failed: {error}") from error

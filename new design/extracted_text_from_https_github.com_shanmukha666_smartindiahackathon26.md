@@ -1,0 +1,599 @@
+Skip to content
+
+## Navigation Menu
+
+[](/)
+
+[Sign in](/login?return_to=https%3A%2F%2Fgithub.com%2FShanmukha666%2Fsmartindiahackathon26)
+
+Appearance settings
+
+  * Platform
+
+    * AI CODE CREATION
+      * [GitHub CopilotWrite better code with AI](https://github.com/features/copilot)
+      * [GitHub Copilot appDirect agents from issue to merge](https://github.com/features/ai/github-app)
+      * [MCP RegistryIntegrate external tools](https://github.com/mcp)
+
+    * DEVELOPER WORKFLOWS
+      * [ActionsAutomate any workflow](https://github.com/features/actions)
+      * [CodespacesInstant dev environments](https://github.com/features/codespaces)
+      * [IssuesPlan and track work](https://github.com/features/issues)
+      * [Code ReviewManage code changes](https://github.com/features/code-review)
+      * [Code QualityEnforce quality at merge](https://github.com/features/code-quality)
+
+    * APPLICATION SECURITY
+      * [GitHub Advanced SecurityFind and fix vulnerabilities](https://github.com/security/advanced-security)
+      * [Code securitySecure your code as you build](https://github.com/security/advanced-security/code-security)
+      * [Secret protectionStop leaks before they start](https://github.com/security/advanced-security/secret-protection)
+
+    * EXPLORE
+      * [Why GitHub](https://github.com/why-github)
+      * [Documentation](https://docs.github.com)
+      * [Blog](https://github.blog)
+      * [Changelog](https://github.blog/changelog)
+      * [Marketplace](https://github.com/marketplace)
+
+[View all features](https://github.com/features)
+
+  * Solutions
+
+    * BY COMPANY SIZE
+      * [Enterprises](https://github.com/enterprise)
+      * [Small and medium teams](https://github.com/team)
+      * [Startups](https://github.com/enterprise/startups)
+      * [Nonprofits](https://github.com/solutions/industry/nonprofits)
+
+    * BY USE CASE
+      * [App Modernization](https://github.com/solutions/use-case/app-modernization)
+      * [DevSecOps](https://github.com/solutions/use-case/devsecops)
+      * [DevOps](https://github.com/solutions/use-case/devops)
+      * [CI/CD](https://github.com/solutions/use-case/ci-cd)
+      * [View all use cases](https://github.com/solutions/use-case)
+
+    * BY INDUSTRY
+      * [Healthcare](https://github.com/solutions/industry/healthcare)
+      * [Financial services](https://github.com/solutions/industry/financial-services)
+      * [Manufacturing](https://github.com/solutions/industry/manufacturing)
+      * [Government](https://github.com/solutions/industry/government)
+      * [View all industries](https://github.com/solutions/industry)
+
+[View all solutions](https://github.com/solutions)
+
+  * Resources
+
+    * EXPLORE BY TOPIC
+      * [AI](https://github.com/resources/articles?topic=ai)
+      * [Software Development](https://github.com/resources/articles?topic=software-development)
+      * [DevOps](https://github.com/resources/articles?topic=devops)
+      * [Security](https://github.com/resources/articles?topic=security)
+      * [View all topics](https://github.com/resources/articles)
+
+    * EXPLORE BY TYPE
+      * [Customer stories](https://github.com/customer-stories)
+      * [Events & webinars](https://github.com/resources/events)
+      * [Ebooks & reports](https://github.com/resources/whitepapers)
+      * [Business insights](https://github.com/solutions/executive-insights)
+      * [GitHub Skills](https://skills.github.com)
+
+    * SUPPORT & SERVICES
+      * [Documentation](https://docs.github.com)
+      * [Customer support](https://support.github.com)
+      * [Community forum](https://github.com/orgs/community/discussions)
+      * [Trust center](https://github.com/trust-center)
+      * [Partners](https://github.com/partners)
+
+[View all resources](https://github.com/resources)
+
+  * Open Source
+
+    * COMMUNITY
+      * [GitHub SponsorsFund open source developers](https://github.com/open-source/sponsors)
+
+    * PROGRAMS
+      * [Security Lab](https://securitylab.github.com)
+      * [Maintainer Community](https://maintainers.github.com)
+      * [GitHub Stars](https://stars.github.com)
+      * [Archive Program](https://archiveprogram.github.com)
+
+    * REPOSITORIES
+      * [Topics](https://github.com/topics)
+      * [Trending](https://github.com/trending)
+      * [Collections](https://github.com/collections)
+
+  * Enterprise
+
+    * ENTERPRISE SOLUTIONS
+      * [Enterprise platformAI-powered developer platform](https://github.com/enterprise)
+
+    * AVAILABLE ADD-ONS
+      * [GitHub Advanced SecurityEnterprise-grade security features](https://github.com/security/advanced-security)
+      * [Copilot for BusinessEnterprise-grade AI features](https://github.com/features/copilot/copilot-business)
+      * [Premium SupportEnterprise-grade 24/7 support](https://github.com/enterprise/premium-support)
+
+  * [Pricing](https://github.com/pricing)
+
+
+
+Search`/`
+
+[Sign in](/login?return_to=https%3A%2F%2Fgithub.com%2FShanmukha666%2Fsmartindiahackathon26)
+
+[Sign up](/signup?ref_cta=Sign+up&ref_loc=header+logged+out&ref_page=%2F%3Cuser-name%3E%2F%3Crepo-name%3E&source=header-repo&source_repo=Shanmukha666%2Fsmartindiahackathon26)
+
+Appearance settings
+
+You signed in with another tab or window. [Reload]() to refresh your session. You signed out in another tab or window. [Reload]() to refresh your session. You switched accounts on another tab or window. [Reload]() to refresh your session. Dismiss alert
+
+{{ message }}
+
+[ Shanmukha666 ](/Shanmukha666) / **[smartindiahackathon26](/Shanmukha666/smartindiahackathon26) ** Public
+
+  * [ Notifications ](/login?return_to=%2FShanmukha666%2Fsmartindiahackathon26) You must be signed in to change notification settings
+  * [ Fork 0 ](/login?return_to=%2FShanmukha666%2Fsmartindiahackathon26)
+  * [ Star  0 ](/login?return_to=%2FShanmukha666%2Fsmartindiahackathon26)
+
+
+
+
+  * [ Code ](/Shanmukha666/smartindiahackathon26)
+  * [ Issues 0 ](/Shanmukha666/smartindiahackathon26/issues)
+  * [ Pull requests 0 ](/Shanmukha666/smartindiahackathon26/pulls)
+  * [ Actions ](/Shanmukha666/smartindiahackathon26/actions)
+  * [ Projects ](/Shanmukha666/smartindiahackathon26/projects)
+  * [ Security and quality 0 ](/Shanmukha666/smartindiahackathon26/security)
+  * [ Insights ](/Shanmukha666/smartindiahackathon26/pulse)
+
+
+
+Additional navigation options
+
+  * [ Code  ](/Shanmukha666/smartindiahackathon26)
+  * [ Issues  ](/Shanmukha666/smartindiahackathon26/issues)
+  * [ Pull requests  ](/Shanmukha666/smartindiahackathon26/pulls)
+  * [ Actions  ](/Shanmukha666/smartindiahackathon26/actions)
+  * [ Projects  ](/Shanmukha666/smartindiahackathon26/projects)
+  * [ Security and quality  ](/Shanmukha666/smartindiahackathon26/security)
+  * [ Insights  ](/Shanmukha666/smartindiahackathon26/pulse)
+
+
+
+[](/Shanmukha666/smartindiahackathon26)
+
+main
+
+[Branches](/Shanmukha666/smartindiahackathon26/branches)[Tags](/Shanmukha666/smartindiahackathon26/tags)
+
+[](/Shanmukha666/smartindiahackathon26/branches)[](/Shanmukha666/smartindiahackathon26/tags)
+
+Go to file
+
+Code
+
+Open more actions menu
+
+## Latest commit
+
+ 
+
+## History
+
+[13 Commits](/Shanmukha666/smartindiahackathon26/commits/main/)
+
+[](/Shanmukha666/smartindiahackathon26/commits/main/)13 Commits
+
+## Folders and files
+
+Name| Name| Last commit message| Last commit date  
+---|---|---|---  
+[.github](/Shanmukha666/smartindiahackathon26/tree/main/.github ".github")| [.github](/Shanmukha666/smartindiahackathon26/tree/main/.github ".github")|  |    
+[backend](/Shanmukha666/smartindiahackathon26/tree/main/backend "backend")| [backend](/Shanmukha666/smartindiahackathon26/tree/main/backend "backend")|  |    
+[corpus](/Shanmukha666/smartindiahackathon26/tree/main/corpus "corpus")| [corpus](/Shanmukha666/smartindiahackathon26/tree/main/corpus "corpus")|  |    
+[docs](/Shanmukha666/smartindiahackathon26/tree/main/docs "docs")| [docs](/Shanmukha666/smartindiahackathon26/tree/main/docs "docs")|  |    
+[frontend](/Shanmukha666/smartindiahackathon26/tree/main/frontend "frontend")| [frontend](/Shanmukha666/smartindiahackathon26/tree/main/frontend "frontend")|  |    
+[infra](/Shanmukha666/smartindiahackathon26/tree/main/infra "infra")| [infra](/Shanmukha666/smartindiahackathon26/tree/main/infra "infra")|  |    
+[.env.example](/Shanmukha666/smartindiahackathon26/blob/main/.env.example ".env.example")| [.env.example](/Shanmukha666/smartindiahackathon26/blob/main/.env.example ".env.example")|  |    
+[.gitignore](/Shanmukha666/smartindiahackathon26/blob/main/.gitignore ".gitignore")| [.gitignore](/Shanmukha666/smartindiahackathon26/blob/main/.gitignore ".gitignore")|  |    
+[.pre-commit-config.yaml](/Shanmukha666/smartindiahackathon26/blob/main/.pre-commit-config.yaml ".pre-commit-config.yaml")| [.pre-commit-config.yaml](/Shanmukha666/smartindiahackathon26/blob/main/.pre-commit-config.yaml ".pre-commit-config.yaml")|  |    
+[README.md](/Shanmukha666/smartindiahackathon26/blob/main/README.md "README.md")| [README.md](/Shanmukha666/smartindiahackathon26/blob/main/README.md "README.md")|  |    
+[docker-compose.yml](/Shanmukha666/smartindiahackathon26/blob/main/docker-compose.yml "docker-compose.yml")| [docker-compose.yml](/Shanmukha666/smartindiahackathon26/blob/main/docker-compose.yml "docker-compose.yml")|  |    
+View all files  
+  
+## Repository files navigation
+
+  *   * README
+
+
+
+More items
+
+# IP-SAKTI Sahayak
+
+Monorepo foundation for IP-SAKTI Sahayak:
+
+  * `backend`: FastAPI on Python 3.11, managed with `uv`.
+  * `frontend`: React, Vite, TypeScript, and Tailwind CSS.
+  * `infra`: Google Cloud Terraform for Cloud SQL PostgreSQL, pgvector, Artifact Registry, and Cloud Run.
+  * `docker-compose.yml`: local PostgreSQL with pgvector, backend hot reload, and frontend hot reload.
+  * Local observability: JSON backend logs, OpenTelemetry traces, and Jaeger.
+
+
+
+No business workflows are included in this scaffold.
+
+## Local development
+
+Prerequisites: Docker Desktop, `uv`, Node.js 22+, and npm.
+
+Start the complete local stack from the repository root:
+```
+ 
+    copy .env.example .env
+    # Edit .env and set POSTGRES_PASSWORD to a local-only value.
+    docker compose up --build
+
+```
+
+This starts the database-free bundled-corpus demo by default and does not require AI-provider keys. To use the full PostgreSQL/provider-backed RAG path, set `DEMO_MODE=false` and add your local-only database/password, JWT, KEK-resource, Voyage, Cohere, and Anthropic values to the ignored `.env` file.
+
+When running outside Docker, start the backend on port 8000, then run `npm run dev` in `frontend`. To use another backend port, set `VITE_API_PROXY_TARGET`, for example `VITE_API_PROXY_TARGET=http://127.0.0.1:8010 npm run dev`.
+
+Open the frontend at `http://localhost:5173`. The backend is available at `http://localhost:8000`; its liveness endpoint is `GET /health` and its database-backed readiness endpoint is `GET /ready`. View local traces at `http://localhost:16686`.
+
+Retrieve corpus evidence with:
+```
+ 
+    curl -X POST http://localhost:8000/retrieve \
+    	-H 'Content-Type: application/json' \
+    	-d '{"query":"traditional knowledge exclusion","jurisdiction":"IN"}'
+
+```
+
+`jurisdiction` accepts `IN`, `INTL`, or `BOTH`. Retrieval filters active documents by jurisdiction, combines pgvector cosine and PostgreSQL full-text ranks with reciprocal rank fusion, reranks the fused top 20 through Cohere, and returns at most five results. Results below `MIN_RELEVANCE` are omitted; the default is `0.35` and it can be changed through the environment or Terraform's `min_relevance` variable.
+
+## Legal graph
+
+The legal graph uses a relational adjacency model in PostgreSQL (`graph_entities` and `graph_relationships`), rather than a separate graph database. This keeps graph updates transactional with the existing corpus, uses the current PostgreSQL backup/access-control investment, and supports future multi-hop traversal with recursive CTEs. Entity types are `Instrument`, `Section`, `Treaty`, `FormulationCategory`, and `RegistryRecord`; supported edge types are `CITES`, `SUPERSEDES`, `APPLIES_TO_CATEGORY`, and `CROSS_REFERENCES`.
+
+The graph migration backfills the seeded corpus's Section 3(p) → `classical` `APPLIES_TO_CATEGORY` edge and the Biological Diversity Act, 2002 → WIPO GRATK Treaty `CROSS_REFERENCES` edge. The treaty is represented as a canonical graph entity because it is not yet a corpus document.
+
+When a corpus document changes, prior answers that cited its replaced chunks are added to the PostgreSQL `qa_review_queue`. The invalidation also follows `SUPERSEDES` and `CROSS_REFERENCES` graph edges to catch affected neighboring authorities. Administrators can inspect pending items with `GET /admin/review-queue` (optionally `?limit=...`), rather than silently serving those answers as current.
+
+Ask a grounded question with the Claude-backed endpoint:
+```
+ 
+    curl -X POST http://localhost:8000/ask \
+    	-H 'Content-Type: application/json' \
+    	-d '{"query":"What does Section 3(p) exclude?","jurisdiction":"IN","session_id":"demo-session"}'
+
+```
+
+`/ask` abstains before invoking Claude when retrieval is empty, validates every returned citation against the retrieved chunk IDs, downgrades unjustified high confidence when reranker scores are weak, and writes every attempt to `qa_log`. Every response includes the `Information only, not legal advice.` disclaimer.
+
+Escalate a question with:
+```
+ 
+    curl -X POST http://localhost:8000/escalate \
+    	-H 'Content-Type: application/json' \
+    	-d '{"session_id":"demo-session","question":"Which route applies?","reason":"abstained-answer","priority":"normal"}'
+
+```
+
+The response contains a database-backed `tracking_id`. `abstained-answer` escalations are raised to `high` priority unless the caller explicitly sends `urgent`. Escalations require an authenticated caller. Production requires `NOTIFICATION_PROVIDER=webhook`; logging notification and the stub paid connector are development/test-only and production startup rejects either configuration.
+
+Classify a product through the YAML-driven decision tree:
+```
+ 
+    curl -X POST http://localhost:8000/classify/next \
+    	-H 'Content-Type: application/json' \
+    	-d '{"session_id":"demo-classification","trail":[],"answer_index":null}'
+
+```
+
+Use each response's `options` to choose the next `answer_index` and send back the returned `trail`. A terminal response contains `regulatory_path`, `ip_posture`, and `abs_note` and is persisted to `classification_results`. Domain experts can edit `backend/classification_tree.yaml`; set `CLASSIFICATION_TREE_PATH` to load an alternate tree without changing Python code.
+
+Every backend response includes an `X-Request-ID` header. Clients can provide that header to correlate their own request; otherwise the backend generates a UUID. Backend events are emitted as one-line JSON records containing the request ID and, when available, OpenTelemetry trace and span IDs. Logs deliberately exclude questions, answers, session/user IDs, credentials, authorization headers, and provider payloads; use the request ID plus trace ID to investigate a request.
+
+## Observability
+
+The full request path emits OpenTelemetry spans and latency/error metrics for classification, retrieval/search, embedding, reranking, LLM generation, citation validation, escalation, translation, and paid-source connectors. W3C trace context and `X-Request-ID` are propagated to outbound provider calls without forwarding inbound credentials. Local `docker compose up` exposes Jaeger at `:16686`, Prometheus at `:9090`, and Grafana at `:3000`; Grafana provisions the **IP-SAKTI Request Pipeline** dashboard and Prometheus loads alerts for retrieval/LLM failure rates, p95 latency, citation-validation failures, and escalation spikes.
+
+For production, point `OTEL_EXPORTER_OTLP_ENDPOINT` at the managed collector and configure its OTLP receiver, metrics backend, trace backend, and alert notification receiver. Keep metric labels bounded: stage, provider, jurisdiction, input type, priority, and reason only. Do not add query text, user identifiers, session IDs, chunk content, credentials, or raw provider responses as trace attributes, metric labels, or log fields.
+
+The backend reads configuration from process environment variables only; it does not load `.env` files itself. The root `.env` is used only by Docker Compose and is ignored by Git.
+
+For a local demo without PostgreSQL or provider keys, Docker Compose defaults to `DEMO_MODE=true`. It performs a lexical search over the bundled corpus and returns a clearly labeled, cited extract; it is not an LLM and production startup rejects this setting. Set `DEMO_MODE=false` only when PostgreSQL plus Voyage, Cohere, and Anthropic credentials are configured for full RAG.
+
+Docker Compose also enables `ENABLE_DEV_SESSION_ENDPOINT=true` solely for the local frontend demo. It issues a four-hour, locally signed token so the UI can exercise authenticated escalation and the development-only stub paid-source connector. The endpoint is off by default and configuration rejects it outside `local`, `development`, or `test`; it is not a replacement for production identity-provider authentication.
+
+The production frontend image proxies `/api/*` to `BACKEND_ORIGIN`; set that variable to the HTTPS URL of the deployed backend service. Its Docker default (`http://backend:8000`) is only for the local Compose network.
+
+## Vercel frontend deployment
+
+Vercel hosts the static React frontend only; it does not replace the FastAPI, PostgreSQL/pgvector, provider-key, or ingestion services. In Vercel, import this GitHub repository and set **Root Directory** to `frontend`. The committed `frontend/vercel.json` supplies the Vite build and SPA fallback.
+
+Use Vercel's Git integration: pull requests receive Preview deployments and pushes to the configured production branch receive Production deployments. The repository's Google Cloud workflow intentionally deploys only the backend, so Vercel credentials do not need to be stored in GitHub Actions.
+
+Set this Vercel environment variable for Production and Preview deployments:
+
+Variable | Value  
+---|---  
+`VITE_API_BASE_URL` | The HTTPS origin of the separately deployed backend, without a trailing slash (for example `https://api.example.com`).  
+  
+`VITE_API_BASE_URL` is public build-time configuration, not a secret. Before deploying the frontend, add its exact Vercel URL to the backend's `ALLOWED_ORIGINS` / production `TF_VAR_ALLOWED_ORIGINS`, and configure its hostname in the backend's `TRUSTED_HOSTS` where applicable. Do not put API keys, JWT signing keys, Google credentials, or database URLs in Vercel environment variables.
+
+## GitHub Pages frontend demo
+
+The `Deploy frontend to GitHub Pages` workflow builds the static frontend at `https://shanmukha666.github.io/smartindiahackathon26/`. In GitHub, enable **Settings → Pages → Source: GitHub Actions** , then run the workflow or push to `main`. This is a frontend-only demo: GitHub Pages cannot run FastAPI, PostgreSQL, or the RAG providers. To enable live calls, add the HTTPS backend origin as the repository Actions variable `VITE_API_BASE_URL`, and add the exact Pages origin to the backend's production CORS allowlist. Without that backend URL, the hosted page remains usable for its visual interface but API-driven classification and answers are unavailable.
+
+Indic-language queries use Bhashini before retrieval, so the English corpus remains the sole evidence source and its chunk IDs remain unchanged. The language selector identifies the query language for translation; the interface itself is currently English. Set `BHASHINI_API_KEY` and (when issued for the account) `BHASHINI_USER_ID`. The backend also provides `POST /speech/transcribe` and `POST /speech/synthesize` for Bhashini ASR/TTS. QA audit rows retain `original_query`, `translated_query`, and `query_language`.
+
+`/ask`, `/escalate`, privacy, and paid-source routes persist user-related records. Staging and production require a verified bearer identity for those records; local demo mode issues an ephemeral, development-only token. Before production, integrate the frontend with the chosen identity provider so it sends a user token rather than relying on the demo-session endpoint.
+
+Traditional-knowledge-sensitive classification outcomes display a **TKDL / prior-art check** pointer. It links to the official [Traditional Knowledge Digital Library](https://www.tkdl.res.in/tkdl/langdefault/common/Home.asp?GL=Eng); this application does not query TKDL, and an absent TKDL result is never treated as proof of novelty. TKDL states that full database access is subject to its access arrangements.
+
+Each completed classification also offers links to the official [IP India E-Services directory](https://ipindia.gov.in/pages/e-services), [WIPO PATENTSCOPE](https://patentscope.wipo.int/search/en/search.jsf), and [WIPO Global Brand Database](https://branddb.wipo.int/), where relevant. These are user-operated external research portals: IP-SAKTI neither submits queries to them nor represents their results as registrability, clearance, or freedom-to-operate advice.
+
+The system's control mapping and explicit non-certification statement are in [AI governance alignment](/Shanmukha666/smartindiahackathon26/blob/main/docs/ai-governance.md).
+
+## SIH problem-statement mapping
+
+**Problem Statement ID:** 26045  
+**Title:** _IP-SAKTI Sahayak: A Multilingual, RAG-Based, Source-Cited AI Assistant for Intellectual Property and Regulatory Guidance in Ayurveda_  
+**Domain:** AYUSH / Intellectual Property Rights / Regulatory Technology
+
+The implementation map, phase boundaries, and open requirements are recorded in [requirements traceability](/Shanmukha666/smartindiahackathon26/blob/main/docs/requirements-traceability.md).
+
+Ingest the seeded public-source corpus after applying the database migration and setting `VOYAGE_API_KEY` in the ignored root `.env`:
+```
+ 
+    docker compose exec backend ingest --corpus-dir /corpus
+
+```
+
+Corpus content is governed by the Legal Corpus Reviewer role, not engineers. See [corpus governance](/Shanmukha666/smartindiahackathon26/blob/main/docs/corpus-governance.md) for mandatory dedicated PRs, provenance, quarterly source review, and stale-answer queue closure.
+
+For the SIH submission, **Shanmukha Sai Dasari** is the interim Legal Corpus Reviewer for source-consistency checks against public statute texts. This is a transparent demo-grade designation, not legal counsel or a claim of professional legal qualification; see the corpus-governance document for its limits.
+
+The command prints JSON counters for inserted, changed, unchanged documents and generated chunks. It hashes each document body, skips unchanged versions, and records changed versions in `corpus_change_log` before inserting their new chunks and Voyage embeddings.
+
+## Evaluation
+
+The seeded evaluator is in `backend/eval`. It contains 27 YAML cases covering all six classification categories, four grounded questions, and five abstention cases including an adversarial off-topic prompt. Run the deterministic CI check with:
+```
+ 
+    cd backend
+    uv run python eval/run_eval.py --offline --compare-to eval/baseline.json
+
+```
+
+For a live backend evaluation, omit `--offline` and set `EVAL_BASE_URL`. The report includes citation correctness, abstention precision/recall, and classification accuracy. Pull requests compare citation correctness and abstention precision against the baseline stored on `main`; regression tolerance is controlled by the `EVAL_MAX_REGRESSION` GitHub repository variable and defaults to `0.05`.
+
+For backend work outside Compose:
+```
+ 
+    cd backend
+    uv sync
+    uv run uvicorn app.main:app --reload
+
+```
+
+Run the database migrations with `DATABASE_URL` in the process environment:
+```
+ 
+    cd backend
+    uv run alembic upgrade head
+
+```
+
+To roll back the latest migration, use `uv run alembic downgrade -1`. The migration creates the pgvector extension and the corpus, audit, QA, escalation, and grant tables. The embedding index is HNSW with cosine distance; `text_search` is a generated `tsvector` indexed with GIN.
+
+For frontend work outside Compose:
+```
+ 
+    cd frontend
+    npm install
+    npm run dev
+
+```
+
+## Terraform environments
+
+Terraform state is separated with workspaces. The `staging` workspace is intended for lower-cost, scale-to-zero Cloud Run and zonal Cloud SQL. The `production` workspace uses regional Cloud SQL, point-in-time recovery, deletion protection, and a nonzero Cloud Run minimum instance count.
+
+Initialize Terraform and create the workspaces:
+```
+ 
+    cd infra
+    terraform init
+    terraform workspace new staging
+    terraform workspace new production
+
+```
+
+Select one workspace, copy its variable example, set the GCP project and image, then plan/apply:
+```
+ 
+    terraform workspace select staging
+    terraform plan -var-file=staging.tfvars
+    terraform apply -var-file=staging.tfvars
+
+```
+
+Use `production.tfvars` with the `production` workspace for production. The first apply requires the Google Cloud CLI because Terraform runs `gcloud sql databases execute-sql` to enable the `vector` extension after Cloud SQL is provisioned. The executing identity needs permission to administer Cloud SQL and the project APIs must be enabled.
+
+## Secrets
+
+## Paid-source credentials and key rotation
+
+Paid-source routes require a bearer JWT and explicit per-call consent. Credentials are envelope-encrypted: a random data key encrypts the credential with AES-256-GCM; only the encrypted data key, nonces, ciphertext, and Secret Manager KEK version are stored in PostgreSQL. Plaintext credentials are never logged or persisted. The KEK is loaded at runtime from the configured Google Secret Manager version.
+
+To rotate: create a new 32-byte base64 KEK version in Secret Manager; deploy with `CREDENTIAL_KEK_SECRET_RESOURCE` pointing to it; re-submit/re-encrypt each credential (which records the new `kek_version`); validate provider access; then disable the previous Secret Manager version. Do not destroy the prior key until every old credential has been re-encrypted.
+
+Secrets must never be committed to source, `.env.example`, Terraform variable files, or GitHub workflow YAML.
+
+## Production security gates
+
+Production startup fails closed unless explicit trusted hosts and CORS origins are supplied, a 32+ character non-test JWT signing key is present, edge/gateway rate limiting is declared, a webhook notification secret is configured, and stub connectors are disabled. Cloud Run is no longer publicly invokable; place it behind the approved authenticated gateway/load balancer, which must enforce the declared distributed rate limit. The deployment workflow runs endpoint smoke checks after deployment.
+
+## Releases and rollback
+
+See [the release process](/Shanmukha666/smartindiahackathon26/blob/main/docs/release-process.md) for signed application tags, corpus/version records, staging-to-production approval, migration checks, and independently scoped application, database, and corpus rollback procedures.
+
+Secret | Local development | Staging and production  
+---|---|---  
+`POSTGRES_PASSWORD` | Root ignored `.env`, used only by Compose | Generated and stored as the `${environment}-database-url` Google Secret Manager version by Terraform  
+`DATABASE_URL` | Supplied to the backend container by Compose; set manually in the process environment for non-Compose runs | Injected into Cloud Run from Google Secret Manager, never as a Terraform plain-text environment value  
+`ANTHROPIC_API_KEY` | Optional ignored environment variable | `${environment}-anthropic-api-key` in Google Secret Manager; add a secret version before deploying Cloud Run  
+`VOYAGE_API_KEY` | Optional ignored environment variable | `${environment}-voyage-api-key` in Google Secret Manager; add a secret version before deploying Cloud Run  
+`COHERE_API_KEY` | Required for `/retrieve`, stored in the ignored root `.env` | `${environment}-cohere-api-key` in Google Secret Manager; add a secret version before deploying Cloud Run  
+`ANTHROPIC_API_KEY` | Required for `/ask`, stored in the ignored root `.env` | `${environment}-anthropic-api-key` in Google Secret Manager; add a secret version before deploying Cloud Run  
+`GCP_WORKLOAD_IDENTITY_PROVIDER` | Not used locally | GitHub Actions variable containing the full Workload Identity Federation provider resource name  
+`GCP_SERVICE_ACCOUNT` | Not used locally | GitHub Actions variable containing the deployer service-account email  
+  
+Create the AI-key versions outside the repository, for example with `gcloud secrets versions add`. Grant access only to the deployment/runtime identities that need it. `OTEL_EXPORTER_OTLP_ENDPOINT` and `OTEL_SERVICE_NAME` are configuration, not secrets; the OTLP endpoint is configured through Terraform and should be replaced before production.
+
+Before applying either Cloud Run workspace, add the required API-key versions from your local secret environment:
+```
+ 
+    printf '%s' "$ANTHROPIC_API_KEY" | gcloud secrets versions add ip-sakti-staging-anthropic-api-key --data-file=-
+    printf '%s' "$VOYAGE_API_KEY" | gcloud secrets versions add ip-sakti-staging-voyage-api-key --data-file=-
+    printf '%s' "$COHERE_API_KEY" | gcloud secrets versions add ip-sakti-staging-cohere-api-key --data-file=-
+
+```
+
+Use the `ip-sakti-production-*` names for the production workspace. Do not put these values in Terraform variables, tfvars files, or workflow YAML.
+
+## Production observability
+
+The backend uses a generic OTLP gRPC exporter by default. Set the Terraform variables `otel_service_name`, `otel_exporter_otlp_endpoint`, and `otel_traces_exporter` in the environment tfvars file to point at the production observability backend. The placeholder endpoint is `https://otel-collector.example.com:4317` and must be replaced before production deployment. Set `otel_traces_exporter = "none"` to disable trace exporting where required.
+
+## Clean local teardown
+
+Stop containers and remove the local database volume when you want a clean reset:
+```
+ 
+    docker compose down --volumes --remove-orphans
+
+```
+
+To remove only running containers while preserving database data, use `docker compose down`. Terraform teardown is separate and destructive; select the intended workspace and run `terraform destroy -var-file=<environment>.tfvars` only when the corresponding cloud environment should be removed.
+
+## GitHub Actions
+
+Pull requests run backend linting, mypy, tests, frontend ESLint and TypeScript checks, and both Docker image builds without pushing.
+
+Merges to `main` repeat those checks, provision the staging Artifact Registry if needed, push the tagged backend image, and apply the `staging` Terraform workspace. The frontend deploys separately through Vercel Git integration. The backend deployment job uses GitHub's OIDC token and Google Cloud Workload Identity Federation (WIF), not a service-account key. Configure these GitHub Actions variables (repository variables, or environment variables when staging and production use separate Google Cloud projects):
+
+Variable | Value  
+---|---  
+`GCP_PROJECT_ID` | The Google Cloud project ID.  
+`GCP_REGION` | Optional target Cloud Run/Artifact Registry region. It defaults to `asia-south1`, matching Terraform.  
+`GCP_TERRAFORM_STATE_BUCKET` | Name of the pre-created, private GCS bucket used only for Terraform state.  
+`GCP_WORKLOAD_IDENTITY_PROVIDER` | Full provider resource name, for example `projects/PROJECT_NUMBER/locations/global/workloadIdentityPools/POOL_ID/providers/PROVIDER_ID`.  
+`GCP_SERVICE_ACCOUNT` | Email of the WIF-bound deployment service account, for example `DEPLOYER_NAME@PROJECT_ID.iam.gserviceaccount.com`.  
+  
+The variables are intentionally not defaulted in source (except the documented region default). The workflow validates them before authentication, so a missing value fails with an actionable message instead of passing an empty input to `google-github-actions/auth`. Create the state bucket before the first workflow run, enable bucket versioning and uniform bucket-level access, and grant the deployment service account only the storage permissions required for that bucket. The workflow uses the prefix `ip-sakti-sahayak/staging` or `ip-sakti-sahayak/production` to isolate state.
+
+The following values are project-specific and cannot be derived from this repository. They are GitHub Actions **Variables** , not Secrets:
+
+Variable | Repository source | Obtain it from  
+---|---|---  
+`GCP_PROJECT_ID` | `infra/variables.tf` declares it as required; both example tfvars files deliberately use a placeholder. | The target project’s ID in Google Cloud Console or `gcloud projects list`.  
+`GCP_TERRAFORM_STATE_BUCKET` | No `google_storage_bucket` resource or Terraform backend is defined. | The name of the private/versioned GCS bucket a project administrator creates for Terraform state.  
+`GCP_WORKLOAD_IDENTITY_PROVIDER` | No WIF pool or provider Terraform resource is defined. | The full provider resource name after a project administrator creates the GitHub OIDC WIF provider.  
+`GCP_SERVICE_ACCOUNT` | Terraform creates `backend_runtime` only; it does not create a deployment account. | The email of the separately created WIF-bound deployment service account.  
+  
+The WIF provider must map `assertion.repository` to `attribute.repository` and restrict the accepted repository to `Shanmukha666/smartindiahackathon26`. Its service-account binding must grant `roles/iam.workloadIdentityUser` to that repository principal set.
+
+For production, also configure these non-secret GitHub Actions variables. They are passed to Terraform as `TF_VAR_*` environment variables because the repository contains only placeholder tfvars examples:
+
+Variable | Value  
+---|---  
+`TF_VAR_ALLOWED_ORIGINS` | A JSON array of the real allowed frontend origins, for example `["https://app.your-domain.example"]`.  
+`TF_VAR_TRUSTED_HOSTS` | A JSON array of the real backend hosts, for example `["api.your-domain.example"]`.  
+  
+The workflow selects `notification_provider=webhook` and `rate_limit_backend=gateway` for production, as Terraform requires. `TF_VAR_ALLOWED_ORIGINS` and `TF_VAR_TRUSTED_HOSTS` must not use placeholder or wildcard values. They are deployment configuration, not credentials.
+
+### Google Cloud WIF bootstrap
+
+This Terraform configuration currently provisions the application runtime service account only; it does **not** create a WIF pool, WIF provider, or GitHub deployment service account. A Google Cloud project administrator must bootstrap those resources outside this deployment workflow, because the workflow cannot authenticate through a provider that does not yet exist. Do not create or commit a service-account JSON key.
+
+The WIF provider must map `assertion.repository` to `attribute.repository` and restrict it to `Shanmukha666/smartindiahackathon26`. Bind the deployment service account with `roles/iam.workloadIdentityUser` for this member:
+```
+ 
+    principalSet://iam.googleapis.com/projects/PROJECT_NUMBER/locations/global/workloadIdentityPools/POOL_ID/attribute.repository/Shanmukha666/smartindiahackathon26
+    
+
+```
+
+Grant that deployment account only the additional project/resource roles needed to run the Terraform plan and push/deploy the images; have a platform administrator review those grants. After bootstrap, copy the provider's full resource name and deployment service-account email into the GitHub Actions variables above. No private credential is needed or should be stored in GitHub.
+
+The workflow has no GitHub Actions Secrets. Provider API keys, JWT signing material, the credential KEK, and the notification webhook are separate Google Secret Manager secret versions; create their values in the target Google Cloud project before Cloud Run is deployed. They must not be copied into GitHub variables, Terraform files, or workflow YAML.
+
+Production is never deployed by a merge. Use the **Deploy** workflow's `workflow_dispatch`, choose `production`, and protect the corresponding GitHub environment with required reviewers. Choosing `staging` manually is also supported.
+
+## Pre-commit secret scanning
+
+Install pre-commit, install the hook, and scan existing files once:
+```
+ 
+    pipx install pre-commit
+    pre-commit install
+    pre-commit run --all-files
+
+```
+
+The tracked [.pre-commit-config.yaml](/Shanmukha666/smartindiahackathon26/blob/main/.pre-commit-config.yaml) runs gitleaks on staged changes and blocks commits containing likely API keys or other credentials.
+
+## About
+
+No description, website, or topics provided.
+
+### Resources
+
+Readme
+
+[Activity](/Shanmukha666/smartindiahackathon26/activity)
+
+### Stars
+
+**0** stars
+
+### Watchers
+
+**0** watching
+
+### Forks
+
+[**0** forks](/Shanmukha666/smartindiahackathon26/forks)
+
+[Report repository](/contact/report-content?content_url=https%3A%2F%2Fgithub.com%2FShanmukha666%2Fsmartindiahackathon26&report=Shanmukha666+%28user%29)
+
+## Releases
+
+## Packages
+
+## Contributors
+
+## Languages
+
+## Footer
+
+[ ](https://github.com) (C) 2026 GitHub, Inc. 
+
+### Footer navigation
+
+  * [Terms](https://docs.github.com/site-policy/github-terms/github-terms-of-service)
+  * [Privacy](https://docs.github.com/site-policy/privacy-policies/github-privacy-statement)
+  * [Security](https://github.com/security)
+  * [Status](https://www.githubstatus.com/)
+  * [Community](https://github.community/)
+  * [Docs](https://docs.github.com/)
+  * [Contact](https://support.github.com?tags=dotcom-footer)
+  * Manage cookies 
+  * Do not share my personal information 
+
+
+
+You can’t perform that action at this time.

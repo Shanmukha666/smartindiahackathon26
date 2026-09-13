@@ -44,6 +44,19 @@ class Settings(BaseSettings):
     rate_limit_backend: str = "memory"
     allow_stub_connectors: bool = False
     demo_mode: bool = False
+    # Pinecone
+    pinecone_api_key: SecretStr | None = None
+    pinecone_index: str = "airag-1536"
+    pinecone_environment: str = ""
+    # OpenAI (for Pinecone embeddings)
+    openai_api_key: SecretStr | None = None
+    openai_embedding_model: str = "text-embedding-3-small"
+    # Google Drive
+    google_drive_credentials_json: SecretStr | None = None
+    google_drive_default_file_id: str | None = None
+    # Web scraping
+    scrape_max_pages: int = 10
+    scrape_timeout_seconds: float = 30.0
     enable_dev_session_endpoint: bool = False
     max_request_body_bytes: int = 9_000_000
 

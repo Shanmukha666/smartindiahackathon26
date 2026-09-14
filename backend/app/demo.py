@@ -15,11 +15,15 @@ from .retrieve import JurisdictionMode, RerankedCandidate, SearchCandidate, juri
 TOKEN_PATTERN = re.compile(r"[a-z0-9]+")
 
 # In-memory store for session uploads in demo mode: session_id -> list of SearchCandidate
+MAX_DEMO_SESSIONS = 50
 DEMO_SESSION_UPLOADS: dict[str, list[SearchCandidate]] = {}
 
 
 def add_demo_session_upload(session_id: str, filename: str, text: str) -> int:
     """Store chunks in demo session memory so they can be retrieved."""
+    if len(DEMO_SESSION_UPLOADS) >= MAX_DEMO_SESSIONS and session_id not in DEMO_SESSION_UPLOADS:
+        oldest_key = next(iter(DEMO_SESSION_UPLOADS))
+        del DEMO_SESSION_UPLOADS[oldest_key]
     chunks = chunk_body(text, tags=["user-upload"])
     existing = DEMO_SESSION_UPLOADS.setdefault(session_id, [])
     doc_id = len(existing) + 1
@@ -86,11 +90,17 @@ def _synthesize_answer(query: str, chunk_id: str, raw_text: str) -> str:
     # 1. NBA Form and Biodiversity Approval
     if "form" in q_lower or "nba" in q_lower or "biodiversity" in q_lower:
         match = re.search(r"(Form\s+[I|V|X\d]+)", text, re.IGNORECASE)
-        form_name = match.group(1).strip() if match else "Form III"
+        if match:
+            form_name = match.group(1).strip()
+            return (
+                f"The required regulatory filing identified in the records is **{form_name}** under Section 19/20 of the Biological Diversity Act, 2002. "
+                f"Mandatory prior approval from the National Biodiversity Authority (NBA) must be secured before obtaining "
+                f"or commercializing any intellectual property right based on Indian biological resources or traditional knowledge."
+            )
         return (
-            f"The required regulatory filing is **{form_name}** under Section 19/20 of the Biological Diversity Act, 2002. "
-            f"Mandatory prior approval from the National Biodiversity Authority (NBA) must be secured before obtaining "
-            f"or commercializing any intellectual property right based on Indian biological resources or traditional knowledge."
+            "Under Section 19/20 of the Biological Diversity Act, 2002, mandatory prior approval from the National Biodiversity Authority (NBA) "
+            "must be secured before obtaining or commercializing intellectual property rights based on Indian biological resources or associated knowledge. "
+            "The specific statutory form (such as Form I for access, Form II for transfer, or Form III for patent application) depends on the applicant category and activity."
         )
 
     # 2. TKDL and Prior Art Citations

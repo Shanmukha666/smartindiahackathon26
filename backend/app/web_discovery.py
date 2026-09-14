@@ -63,6 +63,8 @@ class StagedCandidate:
     body_text: str
     source_hash: str
     status: Literal["pending_review", "promoted", "rejected"]
+    reviewed_by: str | None = None
+    rejection_reason: str | None = None
 
 
 @dataclass
@@ -145,7 +147,23 @@ def _looks_relevant(url: str, keywords: Sequence[str]) -> bool:
     if not keywords:
         return True
     haystack = url.lower()
-    return any(keyword.lower().split()[0] in haystack for keyword in keywords)
+    for raw_kw in keywords:
+        kw = raw_kw.lower().strip()
+        if not kw:
+            continue
+        words = kw.split()
+        if len(words) == 1:
+            if words[0] in haystack:
+                return True
+        else:
+            if (
+                kw in haystack
+                or "-".join(words) in haystack
+                or "_".join(words) in haystack
+                or all(w in haystack for w in words)
+            ):
+                return True
+    return False
 
 
 async def discover_candidates_for_topic(
@@ -273,7 +291,8 @@ class AsyncpgStagingRepository:
         async with self._pool.acquire() as connection:
             rows = await connection.fetch(
                 """
-                SELECT id, url, title, topic, jurisdiction, body_text, source_hash, status
+                SELECT id, url, title, topic, jurisdiction, body_text, source_hash, status,
+                       reviewed_by, rejection_reason
                 FROM corpus_staging WHERE status = 'pending_review' ORDER BY id
                 """
             )
@@ -283,7 +302,8 @@ class AsyncpgStagingRepository:
         async with self._pool.acquire() as connection:
             row = await connection.fetchrow(
                 """
-                SELECT id, url, title, topic, jurisdiction, body_text, source_hash, status
+                SELECT id, url, title, topic, jurisdiction, body_text, source_hash, status,
+                       reviewed_by, rejection_reason
                 FROM corpus_staging WHERE id = $1
                 """,
                 staging_id,
@@ -322,6 +342,8 @@ class AsyncpgStagingRepository:
             body_text=row["body_text"],
             source_hash=row["source_hash"],
             status=row["status"],
+            reviewed_by=row["reviewed_by"] if "reviewed_by" in row else None,
+            rejection_reason=row["rejection_reason"] if "rejection_reason" in row else None,
         )
 
 
@@ -415,6 +437,7 @@ class DemoStagingRepository:
                 id=c.id, url=c.url, title=c.title, topic=c.topic,
                 jurisdiction=c.jurisdiction, body_text=c.body_text,
                 source_hash=c.source_hash, status="promoted",
+                reviewed_by=reviewer, rejection_reason=None,
             )
 
     async def mark_rejected(self, staging_id: int, reviewer: str, reason: str) -> None:
@@ -424,6 +447,7 @@ class DemoStagingRepository:
                 id=c.id, url=c.url, title=c.title, topic=c.topic,
                 jurisdiction=c.jurisdiction, body_text=c.body_text,
                 source_hash=c.source_hash, status="rejected",
+                reviewed_by=reviewer, rejection_reason=reason,
             )
 
 

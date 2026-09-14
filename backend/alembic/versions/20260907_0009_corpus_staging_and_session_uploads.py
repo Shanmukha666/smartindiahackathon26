@@ -30,7 +30,12 @@ def upgrade() -> None:
             created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
             reviewed_at TIMESTAMPTZ,
             reviewed_by TEXT,
-            rejection_reason TEXT
+            rejection_reason TEXT,
+            CONSTRAINT corpus_staging_closure_evidence CHECK (
+                (status = 'pending_review' AND reviewed_at IS NULL AND reviewed_by IS NULL AND rejection_reason IS NULL)
+                OR (status = 'promoted' AND reviewed_at IS NOT NULL AND reviewed_by IS NOT NULL AND rejection_reason IS NULL)
+                OR (status = 'rejected' AND reviewed_at IS NOT NULL AND reviewed_by IS NOT NULL AND rejection_reason IS NOT NULL)
+            )
         )
         """
     )

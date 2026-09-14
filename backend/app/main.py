@@ -334,8 +334,13 @@ async def request_size_middleware(request: Request, call_next: Callable[[Request
 
 @app.middleware("http")
 async def expensive_endpoint_rate_limit(request: Request, call_next: Callable[[Request], Awaitable[Response]]) -> Response:
-    limits = {"/ask": settings.ask_rate_limit_per_minute, "/retrieve": settings.retrieve_rate_limit_per_minute,
-              "/escalate": settings.ask_rate_limit_per_minute, "/classify/next": settings.retrieve_rate_limit_per_minute}
+    limits = {
+        "/ask": settings.ask_rate_limit_per_minute,
+        "/retrieve": settings.retrieve_rate_limit_per_minute,
+        "/escalate": settings.ask_rate_limit_per_minute,
+        "/classify/next": settings.retrieve_rate_limit_per_minute,
+        "/ask/upload": settings.ask_rate_limit_per_minute,
+    }
     limit = limits.get(request.url.path)
     if request.method == "POST" and limit is not None:
         client_id = request.client.host if request.client else "unknown"
@@ -382,8 +387,9 @@ async def retrieve_for_request(
             query, jurisdiction, AsyncpgCorpusRepositoryAdapter(repository), embedder, reranker,
             settings.min_relevance,
         )
-        if session_id and hasattr(repository, "_pool") and repository._pool is not None:
-            upload_repo = AsyncpgSessionUploadRepository(repository._pool)
+        pool = getattr(repository, "pool", getattr(repository, "_pool", None))
+        if session_id and pool is not None:
+            upload_repo = AsyncpgSessionUploadRepository(pool)
             session_chunks = await retrieve_session_upload_chunks(
                 session_id=session_id,
                 query=query,
@@ -392,7 +398,7 @@ async def retrieve_for_request(
             )
             if session_chunks:
                 session_candidates = [
-                    RerankedCandidate(candidate=chunk, relevance_score=0.92)
+                    RerankedCandidate(candidate=chunk, relevance_score=chunk.fused_score)
                     for chunk in session_chunks
                 ]
                 results = session_candidates + results
@@ -508,7 +514,7 @@ async def ask_endpoint(
                     if not isinstance(entity, str) or not isinstance(relation, str):
                         return {"error": "graph_lookup requires entity and relation"}
                     try:
-                        graph = AsyncpgGraphRepository(repository._pool)
+                        graph = AsyncpgGraphRepository(repository.pool)
                         relationships = await graph.lookup(entity, RelationshipType(relation))
                     except ValueError:
                         return {"error": "graph_lookup received an unsupported relation"}
@@ -841,6 +847,8 @@ class StagedCandidateResponse(BaseModel):
     body_text: str
     source_hash: str
     status: Literal["pending_review", "promoted", "rejected"]
+    reviewed_by: str | None = None
+    rejection_reason: str | None = None
 
 
 class StagingActionRequest(BaseModel):
@@ -866,7 +874,7 @@ async def run_discovery_endpoint(
     if settings.demo_mode:
         staging_repo = GLOBAL_DEMO_STAGING_REPO
     else:
-        staging_repo = AsyncpgStagingRepository(repository._pool)
+        staging_repo = AsyncpgStagingRepository(repository.pool)
 
     async with WebScraper(settings, http_client) as scraper:
         stats = await run_discovery(
@@ -894,7 +902,7 @@ async def list_staging_candidates(
     repository: RepositoryDep,
     _: str = Depends(require_role("legal_reviewer")),
 ) -> list[StagedCandidateResponse]:
-    staging_repo: StagingRepository = GLOBAL_DEMO_STAGING_REPO if settings.demo_mode else AsyncpgStagingRepository(repository._pool)
+    staging_repo: StagingRepository = GLOBAL_DEMO_STAGING_REPO if settings.demo_mode else AsyncpgStagingRepository(repository.pool)
     candidates = await staging_repo.list_pending()
     return [StagedCandidateResponse(**c.__dict__) for c in candidates]
 
@@ -908,11 +916,11 @@ async def get_staging_candidate(
     repository: RepositoryDep,
     _: str = Depends(require_role("legal_reviewer")),
 ) -> StagedCandidateResponse:
-    staging_repo: StagingRepository = GLOBAL_DEMO_STAGING_REPO if settings.demo_mode else AsyncpgStagingRepository(repository._pool)
+    staging_repo: StagingRepository = GLOBAL_DEMO_STAGING_REPO if settings.demo_mode else AsyncpgStagingRepository(repository.pool)
     candidate = await staging_repo.get(staging_id)
     if candidate is None:
         raise HTTPException(status_code=404, detail="Staging candidate not found")
-    return StagedCandidateResponse(**candidate.__dict__)
+    return StagedCandidateResponse(**candidate.__dict__) if hasattr(candidate, "__dict__") else candidate
 
 
 @app.patch(
@@ -923,9 +931,10 @@ async def act_on_staging_candidate(
     staging_id: int,
     payload: StagingActionRequest,
     repository: RepositoryDep,
+    http_client: HttpClientDep,
     reviewer: str = Depends(require_role("legal_reviewer")),
 ) -> Response:
-    staging_repo: StagingRepository = GLOBAL_DEMO_STAGING_REPO if settings.demo_mode else AsyncpgStagingRepository(repository._pool)
+    staging_repo: StagingRepository = GLOBAL_DEMO_STAGING_REPO if settings.demo_mode else AsyncpgStagingRepository(repository.pool)
     candidate = await staging_repo.get(staging_id)
     if candidate is None:
         raise HTTPException(status_code=404, detail="Staging candidate not found")
@@ -934,6 +943,20 @@ async def act_on_staging_candidate(
             status_code=409, detail=f"Candidate already {candidate.status}"
         )
     if payload.action == "promote":
+        if not settings.demo_mode:
+            if not settings.voyage_api_key:
+                raise HTTPException(
+                    status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                    detail="VOYAGE_API_KEY must be configured to ingest promoted candidate",
+                )
+            async with VoyageEmbedder(settings, http_client) as embedder:
+                await ingest_from_text(
+                    filename=f"staged-{candidate.id}.md",
+                    text=candidate.body_text,
+                    repository=repository,
+                    embedder=embedder,
+                    jurisdiction=candidate.jurisdiction,
+                )
         await staging_repo.mark_promoted(staging_id, reviewer)
     else:
         await staging_repo.mark_rejected(staging_id, reviewer, payload.reason)
@@ -998,7 +1021,7 @@ async def upload_session_document(
         )
 
     async with VoyageEmbedder(settings, http_client) as embedder:
-        session_repo = AsyncpgSessionUploadRepository(repository._pool)
+        session_repo = AsyncpgSessionUploadRepository(repository.pool)
         result = await ingest_upload_for_session(
             session_id=payload.session_id,
             filename=payload.filename,

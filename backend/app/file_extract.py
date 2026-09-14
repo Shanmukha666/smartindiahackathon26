@@ -16,6 +16,8 @@ from pathlib import Path
 logger = logging.getLogger(__name__)
 
 MAX_FILE_BYTES = 50_000_000  # 50 MB hard ceiling
+MAX_PDF_PAGES = 100
+MAX_SPREADSHEET_ROWS = 5000
 
 
 def extract_text(data: bytes, filename: str, content_type: str = "") -> str:
@@ -57,7 +59,9 @@ def _extract_pdf(data: bytes) -> str:
     try:
         reader = pypdf.PdfReader(io.BytesIO(data))
         pages: list[str] = []
-        for page in reader.pages:
+        for idx, page in enumerate(reader.pages):
+            if idx >= MAX_PDF_PAGES:
+                break
             text = page.extract_text() or ""
             if text.strip():
                 pages.append(text)
@@ -92,8 +96,12 @@ def _extract_xlsx(data: bytes) -> str:
         wb = openpyxl.load_workbook(io.BytesIO(data), read_only=True, data_only=True)
         lines: list[str] = []
         for sheet in wb.sheetnames:
+            if len(lines) >= MAX_SPREADSHEET_ROWS:
+                break
             ws = wb[sheet]
             for row in ws.iter_rows(values_only=True):
+                if len(lines) >= MAX_SPREADSHEET_ROWS:
+                    break
                 cells = [str(c) if c is not None else "" for c in row]
                 if any(cells):
                     lines.append("\t".join(cells))
@@ -109,7 +117,9 @@ def _extract_csv(data: bytes) -> str:
         text = data.decode("utf-8", errors="replace")
         reader = csv.reader(io.StringIO(text))
         lines: list[str] = []
-        for row in reader:
+        for idx, row in enumerate(reader):
+            if idx >= MAX_SPREADSHEET_ROWS:
+                break
             if any(cell.strip() for cell in row):
                 lines.append("\t".join(row))
         return "\n".join(lines)

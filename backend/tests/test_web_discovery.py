@@ -162,3 +162,55 @@ async def test_run_discovery_respects_robots_txt() -> None:
     stats = await run_discovery([topic], scraper, repository)  # type: ignore[arg-type]
     assert stats.robots_blocked == 1
     assert stats.staged == 0
+
+
+def test_looks_relevant_handles_multi_word_keywords() -> None:
+    from app.web_discovery import _looks_relevant
+
+    keywords = ("biological diversity", "traditional knowledge")
+
+    # Match full slug hyphenated
+    assert _looks_relevant("https://gov.in/acts/biological-diversity-act-2002", keywords)
+    # Match underscore slug
+    assert _looks_relevant("https://gov.in/acts/biological_diversity", keywords)
+    # Match all words in path
+    assert _looks_relevant("https://gov.in/biological/archive/diversity/doc.pdf", keywords)
+    # Unrelated biological weapon should NOT match "biological diversity"
+    assert not _looks_relevant("https://gov.in/biological-weapons-convention", keywords)
+    # Match second keyword
+    assert _looks_relevant("https://gov.in/traditional-knowledge-library", keywords)
+    # Empty keywords matches anything
+    assert _looks_relevant("https://gov.in/anything", ())
+
+
+@pytest.mark.asyncio
+async def test_demo_staging_repository_retains_reviewer_and_reason() -> None:
+    from app.web_discovery import DemoStagingRepository, SourceCandidate
+
+    repo = DemoStagingRepository()
+    cand = SourceCandidate(
+        url="https://example.gov.in/new-patent-rule",
+        title="New Patent Rule",
+        topic="Patents Act",
+        jurisdiction="IN",
+        discovered_via="seed_crawl",
+    )
+    cid = await repo.insert_candidate(cand, "Some body text", "dummy_hash_test_123")
+    assert cid is not None
+
+    # Test rejection retains reviewer and reason
+    await repo.mark_rejected(cid, reviewer="advocate_sharma", reason="Duplicate repealed rule")
+    rejected = await repo.get(cid)
+    assert rejected is not None
+    assert rejected.status == "rejected"
+    assert rejected.reviewed_by == "advocate_sharma"
+    assert rejected.rejection_reason == "Duplicate repealed rule"
+
+    # Test promotion retains reviewer and clears rejection reason
+    await repo.mark_promoted(cid, reviewer="senior_counsel_iyer")
+    promoted = await repo.get(cid)
+    assert promoted is not None
+    assert promoted.status == "promoted"
+    assert promoted.reviewed_by == "senior_counsel_iyer"
+    assert promoted.rejection_reason is None
+

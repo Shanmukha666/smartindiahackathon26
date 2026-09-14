@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import ipaddress
 from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Self
@@ -18,6 +19,21 @@ if TYPE_CHECKING:
 
 DEFAULT_USER_AGENT = "IP-SAKTI-Sahayak/0.1.0 (WebScraper; +https://ip-sakti.gov.in)"
 TAGS_TO_REMOVE = ("script", "style", "nav", "header", "footer", "aside")
+
+
+def _is_safe_host(hostname: str) -> bool:
+    if not hostname:
+        return False
+    lower = hostname.lower().strip("[]")
+    if lower in ("localhost", "0.0.0.0", "::1", "169.254.169.254", "metadata.google.internal"):
+        return False
+    try:
+        ip = ipaddress.ip_address(lower)
+        if ip.is_private or ip.is_loopback or ip.is_link_local or ip.is_multicast or ip.is_reserved:
+            return False
+    except ValueError:
+        pass
+    return True
 
 
 @dataclass(frozen=True)
@@ -79,6 +95,8 @@ class WebScraper:
         parsed = urlparse(url)
         if parsed.scheme not in ("http", "https"):
             raise ValueError(f"Invalid URL scheme '{parsed.scheme}': only http and https are supported")
+        if not _is_safe_host(parsed.hostname or ""):
+            raise ValueError(f"Restricted host or private network destination: {parsed.hostname}")
 
         with stage("scrape", url=url):
             headers = outbound_headers({"User-Agent": self._user_agent})
@@ -112,7 +130,7 @@ class WebScraper:
         absolute URLs only; fragments and javascript: links are excluded.
         """
         parsed = urlparse(url)
-        if parsed.scheme not in ("http", "https"):
+        if parsed.scheme not in ("http", "https") or not _is_safe_host(parsed.hostname or ""):
             return []
 
         headers = outbound_headers({"User-Agent": self._user_agent})
@@ -138,7 +156,7 @@ class WebScraper:
                 continue
             absolute = urljoin(url, href)
             abs_parsed = urlparse(absolute)
-            if abs_parsed.scheme in ("http", "https"):
+            if abs_parsed.scheme in ("http", "https") and _is_safe_host(abs_parsed.hostname or ""):
                 # Strip fragment
                 clean = absolute.split("#")[0]
                 if clean not in links:
@@ -152,7 +170,7 @@ class WebScraper:
         """
         try:
             parsed = urlparse(url)
-            if parsed.scheme not in ("http", "https") or not parsed.netloc:
+            if parsed.scheme not in ("http", "https") or not parsed.netloc or not _is_safe_host(parsed.hostname or ""):
                 return True
 
             robots_url = f"{parsed.scheme}://{parsed.netloc}/robots.txt"

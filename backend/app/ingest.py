@@ -145,6 +145,10 @@ class AsyncpgCorpusRepository:
     def __init__(self, pool: Any) -> None:
         self._pool = pool
 
+    @property
+    def pool(self) -> Any:
+        return self._pool
+
     @classmethod
     async def create(cls, database_url: str) -> AsyncpgCorpusRepository:
         import asyncpg
@@ -423,6 +427,7 @@ class AsyncpgCorpusRepository:
             if existing is not None and existing["source_hash"] == source.source_hash:
                 return IngestOutcome("unchanged", 0)
 
+            previous_document_id: int | None = None
             if existing is not None:
                 previous_document_id = int(existing["id"])
                 await connection.execute(
@@ -632,7 +637,11 @@ async def ingest_from_gdrive(
     jurisdiction: Literal["IN", "INTL"] = "IN",
 ) -> IngestOutcome:
     content_bytes, filename, mime_type = await gdrive_client.download_file(file_id)
-    text = content_bytes.decode("utf-8", errors="replace").strip()
+    from .file_extract import extract_text
+    try:
+        text = extract_text(content_bytes, filename, content_type=mime_type).strip()
+    except Exception:
+        text = content_bytes.decode("utf-8", errors="replace").strip()
     source = parse_source_text(
         text=text,
         filename=filename,
@@ -656,7 +665,11 @@ async def ingest_from_url(
     scraped = await scraper.scrape(url)
     if not scraped.text.strip():
         raise ValueError(f"Scraped web page {url} contains no readable text")
-    instrument_name = scraped.title.strip() or url
+    from urllib.parse import urlparse
+    parsed = urlparse(url)
+    domain_path = f"{parsed.netloc}{parsed.path}"[:64].rstrip("/")
+    raw_title = scraped.title.strip() or domain_path or url
+    instrument_name = f"{raw_title[:90]} ({domain_path})" if domain_path and domain_path not in raw_title else raw_title
     metadata = CorpusFrontmatter(
         instrument=instrument_name[:128],
         section="Web",

@@ -162,7 +162,7 @@ class AsyncpgCorpusRepositoryAdapter:
         limit: int,
         rank_field: Literal["vector_rank", "text_rank"],
     ) -> list[SearchCandidate]:
-        async with self._repository._pool.acquire() as connection:
+        async with self._repository.pool.acquire() as connection:
             rows = await connection.fetch(query, first_param, jurisdictions, limit)
         return [
             SearchCandidate(

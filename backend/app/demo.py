@@ -103,15 +103,15 @@ def _synthesize_answer(query: str, chunk_id: str, raw_text: str) -> str:
                 citations.append(f"- {clean}")
         if citations:
             cit_block = "\n".join(citations)
-        else:
-            cit_block = (
-                "- Citation 1: Charaka Samhita, Sutrasthana Chapter 4: Mentions Haridra and Ashwagandha combinations.\n"
-                "- Citation 2: Bhavaprakasha Nighantu, Haritakyadi Varga: References classical decoction."
+            return (
+                f"The identified prior art citations in the document records are:\n\n{cit_block}\n\n"
+                f"Under Section 3(p) of the Patents Act 1970, an invention that is traditional knowledge or an aggregation "
+                f"of known components is non-patentable unless quantitative synergistic efficacy (inventive step) is demonstrated."
             )
         return (
-            f"The identified prior art citations in the document records are:\n\n{cit_block}\n\n"
-            f"Under Section 3(p) of the Patents Act 1970, an invention that is traditional knowledge or an aggregation "
-            f"of known components is non-patentable unless quantitative synergistic efficacy (inventive step) is demonstrated."
+            "No specific prior art citations were identified in the provided document records. "
+            "Under Section 3(p) of the Patents Act 1970, an invention which in effect is traditional knowledge or an "
+            "aggregation of known components is non-patentable unless non-obvious synergistic efficacy is established."
         )
 
     # 3. Patent Claims and Inventive Step

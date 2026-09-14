@@ -64,6 +64,7 @@ from .scraper import WebScraper
 from .session_documents import (
     AsyncpgSessionUploadRepository,
     ingest_upload_for_session,
+    retrieve_session_upload_chunks,
 )
 from .web_discovery import (
     GLOBAL_DEMO_STAGING_REPO,
@@ -136,6 +137,7 @@ class RetrieveRequest(BaseModel):
     query: str = Field(min_length=1, max_length=4000)
     jurisdiction: Literal["IN", "INTL", "BOTH"]
     language: IndicLanguage = "en"
+    session_id: str | None = None
 
 
 class SpeechToTextRequest(BaseModel):
@@ -162,7 +164,7 @@ class RetrieveResult(BaseModel):
     document_id: int
     instrument: str
     section: str
-    jurisdiction: Literal["IN", "INTL"]
+    jurisdiction: Literal["IN", "INTL", "USER_UPLOAD"]
     chunk_text: str
     score: float
 
@@ -376,10 +378,25 @@ async def retrieve_for_request(
     if settings.demo_mode:
         return retrieve_demo(query, jurisdiction, Path(__file__).resolve().parents[2] / "corpus", session_id=session_id)
     async with VoyageEmbedder(settings, http_client) as embedder, CohereReranker(settings, http_client) as reranker:
-        return await retrieve(
+        results = await retrieve(
             query, jurisdiction, AsyncpgCorpusRepositoryAdapter(repository), embedder, reranker,
             settings.min_relevance,
         )
+        if session_id and hasattr(repository, "_pool") and repository._pool is not None:
+            upload_repo = AsyncpgSessionUploadRepository(repository._pool)
+            session_chunks = await retrieve_session_upload_chunks(
+                session_id=session_id,
+                query=query,
+                embedder=embedder,
+                repository=upload_repo,
+            )
+            if session_chunks:
+                session_candidates = [
+                    RerankedCandidate(candidate=chunk, relevance_score=0.92)
+                    for chunk in session_chunks
+                ]
+                results = session_candidates + results
+        return results
 
 
 async def english_query(query: str, language: IndicLanguage, http_client: httpx.AsyncClient) -> str:
@@ -402,7 +419,13 @@ async def retrieve_endpoint(
     http_client: HttpClientDep,
 ) -> RetrieveResponse:
     try:
-        results = await retrieve_for_request(await english_query(payload.query, payload.language, http_client), payload.jurisdiction, repository, http_client)
+        results = await retrieve_for_request(
+            await english_query(payload.query, payload.language, http_client),
+            payload.jurisdiction,
+            repository,
+            http_client,
+            session_id=payload.session_id,
+        )
     except (RuntimeError, httpx.HTTPError) as error:
         logger.warning("retrieve.unavailable", extra={"error_type": type(error).__name__})
         raise HTTPException(status_code=503, detail="Retrieval service unavailable") from error

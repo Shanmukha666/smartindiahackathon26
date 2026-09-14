@@ -43,5 +43,9 @@ def test_sensitive_routes_require_authentication_and_responses_have_security_hea
 
 
 def test_request_body_limit_is_enforced_before_validation() -> None:
-    response = TestClient(app).post("/retrieve", content="x" * 64, headers={"Content-Length": "9000001"})
+    from app.main import settings
+
+    response = TestClient(app).post(
+        "/retrieve", content="x" * 64, headers={"Content-Length": str(settings.max_request_body_bytes + 1)}
+    )
     assert response.status_code == 413

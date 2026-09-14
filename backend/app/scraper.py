@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 from dataclasses import dataclass
+from pathlib import Path
 from typing import TYPE_CHECKING, Self
 from urllib.parse import urljoin, urlparse
 
@@ -86,9 +87,15 @@ class WebScraper:
             else:
                 async with httpx.AsyncClient(timeout=self._timeout) as client:
                     response = await client.get(url, headers=headers, follow_redirects=True)
-            response.raise_for_status()
+            content_type = response.headers.get("content-type", "").lower()
+            if "application/pdf" in content_type or parsed.path.lower().endswith(".pdf"):
+                from .file_extract import extract_text
 
-            title, clean_text = extract_text_from_html(response.text)
+                clean_text = extract_text(response.content, filename=parsed.path, content_type="application/pdf")
+                title = Path(parsed.path).stem.replace("_", " ").replace("-", " ").title() or "PDF Document"
+            else:
+                title, clean_text = extract_text_from_html(response.text)
+
             source_hash = hashlib.sha256(clean_text.encode("utf-8")).hexdigest()
             return ScrapedPage(
                 url=url,

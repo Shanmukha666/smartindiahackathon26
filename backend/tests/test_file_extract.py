@@ -51,3 +51,9 @@ def test_extract_pdf_returns_empty_without_pypdf(monkeypatch: pytest.MonkeyPatch
     monkeypatch.setattr(builtins, "__import__", mock_import)
     result = mod._extract_pdf(b"%PDF-1.4 fake pdf data")
     assert result == ""
+
+
+def test_extract_rejects_legacy_doc() -> None:
+    with pytest.raises(ValueError, match="Legacy binary .doc files are not supported"):
+        extract_text(b"\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1 legacy ole doc", "file.doc")
+

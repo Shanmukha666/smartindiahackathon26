@@ -20,6 +20,14 @@ The Legal Corpus Reviewer on rotation reviews every active source URL at least o
 
 The scheduled `corpus-source-review` workflow opens the quarterly review issue. It is a reminder and audit trigger, not proof that a legal review occurred; a Legal Corpus Reviewer must close the issue only after every source has a recorded outcome.
 
-## Phase 2.3 stale-answer queue
-
 Every `qa_review_queue` item must reach `reviewed` or `dismissed`; neither status may be set without the reviewer, timestamp, and an evidence-based resolution note. The Legal Corpus Reviewer owns legal correctness; the RAG/QA owner owns remediation and re-evaluation. Review the queue weekly and at every corpus release. Escalate items older than five business days to the legal lead; items older than ten business days block releases affecting that instrument. Preserve closed items for audit—never delete them to make the queue appear empty.
+
+## Automated web discovery & staging quarantine policy
+
+Candidates discovered through automated search or crawler discovery (`web_discovery.py`) are stored exclusively in the `corpus_staging` quarantine table in `pending_review` status. Automated discovery never directly mutates or inserts into the authoritative tables (`corpus_documents`, `corpus_chunks`).
+A Legal Corpus Reviewer must inspect each candidate, verify authoritative source provenance, confirm text accuracy against official gazettes/portals, and explicitly approve (`mark_promoted`) or reject (`mark_rejected`). Promotion triggers the standard audited corpus ingestion pipeline. Rejections record reviewer identity, timestamp, and rejection rationale.
+
+## Session document upload isolation policy
+
+User-uploaded documents during QA sessions (`session_documents.py`) are stored strictly in session-scoped storage (`session_uploads` and `session_upload_chunks`), tagged with jurisdiction `USER_UPLOAD`, and subject to automatic expiration (default 24-hour TTL). They are quarantined from the verified statutory legal corpus and are never used to answer queries for other sessions or train/alter authoritative corpus embeddings.
+

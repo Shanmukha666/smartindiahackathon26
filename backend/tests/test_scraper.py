@@ -95,3 +95,23 @@ async def test_check_robots_txt() -> None:
         scraper = WebScraper(settings, client=client)
         assert await scraper.check_robots_txt("https://example.com/public/doc") is True
         assert await scraper.check_robots_txt("https://example.com/private/doc") is False
+
+
+@pytest.mark.asyncio
+async def test_scraper_pdf_detection(monkeypatch: pytest.MonkeyPatch) -> None:
+    settings = make_test_settings()
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(200, content=b"%PDF-1.4 dummy", headers={"Content-Type": "application/pdf"})
+
+    import app.file_extract as file_extract_mod
+    monkeypatch.setattr(file_extract_mod, "extract_text", lambda data, filename, content_type=None: "Extracted PDF content for AYUSH patent.")
+
+    transport = httpx.MockTransport(handler)
+    async with httpx.AsyncClient(transport=transport) as client:
+        scraper = WebScraper(settings, client=client)
+        page = await scraper.scrape("https://example.com/document.pdf")
+
+    assert "Extracted PDF content" in page.text
+    assert page.title == "Document"
+

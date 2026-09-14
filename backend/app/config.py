@@ -63,7 +63,7 @@ class Settings(BaseSettings):
     # Session uploads
     session_upload_ttl_hours: int = 24
     enable_dev_session_endpoint: bool = False
-    max_request_body_bytes: int = 9_000_000
+    max_request_body_bytes: int = 70_000_000
 
     @model_validator(mode="after")
     def production_guardrails(self) -> "Settings":
@@ -87,8 +87,8 @@ class Settings(BaseSettings):
                 raise ValueError("production cannot enable DEMO_MODE")
         if self.enable_dev_session_endpoint and self.deployment_environment not in {"development", "local", "test"}:
             raise ValueError("ENABLE_DEV_SESSION_ENDPOINT is allowed only in local, development, or test")
-        if not 1_024 <= self.max_request_body_bytes <= 10_000_000:
-            raise ValueError("MAX_REQUEST_BODY_BYTES must be between 1024 and 10000000")
+        if not 1_024 <= self.max_request_body_bytes <= 100_000_000:
+            raise ValueError("MAX_REQUEST_BODY_BYTES must be between 1024 and 100000000")
         if not 0 <= self.weak_reranker_score <= self.high_confidence_reranker_score <= 1:
             raise ValueError("reranker confidence thresholds must satisfy 0 <= weak <= high <= 1")
         return self

@@ -26,6 +26,10 @@ def extract_text(data: bytes, filename: str, content_type: str = "") -> str:
             f"({len(data) // 1_000_000} MB)"
         )
     ext = Path(filename).suffix.lower()
+    if ext == ".doc" or content_type == "application/msword":
+        raise ValueError(
+            "Legacy binary .doc files are not supported. Please convert to .docx or .pdf."
+        )
     if ext == ".pdf" or content_type == "application/pdf":
         return _extract_pdf(data)
     if ext == ".docx" or content_type in (
